@@ -1,0 +1,1 @@
+export const websiteTitle = ' | Michael Shingo Crawford';

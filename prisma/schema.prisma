@@ -1,9 +1,6 @@
 // This is your Prisma schema file,
 // learn more about it in the docs: https://pris.ly/d/prisma-schema
 
-// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
-// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
-
 generator client {
   provider = "prisma-client-js"
 }
@@ -21,6 +18,27 @@ model User {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
   cards     Card[]
+  decks     Deck[]
+}
+
+// the user has decks and cards that they have authored
+// users can COPY decks/cards made by other users, as long as they are public. The point is to allow users to make their own version of a deck, and then modify it as they see fit.
+
+model Deck {
+  id               Int       @id @default(autoincrement())
+  title            String
+  sourceLanguageId Int
+  sourceLanguage   Language  @relation("SourceLanguage", fields: [sourceLanguageId], references: [id])
+  studyLanguageId  Int
+  studyLanguage    Language  @relation("StudyLanguage", fields: [studyLanguageId], references: [id])
+  createdAt        DateTime  @default(now())
+  updatedAt        DateTime  @updatedAt
+  authorId         Int
+  author           User      @relation(fields: [authorId], references: [id])
+  cards            Card[]
+  public           Boolean   @default(false)
+  studyModeId      Int       @default(0)
+  studyMode        StudyMode @relation(fields: [studyModeId], references: [id])
 }
 
 model Card {
@@ -30,6 +48,28 @@ model Card {
   hint      String?
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+  nextStudy DateTime @default(now())
   authorId  Int
   author    User     @relation(fields: [authorId], references: [id])
+  deckId    Int
+  deck      Deck     @relation(fields: [deckId], references: [id])
 }
+
+model StudyMode {
+  id        Int      @id @default(autoincrement())
+  name      String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  decks     Deck[]
+}
+
+model Language {
+  id          Int      @id @default(autoincrement())
+  name        String
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  sourceDecks Deck[]   @relation("SourceLanguage")
+  studyDecks  Deck[]   @relation("StudyLanguage")
+}
+
+// front, back, both, fillIn

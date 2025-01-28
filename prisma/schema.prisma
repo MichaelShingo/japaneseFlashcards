@@ -6,7 +6,7 @@ generator client {
 }
 
 datasource db {
-  provider = "mysql"
+  provider = "postgresql"
   url      = env("DATABASE_URL")
 }
 
@@ -27,16 +27,16 @@ model User {
 model Deck {
   id               Int       @id @default(autoincrement())
   title            String
+  public           Boolean   @default(false)
+  createdAt        DateTime  @default(now())
+  updatedAt        DateTime  @updatedAt
   sourceLanguageId Int
   sourceLanguage   Language  @relation("SourceLanguage", fields: [sourceLanguageId], references: [id])
   studyLanguageId  Int
   studyLanguage    Language  @relation("StudyLanguage", fields: [studyLanguageId], references: [id])
-  createdAt        DateTime  @default(now())
-  updatedAt        DateTime  @updatedAt
   authorId         Int
   author           User      @relation(fields: [authorId], references: [id])
   cards            Card[]
-  public           Boolean   @default(false)
   studyModeId      Int       @default(0)
   studyMode        StudyMode @relation(fields: [studyModeId], references: [id])
 }

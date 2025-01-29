@@ -1,0 +1,12 @@
+Flashcard App
+npx prisma migrate dev
+npx prisma db seed
+npx prisma studio
+
+TODO-
+- do you really need an identifier, and why isn't it showing after migration
+- fix the decks seeding 
+
+Features
+- the user has decks and cards that they have authored
+- users can COPY decks/cards made by other users, as long as they are public. The point is to allow users to make their own version of a deck, and then modify it as they see fit.

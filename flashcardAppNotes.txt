@@ -11,3 +11,18 @@ TODO-
 Features
 - the user has decks and cards that they have authored
 - users can COPY decks/cards made by other users, as long as they are public. The point is to allow users to make their own version of a deck, and then modify it as they see fit.
+
+Routes
+- create card
+- read card: (all of your cards, all public cards, one public card, one of your cards)
+- update card
+- delete card
+- CRUD deck
+SRS
+- update srs level 
+
+User-to-user interactions
+- Duplicate card and assign to current user
+- duplicate deck and assign to current user
+- cut and paste card to another deck
+- copy and paste card to another deck

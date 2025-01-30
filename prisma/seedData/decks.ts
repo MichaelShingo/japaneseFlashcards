@@ -13,11 +13,11 @@ const defaultRelations = {
 };
 
 export const deckSeedIds: Record<string, number> = {
-    'Japanese Music Vocabulary': 0,
-    'Japanese Tech Business Vocabulary': 1,
-    'Japanese Cities Vocabulary': 2,
-    'Japanese Harry Potter Vocabulary': 3,
-    'Japanese Politics Vocabulary': 4,
+    'Japanese Music Vocabulary': 1,
+    'Japanese Tech Business Vocabulary': 2,
+    'Japanese Cities Vocabulary': 3,
+    'Japanese Harry Potter Vocabulary': 4,
+    'Japanese Politics Vocabulary': 5,
 };
 
 export const reverseDeckSeedIds: Record<number, string> = reverseObject(deckSeedIds);

@@ -2,6 +2,7 @@ Flashcard App
 npx prisma migrate dev
 npx prisma db seed
 npx prisma studio
+npx prisma migrate reset
 
 TODO-
 - do you really need an identifier, and why isn't it showing after migration

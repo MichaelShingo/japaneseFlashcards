@@ -2,9 +2,9 @@ import { reverseObject } from "@/utils/data";
 import { Language } from "@prisma/client";
 
 export const languageSeedIds: Record<string, number> = {
-    English: 0,
-    Japanese: 1,
-    'Chinese (Mandarin)': 3,
+    English: 16,
+    Japanese: 32,
+    'Chinese (Mandarin)': 10,
 };
 
 export const reverseLanguageSeedIds: Record<number, string> = reverseObject(languageSeedIds);

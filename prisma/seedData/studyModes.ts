@@ -2,12 +2,12 @@ import { reverseObject } from "@/utils/data";
 import { StudyMode } from "@prisma/client";
 
 export const studyModeSeedIds: Record<string, number> = {
-    recognitionFront: 0,
-    recognitionBack: 1,
-    recognitionBoth: 2,
-    productionFront: 3,
-    productionBack: 4,
-    productionBoth: 5,
+    recognitionFront: 1,
+    recognitionBack: 2,
+    recognitionBoth: 3,
+    productionFront: 4,
+    productionBack: 5,
+    productionBoth: 6,
 };
 
 export const reverseStudyModeSeedIds: Record<number, string> = reverseObject(studyModeSeedIds);

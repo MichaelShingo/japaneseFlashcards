@@ -1,15 +1,36 @@
 
-import Presenter from './presenter';
-// import { getClient } from "@/app/api";
-import { characterQuery } from "@/queries/characterQuery";
-import { useUser } from '@auth0/nextjs-auth0';
+import { signIn, signOut, auth } from "@/auth";
 
 export default async function Home() {
-
-	// const { data } = await getClient().query({ query: characterQuery });
+	const session = await auth();
 
 
 	return (
-		<Presenter />
+		<>
+			{!session ? (
+
+				<form
+					action={async () => {
+						"use server";
+						await signIn('google', { redirectTo: '/dashboard' });
+					}}
+				>
+					<button type="submit">Signin with Google</button>
+				</form>
+			) :
+				(
+
+
+					<form
+						action={async () => {
+							"use server";
+							await signOut();
+						}}
+					>
+						<img src={session.user.image} alt="User Avatar" />
+						<button type="submit">Sign Out</button>
+					</form>
+				)}
+		</>
 	);
 }

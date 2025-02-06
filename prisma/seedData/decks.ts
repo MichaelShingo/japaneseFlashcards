@@ -1,14 +1,14 @@
 import { Deck } from "@prisma/client";
 import { languageSeedIds } from "./languages";
-import { userSeedIds } from "./users";
 import { studyModeSeedIds } from "./studyModes";
 import { reverseObject } from "@/utils/data";
+import { userIds } from "./users";
 
 const defaultRelations = {
     public: true,
     sourceLanguageId: languageSeedIds.English,
     studyLanguageId: languageSeedIds.Japanese,
-    authorId: userSeedIds['mcrawford5376@gmail.com'],
+    userId: userIds[0],
     studyModeId: studyModeSeedIds.recognitionFront,
 };
 

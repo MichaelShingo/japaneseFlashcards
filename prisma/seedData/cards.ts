@@ -1,6 +1,6 @@
 import { Card } from "@prisma/client";
-import { userSeedIds } from "./users";
 import { deckSeedIds } from "./decks";
+import { userIds } from "./users";
 
 const defaultValues = { srsLevel: 0, nextStudy: new Date() };
 
@@ -10,7 +10,7 @@ export const cards: Omit<Card, 'createdAt' | 'updatedAt'>[] = [
         front: '三連符',
         back: 'triplet',
         hint: 'three connected token',
-        authorId: userSeedIds[process.env.AUTH0_USER_EMAIL_01],
+        userId: userIds[0],
         deckId: deckSeedIds['Japanese Music Vocabulary'],
         ...defaultValues,
     },
@@ -19,7 +19,7 @@ export const cards: Omit<Card, 'createdAt' | 'updatedAt'>[] = [
         front: '二連符',
         back: 'duplet',
         hint: 'two connected token',
-        authorId: userSeedIds[process.env.AUTH0_USER_EMAIL_01],
+        userId: userIds[0],
         deckId: deckSeedIds['Japanese Music Vocabulary'],
         ...defaultValues,
     },
@@ -28,7 +28,7 @@ export const cards: Omit<Card, 'createdAt' | 'updatedAt'>[] = [
         front: '伴奏 (ばんそう)',
         back: 'duplet',
         hint: 'two connected token',
-        authorId: userSeedIds[process.env.AUTH0_USER_EMAIL_01],
+        userId: userIds[0],
         deckId: deckSeedIds['Japanese Music Vocabulary'],
         ...defaultValues,
     },
@@ -37,7 +37,7 @@ export const cards: Omit<Card, 'createdAt' | 'updatedAt'>[] = [
         front: '弦楽器 (げんがっき)',
         back: 'string instrument',
         hint: 'string instrument',
-        authorId: userSeedIds[process.env.AUTH0_USER_EMAIL_01],
+        userId: userIds[0],
         deckId: deckSeedIds['Japanese Music Vocabulary'],
         ...defaultValues,
     },
@@ -46,7 +46,7 @@ export const cards: Omit<Card, 'createdAt' | 'updatedAt'>[] = [
         front: '全休符 (ぜんきゅうふ)',
         back: 'duplet',
         hint: 'whole rest token',
-        authorId: userSeedIds[process.env.AUTH0_USER_EMAIL_01],
+        userId: userIds[0],
         deckId: deckSeedIds['Japanese Music Vocabulary'],
         ...defaultValues,
     },
@@ -55,7 +55,7 @@ export const cards: Omit<Card, 'createdAt' | 'updatedAt'>[] = [
         front: '全音符 ぜんおんぷ',
         back: 'whole note',
         hint: 'whole sound token',
-        authorId: userSeedIds[process.env.AUTH0_USER_EMAIL_01],
+        userId: userIds[0],
         deckId: deckSeedIds['Japanese Music Vocabulary'],
         ...defaultValues,
     },
@@ -64,7 +64,7 @@ export const cards: Omit<Card, 'createdAt' | 'updatedAt'>[] = [
         front: '八分音符 はちぶおんぷ',
         back: 'eighth note',
         hint: '8 part sound token',
-        authorId: userSeedIds[process.env.AUTH0_USER_EMAIL_01],
+        userId: userIds[0],
         deckId: deckSeedIds['Japanese Music Vocabulary'],
         ...defaultValues,
     },

@@ -1,3 +1,5 @@
+Any way to register 
+
 Flashcard App
 npx prisma migrate dev
 npx prisma db seed
@@ -11,6 +13,7 @@ TODO-
 Features
 - the user has decks and cards that they have authored
 - users can COPY decks/cards made by other users, as long as they are public. The point is to allow users to make their own version of a deck, and then modify it as they see fit.
+- wanikani integration to show furigana or not
 
 Routes
 - create card
@@ -26,3 +29,28 @@ User-to-user interactions
 - duplicate deck and assign to current user
 - cut and paste card to another deck
 - copy and paste card to another deck
+- more advanced srs algorithm, like integrating a timer for how long someone took to answer a flashcard 
+
+- UI inspiration and disinspiration from Bunpro and Brainscape 
+- want to try to integrate paid membership?  
+
+
+Pages
+- Landing Page
+- Dashboard (study metrics, upcoming reviews etc.)
+- Decks list (option to show public decks from other users)
+- Decks detail (cards list)
+- Deck edit (modal?)
+- Card edit (modal?)
+- Settings (srs settings, light/dark)
+- Study page
+
+Navbar
+- logo/title (terasu)
+- Dashboard (has actions like, study)
+- Decks
+- Study
+- User profile and settings 
+
+Design
+- somehow japanese color scheme

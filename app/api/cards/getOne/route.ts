@@ -1,10 +1,20 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { PrismaClient } from '@prisma/client';
+import { prisma } from '@/prisma/prisma';
+import { auth } from '@/auth';
+
+export const GET = auth(function GET(req) {
+    if (!req.auth) {
+        return NextResponse.json({ message: "Not authenticated" }, { status: 401 });
+    }
+
+    const json = req.json;
+    console.log("🚀 ~ GET ~ json:", req.);
+
+    return NextResponse.json(req.auth);
 
 
-const prisma = new PrismaClient();
 
-export const GET = async (request: NextRequest) => {
     const { searchParams } = new URL(request.url);
     const userId = searchParams.get('userId');
     const cardId = searchParams.get('cardId');
@@ -31,4 +41,4 @@ export const GET = async (request: NextRequest) => {
     // }
 
     return NextResponse.json({ status: 200, json: card });
-};
+});

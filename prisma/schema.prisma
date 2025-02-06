@@ -2,7 +2,8 @@
 // learn more about it in the docs: https://pris.ly/d/prisma-schema
 
 generator client {
-  provider = "prisma-client-js"
+  provider        = "prisma-client-js"
+  previewFeatures = ["driverAdapters"]
 }
 
 datasource db {
@@ -93,8 +94,8 @@ model Deck {
   sourceLanguage   Language  @relation("SourceLanguage", fields: [sourceLanguageId], references: [id])
   studyLanguageId  Int
   studyLanguage    Language  @relation("StudyLanguage", fields: [studyLanguageId], references: [id])
-  authorId         String
-  author           User      @relation(fields: [authorId], references: [id])
+  userId           String
+  user             User      @relation(fields: [userId], references: [id])
   cards            Card[]
   studyModeId      Int       @default(0)
   studyMode        StudyMode @relation(fields: [studyModeId], references: [id])
@@ -109,8 +110,8 @@ model Card {
   nextStudy DateTime? @default(now())
   createdAt DateTime  @default(now())
   updatedAt DateTime  @updatedAt
-  authorId  String
-  author    User      @relation(fields: [authorId], references: [id])
+  userId    String
+  user      User      @relation(fields: [userId], references: [id])
   deckId    Int
   deck      Deck      @relation(fields: [deckId], references: [id])
 }

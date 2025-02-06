@@ -26,7 +26,7 @@ export default async function Home() {
 							"use server";
 							await signOut();
 						}}
-					>
+					>	<p>{session.user.email}</p>
 						<img src={session.user.image} alt="User Avatar" />
 						<button type="submit">Sign Out</button>
 					</form>

@@ -1,4 +1,3 @@
-import axios from 'axios';
 import { languages } from './seedData/languages';
 import { studyModes } from './seedData/studyModes';
 import { decks } from './seedData/decks';
@@ -6,7 +5,6 @@ import { cards } from './seedData/cards';
 import { prisma } from './prisma';
 
 async function main() {
-    return;
     for (const language of languages) {
         await prisma.language.upsert({
             where: { identifier: language.identifier },
@@ -23,8 +21,6 @@ async function main() {
         });
     }
 
-    const users = await prisma.user.findMany();
-
     for (const deck of decks) {
         const deckCreateUpdate = {
             title: deck.title,
@@ -32,11 +28,8 @@ async function main() {
             public: deck.public,
             sourceLanguageId: deck.sourceLanguageId,
             studyLanguageId: deck.studyLanguageId,
-            authorId: deck.authorId,
+            userId: deck.userId,
             studyModeId: deck.studyModeId,
-            users: {
-                connect: users.map((user) => ({ id: user.id }))
-            }
         };
         await prisma.deck.upsert({
             where: { id: deck.id },
@@ -46,7 +39,15 @@ async function main() {
     }
 
     for (const card of cards) {
-        const cardCreateUpdate = { front: card.front, back: card.back, hint: card.hint, authorId: card.authorId, deckId: card.deckId, srsLevel: card.srsLevel, nextStudy: card.nextStudy };
+        const cardCreateUpdate = {
+            front: card.front,
+            back: card.back,
+            hint: card.hint,
+            userId: card.userId,
+            deckId: card.deckId,
+            srsLevel: card.srsLevel,
+            nextStudy: card.nextStudy
+        };
         await prisma.card.upsert({
             where: { id: card.id },
             update: cardCreateUpdate,

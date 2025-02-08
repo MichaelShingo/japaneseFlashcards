@@ -16,6 +16,8 @@ module.exports = {
 				'paragraph-jp': ['var(--font-noto)']
 			},
 			colors: {
+				'ui-01': theme.ui01,
+				'ui-02': theme.ui02,
 				primary: theme.primary,
 				accent: theme.accent,
 				secondary: theme.secondary,

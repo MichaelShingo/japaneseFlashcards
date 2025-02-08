@@ -2,54 +2,6 @@
 @tailwind components;
 @tailwind utilities;
 
-input,
-textarea {
-	margin: 0;
-	padding: 0;
-	outline: none;
-	background: none;
-	font-family: inherit;
-	font-size: inherit;
-	color: inherit;
-	line-height: inherit;
-}
-
-@keyframes slideInFromTop {
-	0% {
-		/* transform: translateY(-100%); */
-		opacity: 0%;
-		/* Start above the viewport */
-	}
-
-	100% {
-		opacity: 100%;
-		/* transform: translateY(0%); */
-		/* End in the original position */
-	}
-}
-
-/* Apply the animation to the #page-transition div */
-#start-page-transition {
-	animation: slideInFromTop 0.3s ease-out forwards;
-}
-
-@keyframes slideOutToBottom {
-	0% {
-		/* transform: translateY(0%); */
-		opacity: 100%;
-	}
-
-	100% {
-		opacity: 0%;
-		/* transform: translateY(100%); */
-	}
-}
-
-/* Apply the animation to the #page-transition div */
-#end-page-transition {
-	animation: slideOutToBottom 0.3s ease-out forwards;
-}
-
 ::selection {
 	background-color: black;
 	color: white;

@@ -20,21 +20,26 @@ interface MultiSelectProps {
 }
 
 const MultiSelect: FC<MultiSelectProps> = ({ values, options, onChange }) => {
+    const renderValue = (selected: string[] | number[]) => {
+        const labels = selected.map((value: string | number) => {
+            const option = options.find((option) => option.value === value);
+            return option ? option.label : '';
+        });
+        return labels.length > 0 ? labels.join(', ') : [];
+    };
+
     return (
         <>
-            <InputLabel id="label">Filter</InputLabel>
+            {/* <InputLabel id="label">Filter</InputLabel> */}
             <Select
-                labelId="label"
+                labelId="hohohoho"
                 className="w-1/4"
                 multiple
                 variant="filled"
                 value={values}
                 onChange={onChange}
-                label="Filters"
                 MenuProps={MenuProps}
-                renderValue={(selected) => selected.join(', ')}
-
-
+                renderValue={(selected) => renderValue(selected)}
             >
                 {options.map((option) => (
                     <MenuItem

@@ -1,7 +1,7 @@
 import { FC, useEffect, useRef, useState } from "react";
 import { twJoin } from "tailwind-merge";
 import { motion, useAnimation, useMotionValueEvent, useScroll, useTransform } from 'framer-motion';
-import PlayIcon from "../icons/PlayIcon";
+import PlayIcon from "../atoms/icons/PlayIcon";
 import { useDispatch } from "react-redux";
 import { openVideoModal, setCurrentVideo, setIsModalOpen } from "@/redux/features/locationSlice";
 import Typography from "../text/Typography";

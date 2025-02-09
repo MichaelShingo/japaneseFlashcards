@@ -1,32 +1,18 @@
 'use client';
-
-import { Box, Button, Divider, Input, MenuItem, OutlinedInput, Select, SelectChangeEvent, Stack, TextField, Typography } from "@mui/material";
+import { Box, Typography } from "@mui/material";
 import { FC, SyntheticEvent, useState } from "react";
-import DefaultTabs, { Tab } from "../components/Tabs/Tabs";
-import MultiSelect from "../components/MultiSelect/MultiSelect";
-import { ValueLabel } from "../utils/common";
+import DefaultTabs, { Tab } from "../components/atoms/Tabs/Tabs";
+import PrivateDecks from "../components/organisms/PrivateDecks/PrivateDecks";
+import PublicDecks from "../components/organisms/PublicDecks/PublicDecks";
 
 const tabValues: Record<string, string> = {
     yourDecks: 'Your Decks',
     publicDecks: 'Public Decks',
 };
 
-const filterOptions: ValueLabel[] = [
-    { value: 'public', label: 'Public' },
-    { value: 'private', label: 'Private' },
-    { value: 'hasReviews', label: 'Has Reviews' },
-    { value: 'noReviews', label: 'No Reviews' },
-    { value: 'hasLearn', label: 'Has Learn' },
-];
-
 const Decks: FC = () => {
     const [currentTab, setCurrentTab] = useState<string>(tabValues.yourDecks);
-    const [selectedFilters, setSelectedFilters] = useState<string[]>([]);
 
-    const handleFilterChange = (e: SelectChangeEvent<typeof selectedFilters>) => {
-        const value = e.target.value;
-        setSelectedFilters(typeof value === 'string' ? value.split(',') : value);
-    };
     const handleTabChange = (e: SyntheticEvent, newValue: string) => {
         setCurrentTab(newValue);
     };
@@ -43,22 +29,10 @@ const Decks: FC = () => {
             </Typography>
             <DefaultTabs tabs={tabs} currentTab={currentTab} handleChange={handleTabChange} />
             {currentTab === tabValues.yourDecks && (
-                <Stack direction="row" gap="15px" justifyContent="left" className="my-5" >
-                    <TextField variant="filled" label="Search" />
-                    <MultiSelect
-                        values={selectedFilters}
-                        onChange={handleFilterChange}
-                        options={filterOptions}
-                    />
-                    <Divider variant="inset" />
-                    <Button variant="outlined">Mix and Match</Button>
-                    <Button variant="contained">Study All</Button>
-                </Stack>
+                <PrivateDecks />
             )}
             {currentTab === tabValues.publicDecks && (
-                <Typography variant="h2" component="h2">
-                    Public Decks
-                </Typography>
+                <PublicDecks />
             )}
         </Box>
     );

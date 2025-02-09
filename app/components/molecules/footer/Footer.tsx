@@ -1,12 +1,12 @@
 import { FC } from "react";
 import Divider from "../divider/Divider";
-import BassClefIcon from "../icons/BassClefIcon";
-import PatreonIcon from "../icons/PatreonIcon";
-import YoutubeIcon from "../icons/YoutubeIcon";
-import { CommonIconProps } from "../icons/utils";
+import BassClefIcon from "../../atoms/icons/BassClefIcon";
+import PatreonIcon from "../../atoms/icons/PatreonIcon";
+import YoutubeIcon from "../../atoms/icons/YoutubeIcon";
+import { CommonIconProps } from "../../atoms/icons/utils";
 import { useRouter } from "@/i18n/routing";
 import { useTranslations } from "next-intl";
-import CodingWebsiteIcon from "../icons/CodingWebsiteIcon";
+import CodingWebsiteIcon from "../../atoms/icons/CodingWebsiteIcon";
 import Button from "../Button/Button";
 import { urls } from "@/app/constants/urls";
 

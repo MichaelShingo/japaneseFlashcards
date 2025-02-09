@@ -25,33 +25,35 @@ export const reverseDeckSeedIds: Record<number, string> = reverseObject(deckSeed
 export const decks: Omit<Deck, 'createdAt' | 'updatedAt'>[] = [
     {
         id: 1,
-        title: 'Japanese Music Vocabulary',
+        title: 'Music',
         description: 'Covers everything you need to know to talk about music in the context of rehearsals, music theory, and more.',
         ...defaultRelations,
     },
     {
         id: 2,
-        title: 'Japanese Tech Business Vocabulary',
+        title: 'Tech Business',
         description: 'An ongoing list of terms commonly used as a software developer in a Japanese tech company.',
         ...defaultRelations,
+        public: false,
     },
     {
         id: 3,
-        title: 'Japanese Cities Vocabulary',
+        title: 'Cities',
         description: 'Covers vocabulary relating to cities, infrastructure, and transportation.',
         ...defaultRelations,
     },
     {
         id: 4,
-        title: 'Japanese Harry Potter Vocabulary',
+        title: 'Harry Potter',
         description: 'An ongoing list of terms commonly used in the Harry Potter series.',
         ...defaultRelations,
 
     },
     {
         id: 5,
-        title: 'Japanese Politics Vocabulary',
+        title: 'Politics',
         description: 'Cover topics such as elections, political parties, and policy.',
         ...defaultRelations,
+        public: false,
     },
 ];

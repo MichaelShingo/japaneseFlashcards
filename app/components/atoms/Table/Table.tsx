@@ -24,6 +24,8 @@ import { ExtendedDeck } from '@/app/api/decks/route';
 import MoreHorizIcon from '@mui/icons-material/MoreHoriz';
 import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 import CancelIcon from '@mui/icons-material/Cancel';
+import { CircularProgress } from '@mui/material';
+import CircularProgressWithLabel from '../CircularProgress/CircularProgressWithLabel';
 
 function descendingComparator<T>(a: T, b: T, orderBy: keyof T) {
     if (b[orderBy] < a[orderBy]) {
@@ -294,21 +296,25 @@ const CustomTable: FC<CustomTableProps> = ({ headCells, data }) => {
                                         >
                                             {row.title}
                                         </TableCell>
-                                        <TableCell align="right">{row.totalCards}</TableCell>
-                                        <TableCell align="right">{row.learnCount}</TableCell>
-                                        <TableCell align="right">{row.reviewCount}</TableCell>
-                                        <TableCell align="right">
+                                        <TableCell align="left">
+                                            <Box >
+                                                <CircularProgressWithLabel value={50} className={row.studiedCount / row.totalCards} />
+                                            </Box>
+                                        </TableCell>
+                                        <TableCell align="left">{row.learnCount}</TableCell>
+                                        <TableCell align="left">{row.reviewCount}</TableCell>
+                                        <TableCell align="left">
                                             {row.public ?
-                                                <IconButton aria-label="delete">
-                                                    <CheckCircleIcon />
+                                                <IconButton aria-label="public">
+                                                    <CheckCircleIcon color="primary" />
                                                 </IconButton> :
-                                                <IconButton aria-label="delete">
+                                                <IconButton aria-label="private">
                                                     <CancelIcon />
                                                 </IconButton>
                                             }
                                         </TableCell>
-                                        <TableCell align="right">{row.learnCount + row.reviewCount}</TableCell>
-                                        <TableCell align="right">
+                                        <TableCell align="left">{row.learnCount + row.reviewCount}</TableCell>
+                                        <TableCell align="left">
                                             <MoreHorizIcon />
                                         </TableCell>
                                     </TableRow>

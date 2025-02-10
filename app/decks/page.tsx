@@ -1,9 +1,11 @@
 'use client';
-import { Box, Typography } from "@mui/material";
+import { Box, Fab, Typography } from "@mui/material";
 import { FC, SyntheticEvent, useState } from "react";
 import DefaultTabs, { Tab } from "../components/atoms/Tabs/Tabs";
 import PrivateDecks from "../components/organisms/PrivateDecks/PrivateDecks";
 import PublicDecks from "../components/organisms/PublicDecks/PublicDecks";
+import AddIcon from '@mui/icons-material/Add';
+
 
 const tabValues: Record<string, string> = {
     yourDecks: 'Your Decks',
@@ -22,6 +24,10 @@ const Decks: FC = () => {
         { label: tabValues.publicDecks, value: tabValues.publicDecks },
     ];
 
+    const handleOpenAddDeckModal = () => {
+        console.log('open');
+    };
+
     return (
         <Box className="max-w-[1000px] w-[80%] h-fit min-h-[100px] mx-auto">
             <Typography variant="h1" component="h1">
@@ -34,6 +40,9 @@ const Decks: FC = () => {
             {currentTab === tabValues.publicDecks && (
                 <PublicDecks />
             )}
+            <Fab className="absolute right-10 bottom-10" color="primary" onClick={handleOpenAddDeckModal} aria-label="add">
+                <AddIcon />
+            </Fab>
         </Box>
     );
 };

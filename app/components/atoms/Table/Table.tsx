@@ -1,4 +1,4 @@
-import { ChangeEvent, FC, MouseEvent, ReactNode, useMemo, useState } from 'react';
+import { ChangeEvent, Dispatch, FC, MouseEvent, ReactNode, SetStateAction, useMemo, useState } from 'react';
 import { alpha } from '@mui/material/styles';
 import Box from '@mui/material/Box';
 import Table from '@mui/material/Table';
@@ -24,8 +24,10 @@ import { ExtendedDeck } from '@/app/api/decks/route';
 import MoreHorizIcon from '@mui/icons-material/MoreHoriz';
 import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 import CancelIcon from '@mui/icons-material/Cancel';
-import { CircularProgress } from '@mui/material';
+import { Button, CircularProgress, Menu, MenuItem } from '@mui/material';
 import CircularProgressWithLabel from '../CircularProgress/CircularProgressWithLabel';
+import { twMerge } from 'tailwind-merge';
+import IconWithMenu, { MenuItem as MenuItemType } from '../../molecules/IconWithMenu/IconWithMenu';
 
 function descendingComparator<T>(a: T, b: T, orderBy: keyof T) {
     if (b[orderBy] < a[orderBy]) {
@@ -66,6 +68,8 @@ interface EnhancedTableProps {
     orderBy: string;
     rowCount: number;
     headCells: HeadCell[];
+    selectable?: boolean;
+    setSelected: Dispatch<SetStateAction<readonly number[]>>;
 }
 
 function EnhancedTableHead(props: EnhancedTableProps) {
@@ -81,6 +85,7 @@ function EnhancedTableHead(props: EnhancedTableProps) {
             <TableRow>
                 <TableCell padding="checkbox">
                     <Checkbox
+                        className={twMerge([props.selectable ? 'visible cursor-pointer' : 'invisible cursor-none'])}
                         color="primary"
                         indeterminate={numSelected > 0 && numSelected < rowCount}
                         checked={rowCount > 0 && numSelected === rowCount}
@@ -117,9 +122,26 @@ function EnhancedTableHead(props: EnhancedTableProps) {
 }
 interface EnhancedTableToolbarProps {
     numSelected: number;
+    setSelected: Dispatch<SetStateAction<readonly number[]>>;
+    selected: number[];
+    data: ExtendedDeck[];
 }
+
 function EnhancedTableToolbar(props: EnhancedTableToolbarProps) {
     const { numSelected } = props;
+    if (numSelected === 0) {
+        return null;
+    }
+
+    let learnCount = 0;
+    let reviewCount = 0;
+
+    for (let deckId of props.selected) {
+        const deck = props.data.find((deck) => deck.id === deckId);
+        learnCount += deck.learnCount;
+        reviewCount += deck.reviewCount;
+    }
+
     return (
         <Toolbar
             sx={[
@@ -129,19 +151,37 @@ function EnhancedTableToolbar(props: EnhancedTableToolbarProps) {
                 },
                 numSelected > 0 && {
                     bgcolor: (theme) =>
-                        alpha(theme.palette.primary.main, theme.palette.action.activatedOpacity),
+                        alpha(theme.palette.secondary.main, theme.palette.action.activatedOpacity),
                 },
             ]}
         >
             {numSelected > 0 ? (
-                <Typography
-                    sx={{ flex: '1 1 100%' }}
-                    color="inherit"
-                    variant="subtitle1"
-                    component="div"
-                >
-                    {numSelected} selected
-                </Typography>
+                <>
+                    <Typography
+                        sx={{ flex: '1 1 100%' }}
+                        color="inherit"
+                        variant="subtitle1"
+                        component="div"
+                    >
+                        {`${numSelected} Deck Selected`}
+                    </Typography>
+                    <Typography
+                        sx={{ flex: '1 1 100%' }}
+                        color="inherit"
+                        variant="subtitle1"
+                        component="div"
+                    >
+                        {`${learnCount} New Cards to Learn`}
+                    </Typography>
+                    <Typography
+                        sx={{ flex: '1 1 100%' }}
+                        color="inherit"
+                        variant="subtitle1"
+                        component="div"
+                    >
+                        {`${reviewCount} Reviews`}
+                    </Typography>
+                </>
             ) : (
                 <Typography
                     sx={{ flex: '1 1 100%' }}
@@ -149,11 +189,12 @@ function EnhancedTableToolbar(props: EnhancedTableToolbarProps) {
                     id="tableTitle"
                     component="div"
                 >
+
                 </Typography>
             )}
             {numSelected > 0 ? (
                 <Tooltip title="Delete">
-                    <IconButton>
+                    <IconButton onClick={() => props.setSelected([])}>
                         <DeleteIcon />
                     </IconButton>
                 </Tooltip>
@@ -171,13 +212,15 @@ function EnhancedTableToolbar(props: EnhancedTableToolbarProps) {
 interface CustomTableProps {
     headCells: HeadCell[];
     data: ExtendedDeck[];
+    selectable?: boolean;
     children: ReactNode;
+    selected: number[];
+    setSelected: Dispatch<SetStateAction<readonly number[]>>;
 }
 
-const CustomTable: FC<CustomTableProps> = ({ headCells, data }) => {
+const CustomTable: FC<CustomTableProps> = ({ headCells, data, selectable, selected, setSelected }) => {
     const [order, setOrder] = useState<Order>('asc');
     const [orderBy, setOrderBy] = useState<keyof ExtendedDeck>();
-    const [selected, setSelected] = useState<readonly number[]>([]);
     const [page, setPage] = useState(0);
     const [dense, setDense] = useState(false);
     const [rowsPerPage, setRowsPerPage] = useState(5);
@@ -201,6 +244,9 @@ const CustomTable: FC<CustomTableProps> = ({ headCells, data }) => {
     };
 
     const handleClick = (event: MouseEvent<unknown>, id: number) => {
+        if (!selectable) {
+            return;
+        }
         const selectedIndex = selected.indexOf(id);
         let newSelected: readonly number[] = [];
 
@@ -244,10 +290,17 @@ const CustomTable: FC<CustomTableProps> = ({ headCells, data }) => {
         [order, orderBy, page, rowsPerPage],
     );
 
+    const menuItems: MenuItemType[] = [
+        { label: 'Edit', onClick: () => console.log('edit') },
+        { label: 'Copy', onClick: () => console.log('copy') },
+        { label: 'Delete', onClick: () => console.log('delete') },
+        { label: 'Reset SRS', onClick: () => console.log('reset') },
+    ];
+
     return (
         <Box sx={{ width: '100%' }}>
             <Paper sx={{ width: '100%', mb: 2 }}>
-                <EnhancedTableToolbar numSelected={selected.length} />
+
                 <TableContainer>
                     <Table
                         sx={{ minWidth: 750 }}
@@ -262,6 +315,8 @@ const CustomTable: FC<CustomTableProps> = ({ headCells, data }) => {
                             onRequestSort={handleRequestSort}
                             rowCount={data.length}
                             headCells={headCells}
+                            selectable={selectable}
+                            setSelected={setSelected}
                         />
                         <TableBody>
                             {visibleRows.map((row, index) => {
@@ -277,10 +332,11 @@ const CustomTable: FC<CustomTableProps> = ({ headCells, data }) => {
                                         tabIndex={-1}
                                         key={row.id}
                                         selected={isItemSelected}
-                                        sx={{ cursor: 'pointer' }}
+                                        sx={{ cursor: selectable && 'pointer' }}
                                     >
                                         <TableCell padding="checkbox">
                                             <Checkbox
+                                                className={twMerge([selectable ? 'visible cursor-pointer' : 'invisible cursor-none'])}
                                                 color="primary"
                                                 checked={isItemSelected}
                                                 inputProps={{
@@ -293,12 +349,13 @@ const CustomTable: FC<CustomTableProps> = ({ headCells, data }) => {
                                             id={labelId}
                                             scope="row"
                                             padding="none"
+                                            className="w-1/5"
                                         >
                                             {row.title}
                                         </TableCell>
                                         <TableCell align="left">
                                             <Box >
-                                                <CircularProgressWithLabel value={50} className={row.studiedCount / row.totalCards} />
+                                                <CircularProgressWithLabel value={row.totalCards === 0 ? 0 : row.studiedCount / row.totalCards} onClick={() => console.log('progress modal')} />
                                             </Box>
                                         </TableCell>
                                         <TableCell align="left">{row.learnCount}</TableCell>
@@ -313,9 +370,16 @@ const CustomTable: FC<CustomTableProps> = ({ headCells, data }) => {
                                                 </IconButton>
                                             }
                                         </TableCell>
-                                        <TableCell align="left">{row.learnCount + row.reviewCount}</TableCell>
-                                        <TableCell align="left">
-                                            <MoreHorizIcon />
+                                        <TableCell align="left" className="min-w-fit">
+                                            {row.learnCount + row.reviewCount === 0 ?
+                                                <Button variant="contained" color="info">Free Study</Button> :
+                                                <Button variant="contained" color="primary">
+                                                    Study ({row.learnCount + row.reviewCount})
+                                                </Button>
+                                            }
+                                        </TableCell>
+                                        <TableCell align="center" width="50px">
+                                            <IconWithMenu itemId={row.id} icon={<MoreHorizIcon />} menuItems={menuItems} />
                                         </TableCell>
                                     </TableRow>
                                 );
@@ -332,6 +396,8 @@ const CustomTable: FC<CustomTableProps> = ({ headCells, data }) => {
                         </TableBody>
                     </Table>
                 </TableContainer>
+
+                <EnhancedTableToolbar numSelected={selected.length} setSelected={setSelected} selected={selected} data={data} />
                 <TablePagination
                     rowsPerPageOptions={[5, 10, 25]}
                     component="div"

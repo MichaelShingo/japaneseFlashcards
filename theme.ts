@@ -22,6 +22,9 @@ const theme = createTheme({
             black: tailwindTheme.ui01,
 
         },
+        info: {
+            main: tailwindTheme.info,
+        },
         text: {
             primary: tailwindTheme.white,
             // secondary: tailwindTheme.gray,

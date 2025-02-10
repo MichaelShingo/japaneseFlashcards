@@ -20,6 +20,12 @@ const filterOptions: ValueLabel[] = [
 ];
 
 const tableHeadCells: readonly HeadCell[] = [
+    // {
+    //     id: 0,
+    //     numeric: false,
+    //     disablePadding: true,
+    //     label: '',
+    // },
     {
         id: 1,
         numeric: false,
@@ -54,18 +60,20 @@ const tableHeadCells: readonly HeadCell[] = [
         id: 6,
         numeric: false,
         disablePadding: true,
-        label: 'Study',
+        label: '',
     },
     {
         id: 7,
         numeric: false,
         disablePadding: true,
-        label: 'Actions',
+        label: '',
     },
 ];
 
 const PrivateDecks = () => {
     const [selectedFilters, setSelectedFilters] = useState<string[]>([]);
+    const [selectable, setSelectable] = useState<boolean>(false);
+    const [studyQueue, setStudyQueue] = useState<number[]>([]);
     const queryClient = useQueryClient();
 
     const { isPending, isError, data, error } = useQuery({
@@ -74,7 +82,6 @@ const PrivateDecks = () => {
             return response.json();
         }
     });
-    console.log("🚀 ~ PrivateDecks ~ data:", data);
 
     const mutation = useMutation({
         mutationFn: () => {
@@ -91,6 +98,15 @@ const PrivateDecks = () => {
         }
     });
 
+    const handleMixAndMatchClick = () => {
+        if (selectable && studyQueue.length > 0) {
+            console.log('go to study page with selections');
+            return;
+        }
+        setSelectable(!selectable);
+
+    };
+
     const handleFilterChange = (e: SelectChangeEvent<typeof selectedFilters>) => {
         const value = e.target.value;
         setSelectedFilters(typeof value === 'string' ? value.split(',') : value);
@@ -106,14 +122,25 @@ const PrivateDecks = () => {
                     options={filterOptions}
                 />
                 <Divider orientation="vertical" flexItem />
-                <Button variant="outlined">Mix and Match</Button>
+                <Button
+                    color={selectable ? 'secondary' : 'primary'}
+                    onClick={handleMixAndMatchClick}
+
+                    variant={selectable ? 'contained' : 'outlined'}>
+                    {selectable ?
+                        studyQueue.length > 0 ? `Study ${studyQueue.length} deck(s)` : 'Stop Selecting'
+                        :
+                        'Select Decks to Study'
+                    }
+
+                </Button>
                 <Button variant="contained">Study All</Button>
             </FormControl>
             {isError && <div>Error: {error.message}</div>}
             {isPending ?
                 <CircularProgress />
                 :
-                <CustomTable headCells={tableHeadCells} data={data}>
+                <CustomTable headCells={tableHeadCells} data={data} selectable={selectable} selected={studyQueue} setSelected={setStudyQueue}>
                 </CustomTable>
             }
         </>

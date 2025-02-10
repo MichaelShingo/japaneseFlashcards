@@ -9,6 +9,7 @@ const tailwindTheme = {
     secondary: '#FADADD',
     secondaryDark: '#C9B1B5',
     secondaryLight: '#FFE1E5',
+    info: '#949494',
     error: '#c70e3c',
 };
 

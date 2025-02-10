@@ -5,12 +5,13 @@ import CircularProgress, {
 import Typography from '@mui/material/Typography';
 import Box from '@mui/material/Box';
 
+
 function CircularProgressWithLabel(
-    props: CircularProgressProps & { value: number; },
+    props: CircularProgressProps & { value: number; onClick: () => void; },
 ) {
     return (
         <Box sx={{ position: 'relative', display: 'inline-flex' }}>
-            <CircularProgress variant="determinate" {...props} />
+            <CircularProgress variant="determinate" {...props} onClick={props.onClick} />
             <Box
                 sx={{
                     top: 0,

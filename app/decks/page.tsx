@@ -8,43 +8,43 @@ import AddIcon from '@mui/icons-material/Add';
 
 
 const tabValues: Record<string, string> = {
-    yourDecks: 'Your Decks',
-    publicDecks: 'Public Decks',
+  yourDecks: 'Your Decks',
+  publicDecks: 'Public Decks',
 };
 
 const Decks: FC = () => {
-    const [currentTab, setCurrentTab] = useState<string>(tabValues.yourDecks);
+  const [currentTab, setCurrentTab] = useState<string>(tabValues.yourDecks);
 
-    const handleTabChange = (e: SyntheticEvent, newValue: string) => {
-        setCurrentTab(newValue);
-    };
+  const handleTabChange = (e: SyntheticEvent, newValue: string) => {
+    setCurrentTab(newValue);
+  };
 
-    const tabs: Tab[] = [
-        { label: tabValues.yourDecks, value: tabValues.yourDecks },
-        { label: tabValues.publicDecks, value: tabValues.publicDecks },
-    ];
+  const tabs: Tab[] = [
+    { label: tabValues.yourDecks, value: tabValues.yourDecks },
+    { label: tabValues.publicDecks, value: tabValues.publicDecks },
+  ];
 
-    const handleOpenAddDeckModal = () => {
-        console.log('open');
-    };
+  const handleOpenAddDeckModal = () => {
+    console.log('open');
+  };
 
-    return (
-        <Box className="max-w-[1000px] w-[80%] h-fit min-h-[100px] mx-auto">
-            <Typography variant="h1" component="h1">
-                Decks
-            </Typography>
-            <DefaultTabs tabs={tabs} currentTab={currentTab} handleChange={handleTabChange} />
-            {currentTab === tabValues.yourDecks && (
-                <PrivateDecks />
-            )}
-            {currentTab === tabValues.publicDecks && (
-                <PublicDecks />
-            )}
-            <Fab className="absolute right-10 bottom-10" color="primary" onClick={handleOpenAddDeckModal} aria-label="add">
-                <AddIcon />
-            </Fab>
-        </Box>
-    );
+  return (
+    <Box className="max-w-[1000px] w-[80%] h-fit min-h-[100px] mx-auto">
+      <Typography variant="h1" component="h1">
+        Decks
+      </Typography>
+      <DefaultTabs tabs={tabs} currentTab={currentTab} handleChange={handleTabChange} />
+      {currentTab === tabValues.yourDecks && (
+        <PrivateDecks />
+      )}
+      {currentTab === tabValues.publicDecks && (
+        <PublicDecks />
+      )}
+      <Fab className="absolute right-10 bottom-10" color="primary" onClick={handleOpenAddDeckModal} aria-label="add">
+        <AddIcon />
+      </Fab>
+    </Box>
+  );
 };
 
 export default Decks;

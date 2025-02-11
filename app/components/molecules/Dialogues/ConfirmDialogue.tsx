@@ -2,18 +2,19 @@ import { Button, Dialog, DialogActions, DialogContent, DialogContentText, Dialog
 import { FC } from "react";
 
 interface ConfirmDialogueProps {
+  title: string;
   open: boolean;
   text: string;
   onClose: () => void;
   confirmAction: () => void;
 }
 
-const ConfirmDialogue: FC<ConfirmDialogueProps> = ({ open, text, onClose, confirmAction }) => {
+const ConfirmDialogue: FC<ConfirmDialogueProps> = ({ title, open, text, onClose, confirmAction }) => {
   return (
     <Dialog
       open={open}
     >
-      <DialogTitle>Add Deck</DialogTitle>
+      <DialogTitle>{title}</DialogTitle>
       <DialogContent>
         <DialogContentText>
           {text}

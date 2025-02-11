@@ -4,11 +4,32 @@ npx prisma db seed
 npx prisma studio
 npx prisma migrate reset
 
+Decks page todo
+- filter function
+- pagination works?
+- edit,
+- copy (do you need this on private decks?)
+- delete
+- reset srs 
+- add deck 
+- deck row on-click to card detail
+- public toggle
+- sorting
+- prevent row click when click outside ... menu 
+
+
+Calc new lessons:
+- Out of cards with SRS level 0, after a specified time interval, get a specified # of cards and set nextStudyDate 
+- OUT of the reviews, just count the ones with SRS level 0. that's it 
+
 Features
 - the user has decks and cards that they have authored
 - users can COPY decks/cards made by other users, as long as they are public. The point is to allow users to make their own version of a deck, and then modify it as they see fit.
 - wanikani integration to show furigana or not
 - ability to rate other people's decks, star them
+- kanji composition information from wanikani
+- ai feature to take a reading passage and extract essential vocabulary. Then put them into a card for you.
+- ability to add audio? 
 
 Routes
 - create card

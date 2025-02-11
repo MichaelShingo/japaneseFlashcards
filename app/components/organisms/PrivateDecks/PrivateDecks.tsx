@@ -3,7 +3,7 @@ import { Button, CircularProgress, Divider, FormControl, SelectChangeEvent, Text
 import MultiSelect from "../../atoms/MultiSelect/MultiSelect";
 import { ValueLabel } from "@/app/utils/common";
 import { useState } from "react";
-import CustomTable, { HeadCell } from "../../atoms/Table/Table";
+import PrivateDecksTable, { HeadCell } from "../../atoms/Table/PrivateDecksTable";
 import {
   useQuery,
   useMutation,
@@ -167,8 +167,8 @@ const PrivateDecks = () => {
       {isPending ?
         <CircularProgress />
         :
-        <CustomTable headCells={tableHeadCells} data={data} selectable={selectable} selected={studyQueue} setSelected={setStudyQueue}>
-        </CustomTable>
+        <PrivateDecksTable headCells={tableHeadCells} data={data} selectable={selectable} selected={studyQueue} setSelected={setStudyQueue}>
+        </PrivateDecksTable>
       }
     </>
   );

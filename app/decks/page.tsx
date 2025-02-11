@@ -5,6 +5,7 @@ import DefaultTabs, { Tab } from "../components/atoms/Tabs/Tabs";
 import PrivateDecks from "../components/organisms/PrivateDecks/PrivateDecks";
 import PublicDecks from "../components/organisms/PublicDecks/PublicDecks";
 import AddIcon from '@mui/icons-material/Add';
+import DeckUpsertDialogue from "../components/molecules/Dialogues/AddDeckDialogue";
 
 
 const tabValues: Record<string, string> = {
@@ -14,6 +15,7 @@ const tabValues: Record<string, string> = {
 
 const Decks: FC = () => {
   const [currentTab, setCurrentTab] = useState<string>(tabValues.yourDecks);
+  const [isOpen, setIsOpen] = useState<boolean>(false);
 
   const handleTabChange = (e: SyntheticEvent, newValue: string) => {
     setCurrentTab(newValue);
@@ -23,10 +25,6 @@ const Decks: FC = () => {
     { label: tabValues.yourDecks, value: tabValues.yourDecks },
     { label: tabValues.publicDecks, value: tabValues.publicDecks },
   ];
-
-  const handleOpenAddDeckModal = () => {
-    console.log('open');
-  };
 
   return (
     <Box className="max-w-[1000px] w-[80%] h-fit min-h-[100px] mx-auto">
@@ -40,9 +38,11 @@ const Decks: FC = () => {
       {currentTab === tabValues.publicDecks && (
         <PublicDecks />
       )}
-      <Fab className="absolute right-10 bottom-10" color="primary" onClick={handleOpenAddDeckModal} aria-label="add">
+      <Fab
+        className="absolute right-10 bottom-10" color="primary" onClick={() => setIsOpen(true)} aria-label="add">
         <AddIcon />
       </Fab>
+      <DeckUpsertDialogue open={isOpen} onClose={() => setIsOpen(false)} />
     </Box>
   );
 };

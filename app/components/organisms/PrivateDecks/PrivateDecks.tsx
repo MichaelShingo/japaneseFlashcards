@@ -14,6 +14,8 @@ import { useRouter } from "next/navigation";
 import { urls } from "@/app/constants/urls";
 import { debounce } from "lodash";
 import useDebounce from "@/app/customHooks/useDebounce";
+import queryString from 'query-string';
+
 const filterOptions: ValueLabel[] = [
   { value: 'public', label: 'Public' },
   { value: 'private', label: 'Private' },
@@ -21,6 +23,13 @@ const filterOptions: ValueLabel[] = [
   { value: 'noReviews', label: 'No Reviews' },
   { value: 'hasLearn', label: 'Has Learn' },
 ];
+
+const mapStringsToObject = (strings: string[]): Record<string, boolean> => {
+  return strings.reduce((acc, str) => {
+    acc[str] = true;
+    return acc;
+  }, {} as Record<string, boolean>);
+};
 
 const tableHeadCells: readonly HeadCell[] = [
   // {
@@ -81,11 +90,18 @@ const PrivateDecks = () => {
   const [selectable, setSelectable] = useState<boolean>(false);
   const [studyQueue, setStudyQueue] = useState<number[]>([]);
   const queryClient = useQueryClient();
+  let selectedFiltersString = '';
 
+  selectedFilters.forEach((filter, index) => {
+    if (index === selectedFilters.length - 1) {
+      selectedFiltersString += `&${filter}=true`;
+    }
+  });
   const { isPending, isError, data, error, isLoading } = useQuery({
     queryKey: ['decks', debouncedSearchTerm, selectedFilters],
     queryFn: async () => {
-      const response = await fetch(`/api/decks?search=${searchTerm}`);
+      const queryParams = queryString.stringify({ search: debouncedSearchTerm, ...mapStringsToObject(selectedFilters) });
+      const response = await fetch(`/api/decks?${queryParams}`);
       return await response.json();
     },
   });
@@ -111,7 +127,6 @@ const PrivateDecks = () => {
       return;
     }
     setSelectable(!selectable);
-
   };
 
   const handleFilterChange = (e: SelectChangeEvent<typeof selectedFilters>) => {
@@ -138,7 +153,6 @@ const PrivateDecks = () => {
             :
             'Select Decks to Study'
           }
-
         </Button>
         <Button
           variant="contained"

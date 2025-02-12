@@ -12,14 +12,16 @@ interface IconWithMenuProps {
   icon: ReactNode;
   menuItems: MenuItem[];
   itemId: number;
+  onClick: () => void;
 }
 
-const IconWithMenu: FC<IconWithMenuProps> = ({ icon, menuItems, itemId }) => {
+const IconWithMenu: FC<IconWithMenuProps> = ({ icon, menuItems, itemId, onClick }) => {
   const [anchorElement, setAnchorElement] = useState<null | HTMLElement>(null);
   const open = Boolean(anchorElement);
 
   const handleClick = (event: MouseEvent<HTMLButtonElement>) => {
     event.stopPropagation();
+    onClick();
     setAnchorElement(event.currentTarget);
   };
 
@@ -40,6 +42,8 @@ const IconWithMenu: FC<IconWithMenuProps> = ({ icon, menuItems, itemId }) => {
         MenuListProps={{
           'aria-labelledby': 'basic-button',
         }}
+        onClick={(e) => e.stopPropagation()}
+        PopoverClasses={{ pointerEvents: 'none' }}
       >
         {menuItems.map((item: MenuItem) => (
           <MenuItem key={item.label} onClick={(e: MouseEvent) => {

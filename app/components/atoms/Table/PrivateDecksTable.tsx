@@ -15,7 +15,7 @@ import { ExtendedDeck } from '@/app/api/decks/route';
 import MoreHorizIcon from '@mui/icons-material/MoreHoriz';
 import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 import CancelIcon from '@mui/icons-material/Cancel';
-import { Button } from '@mui/material';
+import { Button, Typography } from '@mui/material';
 import CircularProgressWithLabel from '../CircularProgress/CircularProgressWithLabel';
 import { twMerge } from 'tailwind-merge';
 import IconWithMenu, { MenuItem as MenuItemType } from '../../molecules/IconWithMenu/IconWithMenu';
@@ -71,7 +71,7 @@ const PrivateDecksTable: FC<PrivateDecksTableProps> = ({ headCells, data, select
   const [page, setPage] = useState(0);
   const [dense, setDense] = useState(false);
   const [rowsPerPage, setRowsPerPage] = useState(5);
-
+  const [currentRow, setCurrentRow] = useState<ExtendedDeck | null>(null);
   const [isOpenEditModal, setIsOpenEditModal] = useState(false);
   const [isOpenDeleteModal, setIsOpenDeleteModal] = useState(false);
   const [isOpenResetSRSModal, setIsOpenResetSRSModal] = useState(false);
@@ -150,8 +150,6 @@ const PrivateDecksTable: FC<PrivateDecksTableProps> = ({ headCells, data, select
     { label: 'Delete', onClick: () => setIsOpenDeleteModal(true), action: deleteDeck },
     { label: 'Reset SRS', onClick: () => console.log('reset'), action: deleteDeck },
   ];
-
-
 
   return (
     <Box sx={{ width: '100%' }}>
@@ -250,9 +248,9 @@ const PrivateDecksTable: FC<PrivateDecksTableProps> = ({ headCells, data, select
                       }
                     </TableCell>
                     <TableCell align="center" width="50px">
-                      <IconWithMenu itemId={row.id} icon={<MoreHorizIcon />} menuItems={menuItems} />
-                      <ConfirmDialogue title="Confirm Deck Deletion" open={isOpenDeleteModal} onClose={() => setIsOpenDeleteModal(false)} text={`Are you sure you want to delete this deck? This action is permanent and cannot be undone. All of your study progress concerning this deck will be lost. Deck Title: ${row.title}`} confirmAction={deleteDeck} />
+                      <IconWithMenu onClick={() => setCurrentRow(row)} itemId={row.id} icon={<MoreHorizIcon />} menuItems={menuItems} />
                     </TableCell>
+
                   </TableRow>
                 );
               })}
@@ -284,6 +282,14 @@ const PrivateDecksTable: FC<PrivateDecksTableProps> = ({ headCells, data, select
         control={<Switch checked={dense} onChange={handleChangeDense} />}
         label="Dense padding"
       />
+      <ConfirmDialogue title="Confirm Deck Deletion" open={isOpenDeleteModal} onClose={() => setIsOpenDeleteModal(false)} confirmAction={deleteDeck} confirmWithInput confirmWithInputValue={currentRow?.title}>
+        <Typography variant="body1">
+          Are you sure you want to delete this deck? This action is permanent and cannot be undone. All of the cards in this deck, including your study progress on these cards will be lost.
+        </Typography>
+        <Typography variant="subtitle1" className="mt-5 mb-2 text-accent" >
+          Deck to be Deleted: {currentRow?.title}
+        </Typography>
+      </ConfirmDialogue>
     </Box>
   );
 };

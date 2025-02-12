@@ -117,12 +117,13 @@ model Card {
 }
 
 model StudyMode {
-  id         Int      @id @default(autoincrement())
-  identifier String   @unique
-  name       String
-  createdAt  DateTime @default(now())
-  updatedAt  DateTime @updatedAt
-  decks      Deck[]
+  id          Int      @id @default(autoincrement())
+  identifier  String   @unique
+  name        String
+  description String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  decks       Deck[]
 }
 
 model Language {

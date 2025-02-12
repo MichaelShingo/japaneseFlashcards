@@ -8,7 +8,6 @@ import {
   useQuery,
   useMutation,
   useQueryClient,
-  QueryClient,
 } from '@tanstack/react-query';
 import { useRouter } from "next/navigation";
 import { urls } from "@/app/constants/urls";
@@ -97,7 +96,7 @@ const PrivateDecks = () => {
       selectedFiltersString += `&${filter}=true`;
     }
   });
-  const { isPending, isError, data, error, isLoading } = useQuery({
+  const { isPending, isError, data, error } = useQuery({
     queryKey: ['decks', debouncedSearchTerm, selectedFilters],
     queryFn: async () => {
       const queryParams = queryString.stringify({ search: debouncedSearchTerm, ...mapStringsToObject(selectedFilters) });

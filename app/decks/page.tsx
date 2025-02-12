@@ -5,7 +5,7 @@ import DefaultTabs, { Tab } from "../components/atoms/Tabs/Tabs";
 import PrivateDecks from "../components/organisms/PrivateDecks/PrivateDecks";
 import PublicDecks from "../components/organisms/PublicDecks/PublicDecks";
 import AddIcon from '@mui/icons-material/Add';
-import DeckUpsertDialogue from "../components/molecules/Dialogues/AddDeckDialogue";
+import DeckUpsertDialogue from "../components/molecules/Dialogues/DeckUpsertDialogue";
 
 
 const tabValues: Record<string, string> = {

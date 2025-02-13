@@ -14,8 +14,9 @@ Decks page todo
 - add deck 
 - deck row on-click to card detail
 - public toggle
-- sorting
-- prevent row click when click outside ... menu 
+- sorting 
+- navbar
+- footer
 
 
 Calc new lessons:

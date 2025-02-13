@@ -84,21 +84,17 @@ model Authenticator {
 }
 
 model Deck {
-  id               Int       @id @default(autoincrement())
-  title            String
-  description      String?
-  public           Boolean   @default(false)
-  createdAt        DateTime  @default(now())
-  updatedAt        DateTime  @updatedAt
-  sourceLanguageId Int
-  sourceLanguage   Language  @relation("SourceLanguage", fields: [sourceLanguageId], references: [id])
-  studyLanguageId  Int
-  studyLanguage    Language  @relation("StudyLanguage", fields: [studyLanguageId], references: [id])
-  userId           String
-  user             User      @relation(fields: [userId], references: [id])
-  cards            Card[]
-  studyModeId      Int       @default(0)
-  studyMode        StudyMode @relation(fields: [studyModeId], references: [id])
+  id          Int       @id @default(autoincrement())
+  title       String
+  description String?
+  isPublic    Boolean   @default(false)
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  userId      String
+  user        User      @relation(fields: [userId], references: [id])
+  cards       Card[]
+  studyModeId Int       @default(0)
+  studyMode   StudyMode @relation(fields: [studyModeId], references: [id])
 }
 
 model Card {
@@ -127,11 +123,9 @@ model StudyMode {
 }
 
 model Language {
-  id          Int      @id @default(autoincrement())
-  identifier  String   @unique
-  name        String   @unique
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
-  sourceDecks Deck[]   @relation("SourceLanguage")
-  studyDecks  Deck[]   @relation("StudyLanguage")
+  id         Int      @id @default(autoincrement())
+  identifier String   @unique
+  name       String   @unique
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
 }

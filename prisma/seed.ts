@@ -25,9 +25,7 @@ async function main() {
     const deckCreateUpdate = {
       title: deck.title,
       description: deck.description,
-      public: deck.public,
-      sourceLanguageId: deck.sourceLanguageId,
-      studyLanguageId: deck.studyLanguageId,
+      isPublic: deck.isPublic,
       userId: deck.userId,
       studyModeId: deck.studyModeId,
     };

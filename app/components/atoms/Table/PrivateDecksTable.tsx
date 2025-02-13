@@ -214,7 +214,7 @@ const PrivateDecksTable: FC<PrivateDecksTableProps> = ({ headCells, data, select
                     <TableCell align="left">{row.learnCount}</TableCell>
                     <TableCell align="left">{row.reviewCount}</TableCell>
                     <TableCell align="left">
-                      {row.public ?
+                      {row.isPublic ?
                         <IconButton aria-label="public">
                           <CheckCircleIcon color="primary" />
                         </IconButton> :

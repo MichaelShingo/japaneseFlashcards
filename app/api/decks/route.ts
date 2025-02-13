@@ -3,6 +3,7 @@ import { prisma } from '@/prisma/prisma';
 import { auth } from '@/auth';
 import { Card, Deck } from '@prisma/client';
 import { responses } from '../constants';
+import { NextAuthRequest } from '@/app/utils/common';
 
 export interface ExtendedDeck extends Deck {
   totalCards: number;
@@ -11,16 +12,15 @@ export interface ExtendedDeck extends Deck {
   studiedCount: number;
 }
 
-export const GET = auth(async function GET(req) {
+export const GET = auth(async function GET(request: NextAuthRequest) {
   try {
-    if (!req.auth) {
+    if (!request.auth) {
       return responses.notAuthenticated();
     }
 
-    const { searchParams } = new URL(req.url);
-    console.log("🚀 ~ GET ~ searchParams:", searchParams);
+    const { searchParams } = new URL(request.url);
 
-    const session = req.auth;
+    const session = request.auth;
     const decks = await prisma.deck.findMany({
       where: {
         userId: session.user.id,
@@ -33,7 +33,6 @@ export const GET = auth(async function GET(req) {
         cards: true,
       }
     });
-    console.log("🚀 ~ GET ~ decks:", decks);
 
     const result: ExtendedDeck[] = [];
     const now = new Date();
@@ -57,3 +56,39 @@ export const GET = auth(async function GET(req) {
     return responses.badRequest(error.message);
   }
 });
+
+export const POST = auth(async function POST(request: NextAuthRequest) {
+  try {
+    if (!request.auth) {
+      return responses.notAuthenticated();
+    }
+
+    const body = await request.json();
+    console.log("🚀 ~ POST ~ body:", body);
+    const { title, description, isPublic, studyModeId } = body;
+
+    const session = request.auth;
+    const { user } = session;
+
+    if (!title) {
+      return responses.badRequest('Title is requred.');
+    }
+
+    const deck = await prisma.deck.create({
+      data: {
+        userId: user.id,
+        title,
+        description,
+        isPublic,
+        studyModeId: Number(studyModeId),
+      }
+    });
+
+    return NextResponse.json(deck);
+
+  } catch (error) {
+    return responses.badRequest(error.message);
+  }
+});
+
+

@@ -1,10 +1,9 @@
 import { configureStore } from '@reduxjs/toolkit';
-import locationReducer from './features/locationSlice';
-import windowReducer from './features/windowSlice';
+import globalReducer from './features/globalSlice';
 import { TypedUseSelectorHook, useSelector } from 'react-redux';
 
 export const store = configureStore({
-	reducer: { locationReducer, windowReducer },
+  reducer: { globalReducer },
 });
 
 export type RootState = ReturnType<typeof store.getState>;

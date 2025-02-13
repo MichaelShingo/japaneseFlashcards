@@ -1,6 +1,7 @@
 {
-    "editor.formatOnSave": true,
-    "typescript.format.semicolons": "insert",
-    "editor.tabSize": 2,
-    "editor.detectIndentation": false,
+  "editor.formatOnSave": true,
+  "typescript.format.semicolons": "insert",
+  "editor.tabSize": 2,
+  "editor.detectIndentation": false,
+  "editor.inlineSuggest.enabled": false,
 }

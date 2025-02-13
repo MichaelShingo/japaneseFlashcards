@@ -5,9 +5,7 @@ import { reverseObject } from "@/utils/data";
 import { userIds } from "./users";
 
 const defaultRelations = {
-  public: true,
-  sourceLanguageId: languageSeedIds.English,
-  studyLanguageId: languageSeedIds.Japanese,
+  isPublic: true,
   userId: userIds[0],
   studyModeId: studyModeSeedIds.recognitionFront,
 };
@@ -34,7 +32,7 @@ export const decks: Omit<Deck, 'createdAt' | 'updatedAt'>[] = [
     title: 'Tech Business',
     description: 'An ongoing list of terms commonly used as a software developer in a Japanese tech company.',
     ...defaultRelations,
-    public: false,
+    isPublic: false,
   },
   {
     id: 3,
@@ -54,6 +52,6 @@ export const decks: Omit<Deck, 'createdAt' | 'updatedAt'>[] = [
     title: 'Politics',
     description: 'Cover topics such as elections, political parties, and policy.',
     ...defaultRelations,
-    public: false,
+    isPublic: false,
   },
 ];

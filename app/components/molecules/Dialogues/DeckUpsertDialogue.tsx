@@ -1,17 +1,18 @@
-import { Box, Button, Checkbox, CircularProgress, Dialog, DialogActions, DialogContent, DialogTitle, FormControlLabel, MenuItem, Select, Snackbar, TextField, Tooltip } from "@mui/material";
-import { StudyMode } from "@prisma/client";
+import { Box, Button, Checkbox, CircularProgress, Dialog, DialogActions, DialogContent, DialogTitle, FormControlLabel, MenuItem, Select, TextField, Tooltip } from "@mui/material";
+import { Deck, StudyMode } from "@prisma/client";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { FC, Ref, SetStateAction, useState } from "react";
+import { FC, useEffect } from "react";
 import HelpIcon from '@mui/icons-material/Help';
 import { Controller, SubmitHandler, useForm } from 'react-hook-form';
-import { Dispatch } from "@reduxjs/toolkit";
-import { setSnackBarData, SnackbarData } from "@/redux/features/globalSlice";
-import { useAppSelector } from "@/redux/store";
+import { setSnackBarData } from "@/redux/features/globalSlice";
 import { useDispatch } from "react-redux";
+import { ExtendedDeck } from "@/app/api/decks/route";
 
 interface DeckUpsertDialogueProps {
   open: boolean;
   onClose: () => void;
+  isEdit?: boolean;
+  deck?: ExtendedDeck;
 }
 
 type FormData = {
@@ -21,12 +22,11 @@ type FormData = {
   studyModeId: string;
 };
 
-const DeckUpsertDialogue: FC<DeckUpsertDialogueProps> = ({ open, onClose, }) => {
-  const snackBarData: SnackbarData = useAppSelector((state) => state.globalReducer.value.snackBarData);
+const DeckUpsertDialogue: FC<DeckUpsertDialogueProps> = ({ open, onClose, isEdit, deck }) => {
   const dispatch = useDispatch();
-
   const queryClient = useQueryClient();
-  const { control, handleSubmit, formState: { errors } } = useForm<FormData>({
+
+  const { control, handleSubmit, formState: { errors }, reset } = useForm<FormData>({
     defaultValues: {
       title: '',
       description: '',
@@ -34,6 +34,17 @@ const DeckUpsertDialogue: FC<DeckUpsertDialogueProps> = ({ open, onClose, }) => 
       studyModeId: '1',
     }
   });
+
+  useEffect(() => {
+    if (isEdit && deck) {
+      reset({
+        title: deck.title,
+        description: deck.description,
+        isPublic: deck.isPublic,
+        studyModeId: String(deck.studyModeId),
+      });
+    }
+  }, [isEdit, deck, reset]);
 
   const { data, isPending } = useQuery({
     queryKey: ['studyModes'],
@@ -43,7 +54,7 @@ const DeckUpsertDialogue: FC<DeckUpsertDialogueProps> = ({ open, onClose, }) => 
     }
   });
 
-  const mutation = useMutation({
+  const { mutate: postMutate, isPending: postIsPending } = useMutation({
     mutationFn: async (newDeck: FormData) => {
       const response = await fetch('api/decks/', {
         method: 'POST',
@@ -52,9 +63,6 @@ const DeckUpsertDialogue: FC<DeckUpsertDialogueProps> = ({ open, onClose, }) => 
         },
         body: JSON.stringify(newDeck),
       });
-      if (!response.ok) {
-        console.log('toast');
-      }
       return response.json();
     },
     onSuccess: () => {
@@ -63,13 +71,38 @@ const DeckUpsertDialogue: FC<DeckUpsertDialogueProps> = ({ open, onClose, }) => 
       onClose();
     },
     onError: (error: Error) => {
-      dispatch(setSnackBarData({ isOpen: true, message: 'Failed to add a deck.' }));
+      dispatch(setSnackBarData({ isOpen: true, message: error.message }));
+    }
+  });
 
+  const { mutate: patchMutate, isPending: patchIsPending } = useMutation({
+    mutationFn: async (updatedDeck: FormData) => {
+      console.log(`api/decks/${deck!.id}`);
+      const response = await fetch(`api/decks/${deck!.id}`, {
+        method: 'PATCH',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(updatedDeck),
+      });
+      if (!response.ok) {
+        const error = await response.json();
+        throw new Error(error.message);
+      }
+      return response.json();
+    },
+    onSuccess: () => {
+      dispatch(setSnackBarData({ isOpen: true, message: 'Successfully edited deck.' }));
+      queryClient.invalidateQueries();
+      onClose();
+    },
+    onError: (error: Error) => {
+      dispatch(setSnackBarData({ isOpen: true, message: error.message }));
     }
   });
 
   const onSubmit: SubmitHandler<FormData> = (data) => {
-    mutation.mutate(data);
+    isEdit ? patchMutate(data) : postMutate(data);
   };
 
   return (
@@ -149,7 +182,7 @@ const DeckUpsertDialogue: FC<DeckUpsertDialogueProps> = ({ open, onClose, }) => 
         </DialogContent>
         <DialogActions>
           <Button onClick={onClose}>Cancel</Button>
-          <Button type="submit">Save</Button>
+          <Button loading={isEdit ? patchIsPending : postIsPending} type="submit">Save</Button>
         </DialogActions>
       </form>
 

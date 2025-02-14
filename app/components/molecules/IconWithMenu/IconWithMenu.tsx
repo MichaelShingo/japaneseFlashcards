@@ -5,7 +5,7 @@ import { FC, MouseEvent, ReactNode, useRef, useState } from "react";
 export type MenuItem = {
   label: string;
   onClick: () => void;
-  action: () => void;
+  action?: () => void;
 };
 
 interface IconWithMenuProps {

@@ -12,12 +12,12 @@ export const DELETE = auth(async function DELETE(request: NextAuthRequest, { par
     }
 
     const { deckId } = params;
-
     const deck: Deck = await prisma.deck.delete({
       where: {
         id: Number(deckId),
       }
     });
+
     return NextResponse.json(deck);
   } catch (error) {
     return responses.badRequest(error.message);
@@ -29,11 +29,9 @@ export const PATCH = auth(async function PATCH(request: NextAuthRequest, { param
     if (!request.auth) {
       return responses.notAuthenticated();
     }
-
     const body = await request.json();
-    const { title, description, isPublic } = body;
-
-    const { deckId } = params;
+    const { title, description, isPublic, studyModeId } = body;
+    const { deckId } = await params;
 
     const deck = await prisma.deck.update({
       where: {
@@ -43,11 +41,12 @@ export const PATCH = auth(async function PATCH(request: NextAuthRequest, { param
         title,
         description,
         isPublic,
+        studyModeId: Number(studyModeId),
       }
     });
 
     return NextResponse.json(deck);
   } catch (error) {
-    return responses.badRequest(error.message);
+    return responses.badRequest('Failed to create deck.');
   }
 });

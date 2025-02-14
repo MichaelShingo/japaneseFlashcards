@@ -64,7 +64,6 @@ export const POST = auth(async function POST(request: NextAuthRequest) {
     }
 
     const body = await request.json();
-    console.log("🚀 ~ POST ~ body:", body);
     const { title, description, isPublic, studyModeId } = body;
 
     const session = request.auth;

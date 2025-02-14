@@ -25,6 +25,11 @@ import { Order } from '@/app/utils/common';
 import EnhancedTableHead from './EnhancedTableHead';
 import EnhancedTableToolbar from './EnhancedTableToolbar';
 import ConfirmDialogue from '../../molecules/Dialogues/ConfirmDialogue';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { useDispatch } from 'react-redux';
+import { setSnackBarData } from '@/redux/features/globalSlice';
+import { Deck } from '@prisma/client';
+import DeckUpsertDialogue from '../../molecules/Dialogues/DeckUpsertDialogue';
 
 function descendingComparator<T>(a: T, b: T, orderBy: keyof T) {
   if (b[orderBy] < a[orderBy]) {
@@ -71,10 +76,30 @@ const PrivateDecksTable: FC<PrivateDecksTableProps> = ({ headCells, data, select
   const [page, setPage] = useState(0);
   const [dense, setDense] = useState(false);
   const [rowsPerPage, setRowsPerPage] = useState(5);
-  const [currentRow, setCurrentRow] = useState<ExtendedDeck | null>(null);
+  const [currentDeck, setCurrentDeck] = useState<ExtendedDeck | null>(null);
   const [isOpenEditModal, setIsOpenEditModal] = useState(false);
   const [isOpenDeleteModal, setIsOpenDeleteModal] = useState(false);
   const [isOpenResetSRSModal, setIsOpenResetSRSModal] = useState(false);
+  const dispatch = useDispatch();
+  const queryClient = useQueryClient();
+
+  const { mutate: deleteMutate, isPending: deleteIsPending } = useMutation({
+    mutationFn: async (deckId: number) => {
+      const response = await fetch(`api/decks/${deckId}`, {
+        method: 'DELETE',
+      }
+      );
+      return response.json();
+    },
+    onSuccess: (data: Deck) => {
+      dispatch(setSnackBarData({ isOpen: true, message: `Successfully deleted deck: ${data.title}` }));
+      queryClient.invalidateQueries();
+
+    },
+    onError: (error: Error) => {
+      dispatch(setSnackBarData({ isOpen: true, message: error.message }));
+    }
+  });
 
 
   const handleRequestSort = (
@@ -140,15 +165,19 @@ const PrivateDecksTable: FC<PrivateDecksTableProps> = ({ headCells, data, select
       .sort(getComparator(order, orderBy))
       .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage);
 
-  const deleteDeck = () => {
-    console.log('delete');
+  const deleteDeck = (id: number) => {
+    deleteMutate(id);
+  };
+
+  const resetSRS = (id: number) => {
+    console.log('reset srs');
   };
 
   const menuItems: MenuItemType[] = [
-    { label: 'Edit', onClick: () => console.log('edit'), action: deleteDeck },
+    { label: 'Edit', onClick: () => setIsOpenEditModal(true) },
     { label: 'Copy', onClick: () => console.log('copy'), action: deleteDeck },
     { label: 'Delete', onClick: () => setIsOpenDeleteModal(true), action: deleteDeck },
-    { label: 'Reset SRS', onClick: () => console.log('reset'), action: deleteDeck },
+    { label: 'Reset SRS', onClick: () => console.log('reset'), action: resetSRS },
   ];
 
   return (
@@ -248,7 +277,7 @@ const PrivateDecksTable: FC<PrivateDecksTableProps> = ({ headCells, data, select
                       }
                     </TableCell>
                     <TableCell align="center" width="50px">
-                      <IconWithMenu onClick={() => setCurrentRow(row)} itemId={row.id} icon={<MoreHorizIcon />} menuItems={menuItems} />
+                      <IconWithMenu onClick={() => setCurrentDeck(row)} itemId={row.id} icon={<MoreHorizIcon />} menuItems={menuItems} />
                     </TableCell>
 
                   </TableRow>
@@ -282,14 +311,23 @@ const PrivateDecksTable: FC<PrivateDecksTableProps> = ({ headCells, data, select
         control={<Switch checked={dense} onChange={handleChangeDense} />}
         label="Dense padding"
       />
-      <ConfirmDialogue title="Confirm Deck Deletion" open={isOpenDeleteModal} onClose={() => setIsOpenDeleteModal(false)} confirmAction={deleteDeck} confirmWithInput confirmWithInputValue={currentRow?.title}>
+      <ConfirmDialogue
+        title="Confirm Deck Deletion"
+        open={isOpenDeleteModal}
+        onClose={() => setIsOpenDeleteModal(false)}
+        confirmAction={() => deleteDeck(currentDeck.id)}
+        confirmWithInput
+        confirmWithInputValue={currentDeck?.title}
+        isLoading={deleteIsPending}
+      >
         <Typography variant="body1">
           Are you sure you want to delete this deck? This action is permanent and cannot be undone. All of the cards in this deck, including your study progress on these cards will be lost.
         </Typography>
         <Typography variant="subtitle1" className="mt-5 mb-2 text-accent" >
-          Deck to be Deleted: {currentRow?.title}
+          Deck to be Deleted: {currentDeck?.title}
         </Typography>
       </ConfirmDialogue>
+      <DeckUpsertDialogue open={isOpenEditModal} onClose={() => setIsOpenEditModal(false)} isEdit deck={currentDeck} />
     </Box>
   );
 };

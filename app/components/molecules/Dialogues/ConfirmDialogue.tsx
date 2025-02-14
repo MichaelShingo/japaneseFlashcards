@@ -1,4 +1,4 @@
-import { Button, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle, Divider, FormControl, TextField } from "@mui/material";
+import { Button, Dialog, DialogActions, DialogContent, DialogTitle, FormControl, TextField } from "@mui/material";
 import { FC, ReactNode, useState } from "react";
 
 interface ConfirmDialogueProps {
@@ -10,10 +10,17 @@ interface ConfirmDialogueProps {
   confirmWithInput?: boolean;
   confirmWithInputValue?: string;
   children?: ReactNode;
+  isLoading?: boolean;
 }
 
-const ConfirmDialogue: FC<ConfirmDialogueProps> = ({ title, open, text, onClose, confirmAction, confirmWithInput, confirmWithInputValue = 'confirm', children }) => {
+const ConfirmDialogue: FC<ConfirmDialogueProps> = ({ title, open, text, onClose, confirmAction, confirmWithInput, confirmWithInputValue = 'confirm', children, isLoading }) => {
   const [confirmValue, setConfirmValue] = useState('');
+
+  const handleConfirm = () => {
+    confirmAction();
+    setConfirmValue('');
+    onClose();
+  };
 
   return (
     <Dialog
@@ -24,21 +31,19 @@ const ConfirmDialogue: FC<ConfirmDialogueProps> = ({ title, open, text, onClose,
       <DialogContent>
         {text ? text : children}
         {confirmWithInput &&
-          <>
-            <FormControl>
-              <TextField
-                value={confirmValue}
-                onChange={(e) => setConfirmValue(e.target.value)}
-                label={`Type "${confirmWithInputValue}" to confirm`}
-                variant="outlined"
-              />
-            </FormControl>
-          </>
+          <FormControl>
+            <TextField
+              value={confirmValue}
+              onChange={(e) => setConfirmValue(e.target.value)}
+              label={`Type "${confirmWithInputValue}" to confirm`}
+              variant="outlined"
+            />
+          </FormControl>
         }
       </DialogContent>
       <DialogActions>
         <Button onClick={onClose}>Cancel</Button>
-        <Button disabled={confirmWithInput && !(confirmValue === confirmWithInputValue)} onClick={confirmAction} type="submit">Confirm</Button>
+        <Button loading={isLoading} disabled={confirmWithInput && !(confirmValue === confirmWithInputValue)} onClick={handleConfirm} type="submit">Confirm</Button>
       </DialogActions>
     </Dialog>
   );

@@ -114,7 +114,6 @@ const DeckUpsertModal: FC<DeckUpsertModalProps> = ({ open, onClose, isEdit, deck
       <form onSubmit={handleSubmit(onSubmit)} >
         <DialogContent>
           <Box className="flex flex-col gap-3 mt-2" >
-
             <Controller
               name="title"
               control={control}

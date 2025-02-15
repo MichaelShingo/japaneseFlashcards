@@ -1,4 +1,4 @@
-import { ChangeEvent, Dispatch, FC, MouseEvent, ReactNode, SetStateAction, useMemo, useState } from 'react';
+import { ChangeEvent, Dispatch, FC, MouseEvent, ReactNode, SetStateAction, useState } from 'react';
 import Box from '@mui/material/Box';
 import Table from '@mui/material/Table';
 import TableBody from '@mui/material/TableBody';
@@ -8,7 +8,6 @@ import TablePagination from '@mui/material/TablePagination';
 import TableRow from '@mui/material/TableRow';
 import Paper from '@mui/material/Paper';
 import Checkbox from '@mui/material/Checkbox';
-import IconButton from '@mui/material/IconButton';
 import FormControlLabel from '@mui/material/FormControlLabel';
 import Switch from '@mui/material/Switch';
 import { ExtendedDeck } from '@/app/api/decks/route';
@@ -30,29 +29,6 @@ import { useDispatch } from 'react-redux';
 import { setSnackBarData } from '@/redux/features/globalSlice';
 import { Deck } from '@prisma/client';
 import DeckUpsertModal from '../../molecules/Modals/DeckUpsertModal';
-import useModal from '@/app/customHooks/useModal';
-
-function descendingComparator<T>(a: T, b: T, orderBy: keyof T) {
-  if (b[orderBy] < a[orderBy]) {
-    return -1;
-  }
-  if (b[orderBy] > a[orderBy]) {
-    return 1;
-  }
-  return 0;
-}
-
-function getComparator<Key extends keyof any>(
-  order: Order,
-  orderBy: Key,
-): (
-  a: { [key in Key]: number | string },
-  b: { [key in Key]: number | string },
-) => number {
-  return order === 'desc'
-    ? (a, b) => descendingComparator(a, b, orderBy)
-    : (a, b) => -descendingComparator(a, b, orderBy);
-}
 
 export interface HeadCell {
   disablePadding: boolean;
@@ -65,7 +41,6 @@ interface PrivateDecksTableProps {
   headCells: HeadCell[];
   data: ExtendedDeck[];
   selectable?: boolean;
-  children: ReactNode;
   selected: number[];
   setSelected: Dispatch<SetStateAction<readonly number[]>>;
 }
@@ -84,6 +59,38 @@ const PrivateDecksTable: FC<PrivateDecksTableProps> = ({ headCells, data, select
   const dispatch = useDispatch();
   const queryClient = useQueryClient();
 
+  const getComparator = (order: Order, orderBy: keyof ExtendedDeck) => {
+    return (a: ExtendedDeck, b: ExtendedDeck) => {
+      let comparison = 0;
+      switch (orderBy) {
+        case 'learnCount':
+          comparison = a.learnCount - b.learnCount;
+          break;
+        case 'reviewCount':
+          comparison = a.reviewCount - b.reviewCount;
+          break;
+        case 'isPublic':
+          comparison = (a.isPublic === b.isPublic) ? 0 : a.isPublic ? 1 : -1;
+          break;
+        case 'title':
+        default:
+          comparison = a.title.localeCompare(b.title);
+          break;
+      }
+      return order === 'asc' ? comparison : -comparison;
+    };
+  };
+
+  const handleRequestSort = (
+    event: MouseEvent<unknown>,
+    property: keyof ExtendedDeck,
+  ) => {
+    console.log("🚀 ~ property:", property);
+    const isAsc = orderBy === property && order === 'asc';
+    setOrder(isAsc ? 'desc' : 'asc');
+    setOrderBy(property);
+  };
+
   const { mutate: deleteMutate, isPending: deleteIsPending } = useMutation({
     mutationFn: async (deckId: number) => {
       const response = await fetch(`api/decks/${deckId}`, {
@@ -101,16 +108,6 @@ const PrivateDecksTable: FC<PrivateDecksTableProps> = ({ headCells, data, select
       dispatch(setSnackBarData({ isOpen: true, message: error.message }));
     }
   });
-
-
-  const handleRequestSort = (
-    event: MouseEvent<unknown>,
-    property: keyof ExtendedDeck,
-  ) => {
-    const isAsc = orderBy === property && order === 'asc';
-    setOrder(isAsc ? 'desc' : 'asc');
-    setOrderBy(property);
-  };
 
   const handleSelectAllClick = (event: ChangeEvent<HTMLInputElement>) => {
     if (event.target.checked) {
@@ -166,21 +163,10 @@ const PrivateDecksTable: FC<PrivateDecksTableProps> = ({ headCells, data, select
       .sort(getComparator(order, orderBy))
       .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage);
 
-  const deleteDeck = (id: number) => {
-    deleteMutate(id);
-  };
-
-  const resetSRS = (id: number) => {
-    console.log('reset srs');
-  };
-
-  const openModal = useModal();
-
   const menuItems: MenuItemType[] = [
     { label: 'Edit', onClick: () => setIsOpenEditModal(true) },
-    { label: 'Copy', onClick: () => console.log('copy'), action: deleteDeck },
-    { label: 'Delete', onClick: () => setIsOpenDeleteModal(true), action: deleteDeck },
-    { label: 'Reset SRS', onClick: () => console.log('reset'), action: resetSRS },
+    { label: 'Delete', onClick: () => setIsOpenDeleteModal(true) },
+    { label: 'Reset', onClick: () => console.log('reset') },
   ];
 
   return (
@@ -315,7 +301,7 @@ const PrivateDecksTable: FC<PrivateDecksTableProps> = ({ headCells, data, select
         title="Confirm Deck Deletion"
         open={isOpenDeleteModal}
         onClose={() => setIsOpenDeleteModal(false)}
-        confirmAction={() => deleteDeck(currentDeck.id)}
+        confirmAction={() => deleteMutate(currentDeck.id)}
         confirmWithInput
         confirmWithInputValue={currentDeck?.title}
         isLoading={deleteIsPending}

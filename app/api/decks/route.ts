@@ -19,19 +19,13 @@ export const GET = auth(async function GET(request: NextAuthRequest) {
     }
 
     const { searchParams } = new URL(request.url);
-    console.log("🚀 ~ GET ~ searchParams:", searchParams);
-
-
-
     const filterPublic = Boolean(searchParams.get('public'));
     const filterPrivate = Boolean(searchParams.get('private'));
-    let publicFilter: boolean | undefined;
+    let publicFilter: boolean | undefined = undefined;
 
-    if (filterPublic && filterPrivate || !filterPublic && !filterPrivate) {
-      publicFilter = undefined;
-    } else if (filterPublic) {
+    if (filterPublic && !filterPrivate) {
       publicFilter = true;
-    } else {
+    } else if (filterPrivate && !filterPublic) {
       publicFilter = false;
     }
 

@@ -21,6 +21,7 @@ interface EnhancedTableProps {
 function EnhancedTableHead(props: EnhancedTableProps) {
   const { onSelectAllClick, order, orderBy, numSelected, rowCount, onRequestSort, headCells } =
     props;
+
   const createSortHandler =
     (property: keyof ExtendedDeck) => (event: MouseEvent<unknown>) => {
       onRequestSort(event, property);

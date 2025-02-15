@@ -11,7 +11,6 @@ import {
 } from '@tanstack/react-query';
 import { useRouter } from "next/navigation";
 import { urls } from "@/app/constants/urls";
-import { debounce } from "lodash";
 import useDebounce from "@/app/customHooks/useDebounce";
 import queryString from 'query-string';
 
@@ -30,7 +29,7 @@ const mapStringsToObject = (strings: string[]): Record<string, boolean> => {
   }, {} as Record<string, boolean>);
 };
 
-const tableHeadCells: readonly HeadCell[] = [
+const tableHeadCells: HeadCell[] = [
   // {
   //     id: 0,
   //     numeric: false,
@@ -38,43 +37,43 @@ const tableHeadCells: readonly HeadCell[] = [
   //     label: '',
   // },
   {
-    id: 1,
+    id: 'title',
     numeric: false,
     disablePadding: true,
     label: 'Title',
   },
   {
-    id: 2,
+    id: 'progress',
     numeric: false,
     disablePadding: true,
     label: 'Progress',
   },
   {
-    id: 3,
+    id: 'learnCount',
     numeric: false,
     disablePadding: true,
     label: 'Learn',
   },
   {
-    id: 4,
+    id: 'reviewCount',
     numeric: false,
     disablePadding: true,
     label: 'Reviews',
   },
   {
-    id: 5,
+    id: 'isPublic',
     numeric: false,
     disablePadding: true,
     label: 'Public',
   },
   {
-    id: 6,
+    id: 'study',
     numeric: false,
     disablePadding: true,
     label: '',
   },
   {
-    id: 7,
+    id: null,
     numeric: false,
     disablePadding: true,
     label: '',

@@ -12,8 +12,6 @@
     "seed": "tsx prisma/seed.ts"
   },
   "dependencies": {
-    "@apollo/client": "^3.12.7",
-    "@apollo/experimental-nextjs-app-support": "^0.11.8",
     "@auth/prisma-adapter": "^2.7.4",
     "@auth0/nextjs-auth0": "^4.0.0-beta.0",
     "@emotion/cache": "^11.14.0",
@@ -32,7 +30,6 @@
     "@typescript-eslint/parser": "^6.15.0",
     "@vercel/analytics": "^1.2.2",
     "@xpd/tailwind-3dtransforms": "^1.0.3",
-    "apollo-server-micro": "^3.13.0",
     "axios": "^1.7.9",
     "eslint-config-prettier": "^9.1.0",
     "eslint-plugin": "^1.0.1",

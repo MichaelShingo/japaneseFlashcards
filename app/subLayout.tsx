@@ -4,6 +4,7 @@ import { useAppSelector } from "@/redux/store";
 import { Snackbar, SnackbarCloseReason } from "@mui/material";
 import { FC, ReactNode } from "react";
 import { useDispatch } from "react-redux";
+import ModalHandler from "./components/molecules/Modals/ModalHandler";
 
 interface SubLayoutProps {
   children: ReactNode;
@@ -32,6 +33,7 @@ const SubLayout: FC<SubLayoutProps> = ({ children }) => {
         message={snackbarData.message}
         onClose={handleClose}
       />
+      <ModalHandler />
     </>
   );
 };

@@ -19,6 +19,21 @@ export const GET = auth(async function GET(request: NextAuthRequest) {
     }
 
     const { searchParams } = new URL(request.url);
+    console.log("🚀 ~ GET ~ searchParams:", searchParams);
+
+
+
+    const filterPublic = Boolean(searchParams.get('public'));
+    const filterPrivate = Boolean(searchParams.get('private'));
+    let publicFilter: boolean | undefined;
+
+    if (filterPublic && filterPrivate || !filterPublic && !filterPrivate) {
+      publicFilter = undefined;
+    } else if (filterPublic) {
+      publicFilter = true;
+    } else {
+      publicFilter = false;
+    }
 
     const session = request.auth;
     const decks = await prisma.deck.findMany({
@@ -27,7 +42,8 @@ export const GET = auth(async function GET(request: NextAuthRequest) {
         title: {
           contains: searchParams.get('search'),
           mode: 'insensitive',
-        }
+        },
+        isPublic: publicFilter,
       },
       include: {
         cards: true,
@@ -51,7 +67,21 @@ export const GET = auth(async function GET(request: NextAuthRequest) {
         studiedCount,
       });
     };
-    return NextResponse.json(result);
+
+    let filteredResult = result;
+    const hasReviews = searchParams.get('hasReviews');
+    const noReviews = searchParams.get('noReviews');
+    if (searchParams.get('hasLearn')) {
+      filteredResult = filteredResult.filter((deck) => deck.learnCount > 0); 0;
+    }
+    if (hasReviews && !noReviews) {
+      filteredResult = filteredResult.filter((deck) => deck.reviewCount > 0);
+    }
+    if (noReviews && !hasReviews) {
+      filteredResult = filteredResult.filter((deck) => deck.reviewCount === 0);
+    }
+
+    return NextResponse.json(filteredResult);
   } catch (error) {
     return responses.badRequest(error.message);
   }

@@ -24,12 +24,13 @@ import { urls } from '@/app/constants/urls';
 import { Order } from '@/app/utils/common';
 import EnhancedTableHead from './EnhancedTableHead';
 import EnhancedTableToolbar from './EnhancedTableToolbar';
-import ConfirmDialogue from '../../molecules/Dialogues/ConfirmDialogue';
+import ConfirmModal from '../../molecules/Modals/ConfirmModal';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { useDispatch } from 'react-redux';
 import { setSnackBarData } from '@/redux/features/globalSlice';
 import { Deck } from '@prisma/client';
-import DeckUpsertDialogue from '../../molecules/Dialogues/DeckUpsertDialogue';
+import DeckUpsertModal from '../../molecules/Modals/DeckUpsertModal';
+import useModal from '@/app/customHooks/useModal';
 
 function descendingComparator<T>(a: T, b: T, orderBy: keyof T) {
   if (b[orderBy] < a[orderBy]) {
@@ -173,6 +174,8 @@ const PrivateDecksTable: FC<PrivateDecksTableProps> = ({ headCells, data, select
     console.log('reset srs');
   };
 
+  const openModal = useModal();
+
   const menuItems: MenuItemType[] = [
     { label: 'Edit', onClick: () => setIsOpenEditModal(true) },
     { label: 'Copy', onClick: () => console.log('copy'), action: deleteDeck },
@@ -244,12 +247,9 @@ const PrivateDecksTable: FC<PrivateDecksTableProps> = ({ headCells, data, select
                     <TableCell align="left">{row.reviewCount}</TableCell>
                     <TableCell align="left">
                       {row.isPublic ?
-                        <IconButton aria-label="public">
-                          <CheckCircleIcon color="primary" />
-                        </IconButton> :
-                        <IconButton aria-label="private">
-                          <CancelIcon />
-                        </IconButton>
+                        <CheckCircleIcon color="primary" />
+                        :
+                        <CancelIcon />
                       }
                     </TableCell>
                     <TableCell align="left" className="min-w-fit">
@@ -311,7 +311,7 @@ const PrivateDecksTable: FC<PrivateDecksTableProps> = ({ headCells, data, select
         control={<Switch checked={dense} onChange={handleChangeDense} />}
         label="Dense padding"
       />
-      <ConfirmDialogue
+      <ConfirmModal
         title="Confirm Deck Deletion"
         open={isOpenDeleteModal}
         onClose={() => setIsOpenDeleteModal(false)}
@@ -326,8 +326,8 @@ const PrivateDecksTable: FC<PrivateDecksTableProps> = ({ headCells, data, select
         <Typography variant="subtitle1" className="mt-5 mb-2 text-accent" >
           Deck to be Deleted: {currentDeck?.title}
         </Typography>
-      </ConfirmDialogue>
-      <DeckUpsertDialogue open={isOpenEditModal} onClose={() => setIsOpenEditModal(false)} isEdit deck={currentDeck} />
+      </ConfirmModal>
+      <DeckUpsertModal open={isOpenEditModal} onClose={() => setIsOpenEditModal(false)} isEdit deck={currentDeck} />
     </Box>
   );
 };

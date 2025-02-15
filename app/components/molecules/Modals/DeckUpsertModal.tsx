@@ -1,14 +1,13 @@
 import { Box, Button, Checkbox, CircularProgress, Dialog, DialogActions, DialogContent, DialogTitle, FormControlLabel, MenuItem, Select, TextField, Tooltip } from "@mui/material";
-import { Deck, StudyMode } from "@prisma/client";
+import { StudyMode } from "@prisma/client";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { FC, useEffect } from "react";
 import HelpIcon from '@mui/icons-material/Help';
 import { Controller, SubmitHandler, useForm } from 'react-hook-form';
-import { setSnackBarData } from "@/redux/features/globalSlice";
-import { useDispatch } from "react-redux";
 import { ExtendedDeck } from "@/app/api/decks/route";
+import useToast from "@/app/customHooks/useToast";
 
-interface DeckUpsertDialogueProps {
+export interface DeckUpsertModalProps {
   open: boolean;
   onClose: () => void;
   isEdit?: boolean;
@@ -22,8 +21,8 @@ type FormData = {
   studyModeId: string;
 };
 
-const DeckUpsertDialogue: FC<DeckUpsertDialogueProps> = ({ open, onClose, isEdit, deck }) => {
-  const dispatch = useDispatch();
+const DeckUpsertModal: FC<DeckUpsertModalProps> = ({ open, onClose, isEdit, deck }) => {
+  const toast = useToast();
   const queryClient = useQueryClient();
 
   const { control, handleSubmit, formState: { errors }, reset } = useForm<FormData>({
@@ -66,12 +65,12 @@ const DeckUpsertDialogue: FC<DeckUpsertDialogueProps> = ({ open, onClose, isEdit
       return response.json();
     },
     onSuccess: () => {
-      dispatch(setSnackBarData({ isOpen: true, message: 'Successfully added a deck.' }));
+      toast('Successfully added a deck.');
       queryClient.invalidateQueries();
       onClose();
     },
     onError: (error: Error) => {
-      dispatch(setSnackBarData({ isOpen: true, message: error.message }));
+      toast(error.message);
     }
   });
 
@@ -92,12 +91,12 @@ const DeckUpsertDialogue: FC<DeckUpsertDialogueProps> = ({ open, onClose, isEdit
       return response.json();
     },
     onSuccess: () => {
-      dispatch(setSnackBarData({ isOpen: true, message: 'Successfully edited deck.' }));
+      toast('Successfully edited deck.');
       queryClient.invalidateQueries();
       onClose();
     },
     onError: (error: Error) => {
-      dispatch(setSnackBarData({ isOpen: true, message: error.message }));
+      toast(error.message);
     }
   });
 
@@ -190,4 +189,4 @@ const DeckUpsertDialogue: FC<DeckUpsertDialogueProps> = ({ open, onClose, isEdit
   );
 };
 
-export default DeckUpsertDialogue;
+export default DeckUpsertModal;

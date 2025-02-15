@@ -1,7 +1,7 @@
 import { Button, Dialog, DialogActions, DialogContent, DialogTitle, FormControl, TextField } from "@mui/material";
 import { FC, ReactNode, useState } from "react";
 
-interface ConfirmDialogueProps {
+export interface ConfirmModalProps {
   title: string;
   open: boolean;
   text?: string;
@@ -13,7 +13,7 @@ interface ConfirmDialogueProps {
   isLoading?: boolean;
 }
 
-const ConfirmDialogue: FC<ConfirmDialogueProps> = ({ title, open, text, onClose, confirmAction, confirmWithInput, confirmWithInputValue = 'confirm', children, isLoading }) => {
+const ConfirmModal: FC<ConfirmModalProps> = ({ title, open, text, onClose, confirmAction, confirmWithInput, confirmWithInputValue = 'confirm', children, isLoading }) => {
   const [confirmValue, setConfirmValue] = useState('');
 
   const handleConfirm = () => {
@@ -49,4 +49,4 @@ const ConfirmDialogue: FC<ConfirmDialogueProps> = ({ title, open, text, onClose,
   );
 };
 
-export default ConfirmDialogue;
+export default ConfirmModal;

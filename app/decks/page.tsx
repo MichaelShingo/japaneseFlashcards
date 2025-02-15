@@ -5,7 +5,7 @@ import DefaultTabs, { Tab } from "../components/atoms/Tabs/Tabs";
 import PrivateDecks from "../components/organisms/PrivateDecks/PrivateDecks";
 import PublicDecks from "../components/organisms/PublicDecks/PublicDecks";
 import AddIcon from '@mui/icons-material/Add';
-import DeckUpsertDialogue from "../components/molecules/Dialogues/DeckUpsertDialogue";
+import DeckUpsertModal from "../components/molecules/Modals/DeckUpsertModal";
 
 
 const tabValues: Record<string, string> = {
@@ -42,8 +42,7 @@ const Decks: FC = () => {
         className="absolute right-10 bottom-10" color="primary" onClick={() => setIsOpen(true)} aria-label="add">
         <AddIcon />
       </Fab>
-      <DeckUpsertDialogue open={isOpen} onClose={() => setIsOpen(false)} />
-
+      <DeckUpsertModal open={isOpen} onClose={() => setIsOpen(false)} />
     </Box>
   );
 };

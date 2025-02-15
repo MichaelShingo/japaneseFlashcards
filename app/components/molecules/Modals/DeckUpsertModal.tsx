@@ -88,7 +88,7 @@ const DeckUpsertModal: FC<DeckUpsertModalProps> = ({ open, onClose, isEdit, deck
         const error = await response.json();
         throw new Error(error.message);
       }
-      return response.json();
+      return await response.json();
     },
     onSuccess: () => {
       toast('Successfully edited deck.');

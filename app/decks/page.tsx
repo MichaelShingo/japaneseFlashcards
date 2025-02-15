@@ -1,5 +1,5 @@
 'use client';
-import { Box, Fab, Snackbar, Typography } from "@mui/material";
+import { Box, Fab, Typography } from "@mui/material";
 import { FC, SyntheticEvent, useState } from "react";
 import DefaultTabs, { Tab } from "../components/atoms/Tabs/Tabs";
 import PrivateDecks from "../components/organisms/PrivateDecks/PrivateDecks";

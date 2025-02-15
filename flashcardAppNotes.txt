@@ -4,19 +4,32 @@ npx prisma db seed
 npx prisma studio
 npx prisma migrate reset
 
-Decks page todo
-- filter function
-- pagination works?
-- edit,
-- copy (do you need this on private decks?)
-- delete
-- reset srs 
-- add deck 
-- deck row on-click to card detail
-- public toggle
-- sorting 
+TODO
 - navbar
 - footer
+Decks page
+- filter label
+- reset srs 
+- sort by progress
+- public decks
+Study page
+- show hint
+- show/hide definition
+- furigana w/ wanikani API
+- does user need to input reading? 
+- should be able to add synonyms for english
+- example sentences? and other notes 
+- system to check for almost correct entries
+- arrange data based on study mode
+- create SRS level tracking in two parts (translating from japanese, and 
+translating from english) 
+- progress bar, percentage
+- current percent correct 
+- keyboard shortcut for mark answer correct or not, and show answer
+- show current SRS level
+- end study session
+Card page
+- UI - easily add, edit, delete cards without modals 
 
 
 Calc new lessons:
@@ -31,6 +44,7 @@ Features
 - kanji composition information from wanikani
 - ai feature to take a reading passage and extract essential vocabulary. Then put them into a card for you.
 - ability to add audio? 
+- change font of japanese text to get used to reading different 
 
 Routes
 - create card

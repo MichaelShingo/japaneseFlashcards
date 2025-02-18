@@ -1,6 +1,12 @@
 import { reverseObject } from "@/utils/data";
 import { StudyMode } from "@prisma/client";
 
+export type StudyModeType = 'production' | 'recognition';
+export const studyModeTypeMap = {
+  production: 'production',
+  recognition: 'recognition',
+};
+
 export const studyModeSeedIds: Record<string, number> = {
   recognitionFront: 1,
   recognitionBack: 2,
@@ -12,36 +18,52 @@ export const studyModeSeedIds: Record<string, number> = {
 
 export const reverseStudyModeSeedIds: Record<number, string> = reverseObject(studyModeSeedIds);
 
+export const studyModesMap: Record<string, string> = {
+  japaneseRecognition: 'japaneseRecognition',
+  englishRecognition: 'englishRecognition',
+  japaneseAndEnglishRecognition: 'japaneseAndEnglishRecognition',
+  produceJapanese: 'produceJapanese',
+  produceEnglish: 'produceEnglish',
+  produceJapaneseAndEnglish: 'produceJapaneseAndEnglish',
+};
+
+
 
 export const studyModes: Omit<StudyMode, 'id' | 'createdAt' | 'updatedAt'>[] = [
   {
-    identifier: 'recognitionFront',
+    identifier: 'japaneseRecognition',
     name: 'Japanese Recognition',
-    description: 'Given the Japanese word, self-rate your English translation.'
+    description: 'Given the Japanese word, self-rate your English translation.',
+    type: 'recognition'
   },
   {
-    identifier: 'recognitionBack',
+    identifier: 'englishRecognition',
     name: 'English Recognition',
-    description: 'Given the English word, self-rate your Japanese translation.'
+    description: 'Given the English word, self-rate your Japanese translation.',
+    type: 'recognition'
   },
   {
-    identifier: 'recognitionBoth',
+    identifier: 'japaneseAndEnglishRecognition',
     name: 'Japanese and English Recognition',
-    description: 'Given the Japanese word, self-rate your English translation. Then sometime later, given the English word, self-rate your Japanese translation.'
+    description: 'Given the Japanese word, self-rate your English translation. Then sometime later, given the English word, self-rate your Japanese translation.',
+    type: 'recognition'
   },
   {
-    identifier: 'productionFront',
+    identifier: 'produceJapanese',
     name: 'Produce Japanese from English',
-    description: 'Given the English word, type the Japanese translation.'
+    description: 'Given the English word, type the Japanese translation.',
+    type: 'production'
   },
   {
-    identifier: 'productionBack',
+    identifier: 'produceEnglish',
     name: 'Produce English from Japanese',
-    description: 'Given the Japanese word, type the English translation.'
+    description: 'Given the Japanese word, type the English translation.',
+    type: 'production'
   },
   {
-    identifier: 'productionBoth',
+    identifier: 'produceJapaneseAndEnglish',
     name: 'Produce Japanese and English',
-    description: 'Given the English word, type the Japanese translation. Then sometime later, given the Japanese word, type the English translation.'
+    description: 'Given the English word, type the Japanese translation. Then sometime later, given the Japanese word, type the English translation.',
+    type: 'production'
   }
 ];

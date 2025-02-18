@@ -13,6 +13,7 @@ export interface ExtendedDeck extends Deck {
 }
 
 export const GET = auth(async function GET(request: NextAuthRequest) {
+  console.log('????');
   try {
     if (!request.auth) {
       return responses.notAuthenticated();

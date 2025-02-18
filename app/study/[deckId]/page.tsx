@@ -1,18 +1,41 @@
 'use client';
-import { Box, Button, ButtonGroup, CircularProgress, TextField, Typography } from "@mui/material";
-import { Card, Deck } from "@prisma/client";
+import { studyModes, studyModesMap, StudyModeType, studyModeTypeMap } from "@/prisma/seedData/studyModes";
+import { Box, Button, ButtonGroup, CircularProgress, IconButton, TextField, Tooltip, Typography } from "@mui/material";
+import { Card, Deck, StudyMode } from "@prisma/client";
 import { useQuery } from "@tanstack/react-query";
-import { useParams } from "next/navigation";
+import { useParams, useRouter } from "next/navigation";
 import queryString from "query-string";
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import CloseIcon from '@mui/icons-material/Close';
+import EditIcon from '@mui/icons-material/Edit';
+import VisibilityIcon from '@mui/icons-material/Visibility';
+import QuestionMarkIcon from '@mui/icons-material/QuestionMark';
+import DisabledByDefaultIcon from '@mui/icons-material/DisabledByDefault';
+import CheckIcon from '@mui/icons-material/Check';
+
 
 const Study = () => {
   const params = useParams();
+  const router = useRouter();
   const [currentCardIndex, setCurrentCardIndex] = useState<number>(0);
   const [answer, setAnswer] = useState<string>('');
+  const [isAnswered, setIsAnswered] = useState<boolean>(false);
+  const [isCorrect, setIsCorrect] = useState<boolean | null>(null);
+  const [correctCount, setCorrectCount] = useState<number>(0);
+
+  const calcSubmitButtonColor = (): string => {
+    if (isAnswered && isCorrect) {
+      return 'success';
+    } else if (isAnswered && !isCorrect) {
+      return 'error';
+    } else {
+      return 'primary';
+    }
+  };
+
   const { deckId } = params;
 
-  const { data, isPending, isError } = useQuery<Card[]>({
+  const { data: cardData, isPending: cardIsPending, isError } = useQuery<Card[]>({
     queryKey: ['cards'],
     queryFn: async () => {
       const queryParams = queryString.stringify({ dueForStudy: true, deckId: deckId });
@@ -25,66 +48,169 @@ const Study = () => {
     }
   });
 
-  console.log("🚀 ~ Study ~ data:", data);
+  const currentCard = !cardIsPending && cardData[currentCardIndex];
 
   // or should it just be, you know it or you don't 
+  // const selfRateOptions = [
+  //   {
+  //     value: 1,
+  //     helpText: `Don't know at all.`
+  //   },
+  //   {
+  //     value: 2,
+  //     helpText: `Know a little.`
+  //   },
+  //   {
+  //     value: 3,
+  //     helpText: `Know well.`
+  //   },
+  //   {
+  //     value: 4,
+  //     helpText: `Know very well.`
+  //   },
+  //   {
+  //     value: 5,
+  //     helpText: `Know perfectly.`
+  //   }
+  // ];
   const selfRateOptions = [
     {
       value: 1,
-      helpText: `Don't know at all.`
+      helpText: `Wrong`
     },
     {
       value: 2,
-      helpText: `Know a little.`
+      helpText: `Correct`
     },
-    {
-      value: 3,
-      helpText: `Know well.`
-    },
-    {
-      value: 4,
-      helpText: `Know very well.`
-    },
-    {
-      value: 5,
-      helpText: `Know perfectly.`
-    }
   ];
-
 
   const submitSelfRating = (rating: number) => {
     console.log(rating);
   };
 
-  // const { deckData, deckIsPending } = useQuery<Deck>({
-  //   queryKey: ['deck'],
-  //   queryFn: async () => {
-  //     const response = await fetch(`/api/decks/${deckId}`);
-  //   }
-  // });
+  interface ExtendedDeck extends Deck {
+    studyMode: StudyMode;
+  }
 
+  const { data: deckData, isPending: deckIsPending } = useQuery<ExtendedDeck>({
+    queryKey: ['deck'],
+    queryFn: async () => {
+      const response = await fetch(`/api/decks/${deckId}`, {
+        method: 'GET',
+      });
+      if (!response.ok) {
+        throw new Error('Failed to fetch.');
+      }
+      return response.json();
+    }
+  });
 
+  const submitAnswer = () => {
+    if (answer === '') {
+      return;
+    }
+    setIsAnswered(true);
+    if (answer.toLowerCase() === currentCard.back.toLowerCase()) {
+      setIsCorrect(true);
+
+      // update card SRS
+      // show indication of next SRS level
+    } else {
+      setIsCorrect(false);
+      // move current card to later point in the deck, mark it as wrong
+      // update card SRS
+
+    }
+  };
+
+  const advanceToNextCard = () => {
+    if (isCorrect) {
+      setCorrectCount((value) => value + 1);
+    }
+    if (correctCount === cardData.length - 1) {
+      router.push('/decks');
+    }
+    setCurrentCardIndex((value) => value + 1);
+    setIsCorrect(null);
+    setAnswer('');
+    setIsAnswered(false);
+  };
+
+  const handleKeyPress = (e: KeyboardEvent) => {
+    if ((e.target as HTMLElement).tagName === 'INPUT' || (e.target as HTMLElement).tagName === 'TEXTAREA') {
+      return;
+    }
+
+    switch (e.key) {
+      case 'm':
+        break;
+      case 'a':
+        break;
+      case 'e':
+        break;
+      case 'Esc':
+        break;
+    }
+  };
+
+  const handleEnterPress = (e: KeyboardEvent) => {
+    if (e.key === 'Enter') {
+      isAnswered ? advanceToNextCard() : submitAnswer();
+      return;
+    }
+  };
+
+  useEffect(() => {
+    window.addEventListener('keydown', handleKeyPress);
+    return () => {
+      window.removeEventListener('keydown', handleKeyPress);
+    };
+  }, [isAnswered, isCorrect, answer]);
+
+  const isProduction = !deckIsPending && deckData.studyMode.type === studyModeTypeMap.production;
 
   return (
-    <Box className="flex items-center flex-col gap-6 justify-center w-full h-[100vh]">
-      {isPending ?
+    <Box className="flex items-center flex-col gap-6 justify-center w-full h-[95vh] overflow-hidden">
+      {cardIsPending || deckIsPending ?
         <CircularProgress />
         :
         <>
+          <Box className="left-0 top-0 h-2 absolute bg-ui-02 w-[100vw]" >
+            <Box className="bg-accent h-full transition-all duration-500" sx={{ width: `${correctCount / cardData.length * 100}%` }} />
+          </Box>
+          <Box className="absolute top-3 left-2">
+            <Box className="flex flex-row items-center">
+              <Button startIcon={<CloseIcon className="aspect-square h-[28px] w-[28px]" />} size="small" color="info">
+                Exit Study Mode
+              </Button>
+            </Box>
+          </Box>
           <Typography variant="h1">
-            {data[currentCardIndex].front}
+            {cardData[currentCardIndex].front}
           </Typography>
-          <TextField className="w-[50vw] min-w-[300px] max-w-[800px] [&_.MuiInputBase-input]:text-center" variant="outlined" placeholder="Type english definition" value={answer} onChange={(e) => setAnswer(e.target.value)} />
-          <ButtonGroup variant="contained" aria-label="Basic button group">
-            {selfRateOptions.map((option) => (
-              <Button size="large" onClick={() => submitSelfRating(option.value)} key={option.value}>{option.value}</Button>
-            ))}
+
+          {!isProduction ?
+            <>
+              <TextField className="w-[50vw] min-w-[300px] max-w-[350px] [&_.MuiInputBase-input]:text-center" variant="outlined" placeholder="Type in English" value={answer} onChange={(e) => setAnswer(e.target.value)} onKeyDown={(e: React.KeyboardEvent) => handleEnterPress(e)} />
+              <Button disabled={answer === ''} variant={isAnswered ? 'outlined' : 'contained'} color={calcSubmitButtonColor()} size="large" onClick={isAnswered ? advanceToNextCard : submitAnswer}>
+                {isAnswered ? 'Next Card' : 'Submit Answer'}
+              </Button>
+            </>
+            :
+
+            <ButtonGroup variant="contained" aria-label="Basic button group">
+              <Button color="secondary" startIcon={<CloseIcon />} className="min-w-[175px]" size="large" onClick={() => submitSelfRating(0)}>Incorrect</Button>
+              <Button startIcon={<CheckIcon />} className="min-w-[175px]" size="large" onClick={() => submitSelfRating(1)}>Correct</Button>
+            </ButtonGroup>
+          }
+          <ButtonGroup variant="outlined" className="absolute bottom-10">
+            <Button startIcon={<QuestionMarkIcon />} >Show Mnemonic</Button>
+            <Button startIcon={<VisibilityIcon />} >Show Answer</Button>
+            <Button startIcon={<EditIcon />}>Edit Card</Button>
           </ButtonGroup>
         </>
-
       }
-
-    </Box>
+    </Box >
   );
 };
 

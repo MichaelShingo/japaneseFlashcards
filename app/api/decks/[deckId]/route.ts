@@ -56,20 +56,19 @@ export const GET = auth(async function GET(request: NextAuthRequest, { params }:
     if (!request.auth) {
       return responses.notAuthenticated();
     }
-    const { deckId } = params;
+    const { deckId } = await params;
     const { searchParams } = new URL(request.url);
-    const dueForStudy = Boolean(searchParams.get('dueForStudy'));
 
-    const cards: Card[] = await prisma.card.findMany({
+    const deck: Deck = await prisma.deck.findUnique({
       where: {
-        deckId: Number(deckId),
-        nextStudy: {
-          lt: dueForStudy ? new Date() : undefined
-        }
+        id: Number(deckId),
       },
+      include: {
+        studyMode: true,
+      }
     });
 
-    return NextResponse.json(cards);
+    return NextResponse.json(deck);
   } catch (error) {
     return responses.badRequest('Failed to create deck.');
   }

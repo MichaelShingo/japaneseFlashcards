@@ -1,5 +1,5 @@
 import { languages } from './seedData/languages';
-import { studyModes } from './seedData/studyModes';
+import { studyModes, studyModesMap } from './seedData/studyModes';
 import { decks } from './seedData/decks';
 import { cards } from './seedData/cards';
 import { prisma } from './prisma';
@@ -16,10 +16,13 @@ async function main() {
   for (const studyMode of studyModes) {
     await prisma.studyMode.upsert({
       where: { identifier: studyMode.identifier },
-      update: { name: studyMode.name, description: studyMode.description },
-      create: { identifier: studyMode.identifier, name: studyMode.name, description: studyMode.description },
+      update: { name: studyMode.name, description: studyMode.description, type: studyMode.type },
+      create: { identifier: studyMode.identifier, name: studyMode.name, description: studyMode.description, type: studyMode.type },
     });
   }
+
+  const newStudyModes = await prisma.studyMode.findMany();
+  const japaneseRecognition = newStudyModes.find((mode) => mode.identifier === studyModesMap.japaneseRecognition);
 
   for (const deck of decks) {
     const deckCreateUpdate = {
@@ -27,7 +30,7 @@ async function main() {
       description: deck.description,
       isPublic: deck.isPublic,
       userId: deck.userId,
-      studyModeId: deck.studyModeId,
+      studyModeId: japaneseRecognition.id,
     };
     await prisma.deck.upsert({
       where: { id: deck.id },
@@ -36,13 +39,17 @@ async function main() {
     });
   }
 
+  const newDecks = await prisma.deck.findMany();
+  const musicDeck = newDecks.find((deck) => deck.title === 'Music');
+  console.log("🚀 ~ main ~ musicDeck:", musicDeck);
+
   for (const card of cards) {
     const cardCreateUpdate = {
       front: card.front,
       back: card.back,
       hint: card.hint,
       userId: card.userId,
-      deckId: card.deckId,
+      deckId: musicDeck.id,
       srsLevel: card.srsLevel,
       nextStudy: card.nextStudy
     };

@@ -1,5 +1,4 @@
 import { Deck } from "@prisma/client";
-import { languageSeedIds } from "./languages";
 import { studyModeSeedIds } from "./studyModes";
 import { reverseObject } from "@/utils/data";
 import { userIds } from "./users";

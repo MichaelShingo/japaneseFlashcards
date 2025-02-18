@@ -110,7 +110,7 @@ const DeckUpsertModal: FC<DeckUpsertModalProps> = ({ open, onClose, isEdit, deck
       maxWidth="xs"
       fullWidth
     >
-      <DialogTitle>Add Deck</DialogTitle>
+      <DialogTitle>{isEdit ? 'Edit Deck' : 'Add Deck'}</DialogTitle>
       <form onSubmit={handleSubmit(onSubmit)} >
         <DialogContent>
           <Box className="flex flex-col gap-3 mt-2" >

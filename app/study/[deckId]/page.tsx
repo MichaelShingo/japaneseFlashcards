@@ -1,5 +1,5 @@
 'use client';
-import { studyModes, studyModesMap, StudyModeType, studyModeTypeMap } from "@/prisma/seedData/studyModes";
+import { studyModeTypeMap } from "@/prisma/seedData/studyModes";
 import { Box, Button, ButtonGroup, CircularProgress, IconButton, TextField, Tooltip, Typography } from "@mui/material";
 import { Card, Deck, StudyMode } from "@prisma/client";
 import { useQuery } from "@tanstack/react-query";
@@ -10,13 +10,14 @@ import CloseIcon from '@mui/icons-material/Close';
 import EditIcon from '@mui/icons-material/Edit';
 import VisibilityIcon from '@mui/icons-material/Visibility';
 import QuestionMarkIcon from '@mui/icons-material/QuestionMark';
-import DisabledByDefaultIcon from '@mui/icons-material/DisabledByDefault';
 import CheckIcon from '@mui/icons-material/Check';
+import CardUpsertModal from "@/app/components/molecules/Modals/CardUpsertModal";
 
 
 const Study = () => {
   const params = useParams();
   const router = useRouter();
+  const [isUpsertModalOpen, setIsUpsertModalOpen] = useState<boolean>(false);
   const [currentCardIndex, setCurrentCardIndex] = useState<number>(0);
   const [answer, setAnswer] = useState<string>('');
   const [isAnswered, setIsAnswered] = useState<boolean>(false);
@@ -50,40 +51,6 @@ const Study = () => {
 
   const currentCard = !cardIsPending && cardData[currentCardIndex];
 
-  // or should it just be, you know it or you don't 
-  // const selfRateOptions = [
-  //   {
-  //     value: 1,
-  //     helpText: `Don't know at all.`
-  //   },
-  //   {
-  //     value: 2,
-  //     helpText: `Know a little.`
-  //   },
-  //   {
-  //     value: 3,
-  //     helpText: `Know well.`
-  //   },
-  //   {
-  //     value: 4,
-  //     helpText: `Know very well.`
-  //   },
-  //   {
-  //     value: 5,
-  //     helpText: `Know perfectly.`
-  //   }
-  // ];
-  const selfRateOptions = [
-    {
-      value: 1,
-      helpText: `Wrong`
-    },
-    {
-      value: 2,
-      helpText: `Correct`
-    },
-  ];
-
   const submitSelfRating = (rating: number) => {
     console.log(rating);
   };
@@ -110,7 +77,7 @@ const Study = () => {
       return;
     }
     setIsAnswered(true);
-    if (answer.toLowerCase() === currentCard.back.toLowerCase()) {
+    if (answer.toLowerCase() === currentCard.english.toLowerCase()) {
       setIsCorrect(true);
 
       // update card SRS
@@ -127,7 +94,7 @@ const Study = () => {
     if (isCorrect) {
       setCorrectCount((value) => value + 1);
     }
-    if (correctCount === cardData.length - 1) {
+    if (currentCardIndex === cardData.length - 1) {
       router.push('/decks');
     }
     setCurrentCardIndex((value) => value + 1);
@@ -186,7 +153,7 @@ const Study = () => {
             </Box>
           </Box>
           <Typography variant="h1">
-            {cardData[currentCardIndex].front}
+            {cardData[currentCardIndex].japanese}
           </Typography>
 
           {!isProduction ?
@@ -206,8 +173,9 @@ const Study = () => {
           <ButtonGroup variant="outlined" className="absolute bottom-10">
             <Button startIcon={<QuestionMarkIcon />} >Show Mnemonic</Button>
             <Button startIcon={<VisibilityIcon />} >Show Answer</Button>
-            <Button startIcon={<EditIcon />}>Edit Card</Button>
+            <Button onClick={() => setIsUpsertModalOpen(true)} startIcon={<EditIcon />}>Edit Card</Button>
           </ButtonGroup>
+          <CardUpsertModal open={isUpsertModalOpen} card={currentCard} onClose={() => setIsUpsertModalOpen(false)} isEdit />
         </>
       }
     </Box >

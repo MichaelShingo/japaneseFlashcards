@@ -41,12 +41,13 @@ async function main() {
 
   const newDecks = await prisma.deck.findMany();
   const musicDeck = newDecks.find((deck) => deck.title === 'Music');
-  console.log("🚀 ~ main ~ musicDeck:", musicDeck);
 
   for (const card of cards) {
     const cardCreateUpdate = {
-      front: card.front,
-      back: card.back,
+      japanese: card.japanese,
+      japaneseSynonyms: [],
+      english: card.english,
+      englishSynonyms: [],
       hint: card.hint,
       userId: card.userId,
       deckId: musicDeck.id,
@@ -54,7 +55,12 @@ async function main() {
       nextStudy: card.nextStudy
     };
     await prisma.card.upsert({
-      where: { id: card.id },
+      where: {
+        japanese_deckId: {
+          japanese: card.japanese,
+          deckId: card.deckId,
+        }
+      },
       update: cardCreateUpdate,
       create: cardCreateUpdate,
     });

@@ -23,6 +23,8 @@ const Study = () => {
   const [isAnswered, setIsAnswered] = useState<boolean>(false);
   const [isCorrect, setIsCorrect] = useState<boolean | null>(null);
   const [correctCount, setCorrectCount] = useState<number>(0);
+  const [cardOrder, setCardOrder] = useState<number[]>([]);
+
 
   const calcSubmitButtonColor = (): string => {
     if (isAnswered && isCorrect) {
@@ -46,8 +48,17 @@ const Study = () => {
         throw new Error(error.message);
       }
       return await response.json();
-    }
+    },
   });
+
+  console.log("🚀 ~ Study ~ cardData:", cardData);
+
+  useEffect(() => {
+    if (cardData && cardOrder.length === 0) {
+      const order = cardData.map((_, index) => index).sort(() => Math.random() - 0.5);
+      setCardOrder(order);
+    }
+  }, [cardData, cardOrder.length]);
 
   const currentCard = !cardIsPending && cardData[currentCardIndex];
 

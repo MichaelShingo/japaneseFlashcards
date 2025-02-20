@@ -93,7 +93,7 @@ const PrivateDecksTable: FC<PrivateDecksTableProps> = ({ headCells, data, select
 
   const { mutate: deleteMutate, isPending: deleteIsPending } = useMutation({
     mutationFn: async (deckId: number) => {
-      const response = await fetch(`api/decks/${deckId}`, {
+      const response = await fetch(`/api/decks/${deckId}`, {
         method: 'DELETE',
       }
       );

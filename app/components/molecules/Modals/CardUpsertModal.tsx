@@ -1,5 +1,5 @@
 import useToast from "@/app/customHooks/useToast";
-import { Box, Button, Dialog, DialogActions, DialogContent, DialogTitle, Select, TextField } from "@mui/material";
+import { Box, Button, Dialog, DialogActions, DialogContent, DialogTitle, TextField } from "@mui/material";
 import { Card } from "@prisma/client";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { FC, useEffect } from "react";
@@ -25,7 +25,7 @@ const CardUpsertModal: FC<CardUpsertModalProps> = ({ open, onClose, card, isEdit
   const toast = useToast();
   const queryClient = useQueryClient();
 
-  const { control, handleSubmit, formState: { errors }, reset } = useForm<FormData>({
+  const { control, handleSubmit, formState: { errors }, reset } = useForm<CardUpsertFormData>({
     defaultValues: {
       japanese: '',
       japaneseSynonyms: [],
@@ -48,7 +48,7 @@ const CardUpsertModal: FC<CardUpsertModalProps> = ({ open, onClose, card, isEdit
   }, [isEdit, card, reset]);
 
   const { mutate: postMutate, isPending: postIsPending } = useMutation({
-    mutationFn: async (newCard: FormData) => {
+    mutationFn: async (newCard: CardUpsertFormData) => {
       const response = await fetch('api/cards/', {
         method: 'POST',
         headers: {
@@ -69,9 +69,8 @@ const CardUpsertModal: FC<CardUpsertModalProps> = ({ open, onClose, card, isEdit
   });
 
   const { mutate: patchMutate, isPending: patchIsPending } = useMutation({
-    mutationFn: async (updatedCard: FormData) => {
-      console.log(`api/cards/${card!.id}`);
-      const response = await fetch(`api/cards/${card!.id}`, {
+    mutationFn: async (updatedCard: CardUpsertFormData) => {
+      const response = await fetch(`/api/cards/${card!.id}`, {
         method: 'PATCH',
         headers: {
           'Content-Type': 'application/json',
@@ -95,7 +94,8 @@ const CardUpsertModal: FC<CardUpsertModalProps> = ({ open, onClose, card, isEdit
   });
 
 
-  const onSubmit: SubmitHandler<FormData> = (data) => {
+  const onSubmit: SubmitHandler<CardUpsertFormData> = (data) => {
+    console.log("🚀 ~ data:", data);
     isEdit ? patchMutate(data) : postMutate(data);
   };
 
@@ -130,7 +130,7 @@ const CardUpsertModal: FC<CardUpsertModalProps> = ({ open, onClose, card, isEdit
               render={({ field }) => (
                 <ArrayInput
                   field={field}
-                  label="Japanese Synonyms*"
+                  label="Japanese Synonyms"
                   placeholder="Add synonyms"
                 />
               )}
@@ -142,11 +142,22 @@ const CardUpsertModal: FC<CardUpsertModalProps> = ({ open, onClose, card, isEdit
               render={({ field }) => (
                 <TextField
                   {...field}
-                  label="Japanese*"
+                  label="English*"
                   variant="outlined"
                   error={!!errors.english}
                   helperText={errors.english ? errors.english.message : ''}
                   fullWidth
+                />
+              )}
+            />
+            <Controller
+              name="englishSynonyms"
+              control={control}
+              render={({ field }) => (
+                <ArrayInput
+                  field={field}
+                  label="English Synonyms"
+                  placeholder="Add synonyms"
                 />
               )}
             />

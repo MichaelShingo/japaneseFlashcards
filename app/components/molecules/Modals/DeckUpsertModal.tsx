@@ -76,8 +76,7 @@ const DeckUpsertModal: FC<DeckUpsertModalProps> = ({ open, onClose, isEdit, deck
 
   const { mutate: patchMutate, isPending: patchIsPending } = useMutation({
     mutationFn: async (updatedDeck: FormData) => {
-      console.log(`api/decks/${deck!.id}`);
-      const response = await fetch(`api/decks/${deck!.id}`, {
+      const response = await fetch(`/api/decks/${deck!.id}`, {
         method: 'PATCH',
         headers: {
           'Content-Type': 'application/json',

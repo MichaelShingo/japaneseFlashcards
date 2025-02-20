@@ -5,25 +5,33 @@ import { Card, Deck, StudyMode } from "@prisma/client";
 import { useQuery } from "@tanstack/react-query";
 import { useParams, useRouter } from "next/navigation";
 import queryString from "query-string";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import CloseIcon from '@mui/icons-material/Close';
 import EditIcon from '@mui/icons-material/Edit';
 import VisibilityIcon from '@mui/icons-material/Visibility';
 import QuestionMarkIcon from '@mui/icons-material/QuestionMark';
 import CheckIcon from '@mui/icons-material/Check';
 import CardUpsertModal from "@/app/components/molecules/Modals/CardUpsertModal";
+import AnswerModal from "@/app/components/molecules/Modals/AnswerModal";
+import ResultPopover from "@/app/components/atoms/ResultPopover/ResultPopover";
 
 
 const Study = () => {
   const params = useParams();
   const router = useRouter();
   const [isUpsertModalOpen, setIsUpsertModalOpen] = useState<boolean>(false);
+  const [isAnswerModalOpen, setIsAnswerModalOpen] = useState<boolean>(false);
+  const [isPopoverVisible, setIsPopoverVisible] = useState<boolean>(false);
   const [currentCardIndex, setCurrentCardIndex] = useState<number>(0);
   const [answer, setAnswer] = useState<string>('');
   const [isAnswered, setIsAnswered] = useState<boolean>(false);
+
   const [isCorrect, setIsCorrect] = useState<boolean | null>(null);
   const [correctCount, setCorrectCount] = useState<number>(0);
   const [cardOrder, setCardOrder] = useState<Record<number, number> | null>(null);
+  const textInputRef = useRef<HTMLInputElement | null>(null);
+
+
 
   const calcSubmitButtonColor = (): string => {
     if (isAnswered && isCorrect) {
@@ -65,7 +73,7 @@ const Study = () => {
 
   const orderedCardData = !cardIsPending && cardOrder && cardData.toSorted((a, b) => cardOrder[a.id] - cardOrder[b.id]);
 
-  const currentCard = !cardIsPending && cardData[currentCardIndex];
+  const currentCard = orderedCardData && orderedCardData[currentCardIndex];
 
   const submitSelfRating = (rating: number) => {
     console.log(rating);
@@ -102,8 +110,9 @@ const Study = () => {
       setIsCorrect(false);
       // move current card to later point in the deck, mark it as wrong
       // update card SRS
-
     }
+    setIsPopoverVisible(true);
+
   };
 
   const advanceToNextCard = () => {
@@ -151,6 +160,12 @@ const Study = () => {
     };
   }, [isAnswered, isCorrect, answer]);
 
+  useEffect(() => {
+    if (textInputRef.current && !cardIsPending) {
+      textInputRef.current.focus();
+    }
+  }, [textInputRef.current, cardIsPending, cardData]);
+
   const isProduction = !deckIsPending && deckData.studyMode.type === studyModeTypeMap.production;
 
   return (
@@ -159,6 +174,7 @@ const Study = () => {
         <CircularProgress />
         :
         <>
+          <ResultPopover isCorrect={isCorrect} visible={isPopoverVisible} setVisible={setIsPopoverVisible} />
           <Box className="left-0 top-0 h-2 absolute bg-ui-02 w-[100vw]" >
             <Box className="bg-accent h-full transition-all duration-500" sx={{ width: `${correctCount / cardData.length * 100}%` }} />
           </Box>
@@ -175,23 +191,23 @@ const Study = () => {
 
           {!isProduction ?
             <>
-              <TextField className="w-[50vw] min-w-[300px] max-w-[350px] [&_.MuiInputBase-input]:text-center" variant="outlined" placeholder="Type in English" value={answer} onChange={(e) => setAnswer(e.target.value)} onKeyDown={(e: React.KeyboardEvent) => handleEnterPress(e)} />
+              <TextField className="w-[50vw] min-w-[300px] max-w-[350px] [&_.MuiInputBase-input]:text-center" variant="outlined" placeholder="Type in English" value={answer} onChange={(e) => setAnswer(e.target.value)} onKeyDown={(e: React.KeyboardEvent) => handleEnterPress(e)} inputRef={textInputRef} />
               <Button disabled={answer === ''} variant={isAnswered ? 'outlined' : 'contained'} color={calcSubmitButtonColor()} size="large" onClick={isAnswered ? advanceToNextCard : submitAnswer}>
                 {isAnswered ? 'Next Card' : 'Submit Answer'}
               </Button>
             </>
             :
-
             <ButtonGroup variant="contained" aria-label="Basic button group">
               <Button color="secondary" startIcon={<CloseIcon />} className="min-w-[175px]" size="large" onClick={() => submitSelfRating(0)}>Incorrect</Button>
               <Button startIcon={<CheckIcon />} className="min-w-[175px]" size="large" onClick={() => submitSelfRating(1)}>Correct</Button>
             </ButtonGroup>
           }
-          <ButtonGroup variant="outlined" className="absolute bottom-10">
-            <Button startIcon={<QuestionMarkIcon />} >Show Mnemonic</Button>
-            <Button startIcon={<VisibilityIcon />} >Show Answer</Button>
-            <Button disabled={!isAnswered} onClick={() => setIsUpsertModalOpen(true)} startIcon={<EditIcon />}>Edit Card</Button>
-          </ButtonGroup>
+          <Box className="absolute bottom-10 flex flex-row gap-10">
+            <Button disabled={!currentCard.hint} variant="outlined" startIcon={<QuestionMarkIcon />} >Show Mnemonic</Button>
+            <Button onClick={() => setIsAnswerModalOpen(true)} variant="outlined" disabled={!isAnswered} startIcon={<VisibilityIcon />} >Show Answer</Button>
+            <Button variant="outlined" disabled={!isAnswered} onClick={() => setIsUpsertModalOpen(true)} startIcon={<EditIcon />}>Edit Card</Button>
+          </Box>
+          <AnswerModal open={isAnswerModalOpen} onClose={() => setIsAnswerModalOpen(false)} card={currentCard} />
           <CardUpsertModal open={isUpsertModalOpen} card={currentCard} onClose={() => setIsUpsertModalOpen(false)} isEdit />
         </>
       }

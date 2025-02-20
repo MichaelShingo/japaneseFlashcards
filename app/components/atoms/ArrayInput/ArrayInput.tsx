@@ -10,7 +10,6 @@ interface ArrayInputProps {
   field: ControllerRenderProps<CardUpsertFormData, any>;
 }
 
-
 const ArrayInput: FC<ArrayInputProps> = ({ label, placeholder, field }) => {
   const [inputValue, setInputValue] = useState('');
 
@@ -63,9 +62,7 @@ const ArrayInput: FC<ArrayInputProps> = ({ label, placeholder, field }) => {
           <Chip key={value} label={value} onDelete={() => handleDelete(value)} />
         ))}
       </Stack>
-
     </Box>
-
   );
 };
 

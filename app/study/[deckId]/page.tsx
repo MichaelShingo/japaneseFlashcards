@@ -23,8 +23,7 @@ const Study = () => {
   const [isAnswered, setIsAnswered] = useState<boolean>(false);
   const [isCorrect, setIsCorrect] = useState<boolean | null>(null);
   const [correctCount, setCorrectCount] = useState<number>(0);
-  const [cardOrder, setCardOrder] = useState<number[]>([]);
-
+  const [cardOrder, setCardOrder] = useState<Record<number, number> | null>(null);
 
   const calcSubmitButtonColor = (): string => {
     if (isAnswered && isCorrect) {
@@ -38,7 +37,7 @@ const Study = () => {
 
   const { deckId } = params;
 
-  const { data: cardData, isPending: cardIsPending, isError } = useQuery<Card[]>({
+  const { data: cardData, isPending: cardIsPending, isError, } = useQuery<Card[]>({
     queryKey: ['cards'],
     queryFn: async () => {
       const queryParams = queryString.stringify({ dueForStudy: true, deckId: deckId });
@@ -51,14 +50,20 @@ const Study = () => {
     },
   });
 
-  console.log("🚀 ~ Study ~ cardData:", cardData);
 
   useEffect(() => {
-    if (cardData && cardOrder.length === 0) {
-      const order = cardData.map((_, index) => index).sort(() => Math.random() - 0.5);
-      setCardOrder(order);
+    if (cardIsPending) return;
+
+    if (!cardOrder) {
+      const currentOrder: Record<number, number> = [];
+      for (let i = 0; i < cardData.length; i++) {
+        currentOrder[cardData[i].id] = i;
+      }
+      setCardOrder(currentOrder);
     }
-  }, [cardData, cardOrder.length]);
+  }, [cardData, cardIsPending, cardOrder]);
+
+  const orderedCardData = !cardIsPending && cardOrder && cardData.toSorted((a, b) => cardOrder[a.id] - cardOrder[b.id]);
 
   const currentCard = !cardIsPending && cardData[currentCardIndex];
 
@@ -80,7 +85,7 @@ const Study = () => {
         throw new Error('Failed to fetch.');
       }
       return response.json();
-    }
+    },
   });
 
   const submitAnswer = () => {
@@ -105,8 +110,9 @@ const Study = () => {
     if (isCorrect) {
       setCorrectCount((value) => value + 1);
     }
-    if (currentCardIndex === cardData.length - 1) {
+    if (currentCardIndex >= cardData.length - 1) {
       router.push('/decks');
+      return;
     }
     setCurrentCardIndex((value) => value + 1);
     setIsCorrect(null);
@@ -149,7 +155,7 @@ const Study = () => {
 
   return (
     <Box className="flex items-center flex-col gap-6 justify-center w-full h-[95vh] overflow-hidden">
-      {cardIsPending || deckIsPending ?
+      {cardIsPending || deckIsPending || !orderedCardData ?
         <CircularProgress />
         :
         <>
@@ -158,13 +164,13 @@ const Study = () => {
           </Box>
           <Box className="absolute top-3 left-2">
             <Box className="flex flex-row items-center">
-              <Button startIcon={<CloseIcon className="aspect-square h-[28px] w-[28px]" />} size="small" color="info">
+              <Button startIcon={<CloseIcon className="aspect-square h-[28px] w-[28px]" />} size="small" color="info" onClick={() => router.push('/decks')}>
                 Exit Study Mode
               </Button>
             </Box>
           </Box>
           <Typography variant="h1">
-            {cardData[currentCardIndex].japanese}
+            {orderedCardData[currentCardIndex].japanese}
           </Typography>
 
           {!isProduction ?
@@ -184,7 +190,7 @@ const Study = () => {
           <ButtonGroup variant="outlined" className="absolute bottom-10">
             <Button startIcon={<QuestionMarkIcon />} >Show Mnemonic</Button>
             <Button startIcon={<VisibilityIcon />} >Show Answer</Button>
-            <Button onClick={() => setIsUpsertModalOpen(true)} startIcon={<EditIcon />}>Edit Card</Button>
+            <Button disabled={!isAnswered} onClick={() => setIsUpsertModalOpen(true)} startIcon={<EditIcon />}>Edit Card</Button>
           </ButtonGroup>
           <CardUpsertModal open={isUpsertModalOpen} card={currentCard} onClose={() => setIsUpsertModalOpen(false)} isEdit />
         </>

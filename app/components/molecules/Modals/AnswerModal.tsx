@@ -7,13 +7,23 @@ interface AnswerModalProps {
   open: boolean;
   onClose: () => void;
   card: Card;
+  displayJapanese: boolean;
 }
 
-const AnswerModal: FC<AnswerModalProps> = ({ open, onClose, card, }) => {
+const AnswerModal: FC<AnswerModalProps> = ({ open, onClose, card, displayJapanese }) => {
+  const generateInfo = (): string => {
+    const noSynonyms = 'No synonyms available.';
+    if (displayJapanese) {
+      return card.englishSynonyms.length > 0 ? card.englishSynonyms.join(' | ') : noSynonyms;
+    } else {
+      return card.japaneseSynonyms.length > 0 ? card.japaneseSynonyms.join(' | ') : noSynonyms;
+    }
+
+  };
   const content = [
     {
       title: 'Other Acceptable Answers',
-      info: card.englishSynonyms.length > 0 ? card.englishSynonyms.join(' | ') : 'No synonyms available.'
+      info: generateInfo(),
     },
     {
       title: 'Mneumonic',
@@ -47,7 +57,7 @@ const AnswerModal: FC<AnswerModalProps> = ({ open, onClose, card, }) => {
       <DialogContent>
         <Box className="flex flex-col gp-7 mt-2">
           <Typography textAlign="center" variant="h2">
-            {card.english}
+            {displayJapanese ? card.english : card.japanese}
           </Typography>
           <List className="items-center flex flex-col justify-center text-center">
             {content.map((item) => (

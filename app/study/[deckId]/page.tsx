@@ -1,5 +1,5 @@
 'use client';
-import { studyModeTypeMap } from "@/prisma/seedData/studyModes";
+import { studyModeIdentifiers, studyModeTypeMap } from "@/prisma/seedData/studyModes";
 import { Box, Button, ButtonGroup, CircularProgress, IconButton, TextField, Tooltip, Typography } from "@mui/material";
 import { Card, Deck, StudyMode } from "@prisma/client";
 import { useQuery } from "@tanstack/react-query";
@@ -17,9 +17,16 @@ import { twMerge } from "tailwind-merge";
 import LeaderboardIcon from '@mui/icons-material/Leaderboard';
 import Timer from "@/app/components/atoms/Timer/Timer";
 
+type StudyUnit = {
+  cardId: number;
+  studyType: 'displayEnglish' | 'displayJapanese';
+  reviewIncorrect: boolean;
+};
+
 const Study = () => {
   const params = useParams();
   const router = useRouter();
+
   const [isUpsertModalOpen, setIsUpsertModalOpen] = useState<boolean>(false);
   const [isAnswerModalOpen, setIsAnswerModalOpen] = useState<boolean>(false);
   const [isPopoverVisible, setIsPopoverVisible] = useState<boolean>(false);
@@ -27,13 +34,10 @@ const Study = () => {
   const [answer, setAnswer] = useState<string>('');
   const [isAnswered, setIsAnswered] = useState<boolean>(false);
   const [secondsElapsed, setSecondsElapsed] = useState(0);
-
-
+  const [isFirstLoad, setIsFirstLoad] = useState<boolean>(true);
   const [isCorrect, setIsCorrect] = useState<boolean | null>(null);
   const [correctCount, setCorrectCount] = useState<number>(0);
-  const [cardOrder, setCardOrder] = useState<Record<number, number> | null>(null);
-  const textInputRef = useRef<HTMLInputElement | null>(null);
-
+  const [studyOrder, setStudyOrder] = useState<StudyUnit[]>([{ cardId: -1, studyType: 'displayEnglish', reviewIncorrect: false }]);
 
   const calcSubmitButtonColor = (): 'success' | 'error' | 'primary' => {
     if (isAnswered && isCorrect) {
@@ -60,25 +64,6 @@ const Study = () => {
     },
   });
 
-  useEffect(() => {
-    if (cardIsPending) return;
-
-    if (!cardOrder) {
-      const currentOrder: Record<number, number> = [];
-      for (let i = 0; i < cardData.length; i++) {
-        currentOrder[cardData[i].id] = i;
-      }
-      setCardOrder(currentOrder);
-    }
-  }, [cardData, cardIsPending, cardOrder]);
-
-  // for the study sequence, order ONLY the cardIds and whether or not it is japanese or English 
-  // when cards are edited and refetched, order of cardData doesn't matter, because you can just look up the 's data based on the ID
-
-  const orderedCardData = !cardIsPending && cardOrder && cardData.toSorted((a, b) => cardOrder[a.id] - cardOrder[b.id]);
-
-  const currentCard = orderedCardData && orderedCardData[currentCardIndex];
-
   const submitSelfRating = (rating: number) => {
     console.log(rating);
   };
@@ -100,45 +85,60 @@ const Study = () => {
     },
   });
 
-  const checkAnswer = (): boolean => {
-    if (answer.toLowerCase() === currentCard.english.toLowerCase()) {
-      return true;
+  useEffect(() => {
+    // for the study sequence, order ONLY the cardIds and whether or not it is japanese or English 
+    // when cards are edited and refetched, order of cardData doesn't matter, because you can just look up the 's data based on the ID
+
+    if (!isFirstLoad || !cardData || !deckData) {
+      return;
     }
 
-    for (let synonym of currentCard.englishSynonyms) {
-      if (synonym.toLowerCase() === answer) {
-        return true;
+    const displayJapanese = [
+      studyModeIdentifiers.japaneseRecognition,
+      studyModeIdentifiers.produceEnglish,
+      studyModeIdentifiers.produceJapaneseAndEnglish,
+      studyModeIdentifiers.japaneseAndEnglishRecognition
+    ].includes(deckData.studyMode.identifier);
+
+    const displayEnglish = [
+      studyModeIdentifiers.englishRecognition,
+      studyModeIdentifiers.produceJapanese,
+      studyModeIdentifiers.produceJapaneseAndEnglish,
+      studyModeIdentifiers.japaneseAndEnglishRecognition,
+    ].includes(deckData.studyMode.identifier);
+
+    const order: StudyUnit[] = [];
+    for (let card of cardData) {
+      if (displayJapanese) {
+        order.push({
+          cardId: card.id,
+          studyType: 'displayJapanese',
+          reviewIncorrect: false,
+        });
+      }
+      if (displayEnglish) {
+        order.push({
+          cardId: card.id,
+          studyType: 'displayEnglish',
+          reviewIncorrect: false,
+        });
       }
     }
 
-    return false;
-  };
+    setStudyOrder(order);
+    setIsFirstLoad(false);
+  }, [cardData, deckData, isFirstLoad]);
 
-  const submitAnswer = () => {
-    if (answer === '') {
-      return;
-    }
-    setIsAnswered(true);
+  const currentCard = cardData && !cardIsPending && cardData?.find((card) => card.id === studyOrder[currentCardIndex].cardId);
 
-    if (checkAnswer()) {
-      setIsCorrect(true);
 
-      // update card SRS
-      // show indication of next SRS level
-    } else {
-      setIsCorrect(false);
-      // move current card to later point in the deck, mark it as wrong
-      // update card SRS
-    }
-    setIsPopoverVisible(true);
 
-  };
 
   const advanceToNextCard = () => {
     if (isCorrect) {
       setCorrectCount((value) => value + 1);
     }
-    if (currentCardIndex >= cardData.length - 1) {
+    if (currentCardIndex >= studyOrder.length - 1) {
       router.push('/decks');
       return;
     }
@@ -188,16 +188,63 @@ const Study = () => {
   }, [isAnswered, isCorrect, answer]);
 
   const isProduction = !deckIsPending && deckData.studyMode.type === studyModeTypeMap.production;
+  const displayJapanese = studyOrder[currentCardIndex].studyType === 'displayJapanese';
+
+  const checkAnswer = (): boolean => {
+    if (displayJapanese) {
+      if (answer.toLowerCase() === currentCard.english.toLowerCase()) {
+        return true;
+      }
+      for (let synonym of currentCard.englishSynonyms) {
+        if (synonym.toLowerCase() === answer) {
+          return true;
+        }
+      }
+    } else {
+      if (answer === currentCard.japanese) {
+        return true;
+      }
+      for (let synonym of currentCard.japaneseSynonyms) {
+        if (synonym === answer) {
+          return true;
+        }
+      }
+    }
+    return false;
+  };
+
+  const submitAnswer = () => {
+    if (answer === '') {
+      return;
+    }
+
+    setIsAnswered(true);
+
+    if (checkAnswer()) {
+      setIsCorrect(true);
+
+      // update card SRS
+      // show indication of next SRS level
+    } else {
+      setIsCorrect(false);
+      // move current card to later point in the deck, mark it as wrong
+      // update card SRS
+    }
+    setIsPopoverVisible(true);
+
+  };
+
+
 
   return (
     <Box className="flex items-center flex-col gap-6 justify-center w-full h-[95vh] overflow-hidden">
-      {cardIsPending || deckIsPending || !orderedCardData ?
+      {!currentCard || cardIsPending || deckIsPending ?
         <CircularProgress />
         :
         <>
           {/* <ResultPopover isCorrect={isCorrect} visible={isPopoverVisible} setVisible={setIsPopoverVisible} /> */}
           <Box className="left-0 top-0 h-2 absolute bg-ui-02 w-[100vw]" >
-            <Box className="bg-accent h-full transition-all duration-500" sx={{ width: `${correctCount / cardData?.length * 100}%` }} />
+            <Box className="bg-accent h-full transition-all duration-500" sx={{ width: `${correctCount / studyOrder?.length * 100}%` }} />
           </Box>
           <Box className="absolute top-3 left-2">
             <Button startIcon={<CloseIcon className="aspect-square h-[28px] w-[28px]" />} size="small" color="info" onClick={() => router.push('/decks')}>
@@ -206,7 +253,7 @@ const Study = () => {
           </Box>
           <Box className="absolute top-3 right-3">
             <Box className="flex flex-row">
-              <Button disabled>Progress: {`${correctCount}/${cardData.length}`} ({Math.round(correctCount / cardData?.length * 100)}%)</Button>
+              <Button disabled>Progress: {`${correctCount}/${studyOrder.length}`} ({Math.round(correctCount / studyOrder?.length * 100)}%)</Button>
               <Timer secondsElapsed={secondsElapsed} setSecondsElapsed={setSecondsElapsed} isAnswered={isAnswered} />
               <Button startIcon={<LeaderboardIcon className="" />} size="small" color="info">
                 Level: {currentCard.srsLevel}
@@ -214,10 +261,10 @@ const Study = () => {
             </Box>
           </Box>
           <Typography variant="h1">
-            {orderedCardData[currentCardIndex].japanese}
+            {displayJapanese ? currentCard.japanese : currentCard.english}
           </Typography>
 
-          {!isProduction ?
+          {isProduction ?
             <>
               <TextField
                 className={twMerge([
@@ -227,7 +274,7 @@ const Study = () => {
                 variant="outlined"
                 autoFocus
                 focused
-                placeholder="Type in English"
+                placeholder={displayJapanese ? 'Type in English' : '日本語を入力してください'}
                 value={answer}
                 onChange={(e) => setAnswer(e.target.value)}
                 onKeyDown={(e: React.KeyboardEvent) => handleEnterPress(e)}

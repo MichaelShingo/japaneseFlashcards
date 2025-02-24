@@ -18,7 +18,8 @@ export const studyModeSeedIds: Record<string, number> = {
 
 export const reverseStudyModeSeedIds: Record<number, string> = reverseObject(studyModeSeedIds);
 
-export const studyModesMap: Record<string, string> = {
+
+export const studyModeIdentifiers: Record<string, string> = {
   japaneseRecognition: 'japaneseRecognition',
   englishRecognition: 'englishRecognition',
   japaneseAndEnglishRecognition: 'japaneseAndEnglishRecognition',
@@ -27,41 +28,39 @@ export const studyModesMap: Record<string, string> = {
   produceJapaneseAndEnglish: 'produceJapaneseAndEnglish',
 };
 
-
-
 export const studyModes: Omit<StudyMode, 'id' | 'createdAt' | 'updatedAt'>[] = [
   {
-    identifier: 'japaneseRecognition',
+    identifier: studyModeIdentifiers.japaneseRecognition,
     name: 'Japanese Recognition',
     description: 'Given the Japanese word, self-rate your English translation.',
     type: 'recognition'
   },
   {
-    identifier: 'englishRecognition',
+    identifier: studyModeIdentifiers.englishRecognition,
     name: 'English Recognition',
     description: 'Given the English word, self-rate your Japanese translation.',
     type: 'recognition'
   },
   {
-    identifier: 'japaneseAndEnglishRecognition',
+    identifier: studyModeIdentifiers.japaneseAndEnglishRecognition,
     name: 'Japanese and English Recognition',
     description: 'Given the Japanese word, self-rate your English translation. Then sometime later, given the English word, self-rate your Japanese translation.',
     type: 'recognition'
   },
   {
-    identifier: 'produceJapanese',
+    identifier: studyModeIdentifiers.produceJapanese,
     name: 'Produce Japanese from English',
     description: 'Given the English word, type the Japanese translation.',
     type: 'production'
   },
   {
-    identifier: 'produceEnglish',
+    identifier: studyModeIdentifiers.produceEnglish,
     name: 'Produce English from Japanese',
     description: 'Given the Japanese word, type the English translation.',
     type: 'production'
   },
   {
-    identifier: 'produceJapaneseAndEnglish',
+    identifier: studyModeIdentifiers.produceJapaneseAndEnglish,
     name: 'Produce Japanese and English',
     description: 'Given the English word, type the Japanese translation. Then sometime later, given the Japanese word, type the English translation.',
     type: 'production'

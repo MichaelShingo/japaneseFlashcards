@@ -19,18 +19,12 @@ const ResultPopover = ({ isCorrect, visible, setVisible }) => {
   return (
     <Box
       className="absolute flex items-center justify-center top-0 left-0 h-screen w-screen bg-black/60 z-50 pointer-events-none transition-all"
-      sx={{
-        opacity: visible ? '100%' : '0%',
-
-      }}
     >
       <Typography
         className="uppercase text-center"
         color={isCorrect ? 'success' : 'error'}
         variant="h3"
-        sx={{
-          transform: visible ? 'translateY(25%)' : 'translateY(-25%)',
-        }}
+
       >
         {isCorrect ? 'Correct!' : 'Incorrect'}
       </Typography>

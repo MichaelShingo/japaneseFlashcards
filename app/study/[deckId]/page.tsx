@@ -13,8 +13,9 @@ import QuestionMarkIcon from '@mui/icons-material/QuestionMark';
 import CheckIcon from '@mui/icons-material/Check';
 import CardUpsertModal from "@/app/components/molecules/Modals/CardUpsertModal";
 import AnswerModal from "@/app/components/molecules/Modals/AnswerModal";
-import ResultPopover from "@/app/components/atoms/ResultPopover/ResultPopover";
-
+import { twMerge } from "tailwind-merge";
+import LeaderboardIcon from '@mui/icons-material/Leaderboard';
+import Timer from "@/app/components/atoms/Timer/Timer";
 
 const Study = () => {
   const params = useParams();
@@ -25,6 +26,7 @@ const Study = () => {
   const [currentCardIndex, setCurrentCardIndex] = useState<number>(0);
   const [answer, setAnswer] = useState<string>('');
   const [isAnswered, setIsAnswered] = useState<boolean>(false);
+
 
   const [isCorrect, setIsCorrect] = useState<boolean | null>(null);
   const [correctCount, setCorrectCount] = useState<number>(0);
@@ -174,15 +176,23 @@ const Study = () => {
         <CircularProgress />
         :
         <>
-          <ResultPopover isCorrect={isCorrect} visible={isPopoverVisible} setVisible={setIsPopoverVisible} />
+          {/* <ResultPopover isCorrect={isCorrect} visible={isPopoverVisible} setVisible={setIsPopoverVisible} /> */}
           <Box className="left-0 top-0 h-2 absolute bg-ui-02 w-[100vw]" >
             <Box className="bg-accent h-full transition-all duration-500" sx={{ width: `${correctCount / cardData.length * 100}%` }} />
           </Box>
           <Box className="absolute top-3 left-2">
-            <Box className="flex flex-row items-center">
-              <Button startIcon={<CloseIcon className="aspect-square h-[28px] w-[28px]" />} size="small" color="info" onClick={() => router.push('/decks')}>
-                Exit Study Mode
+            <Button startIcon={<CloseIcon className="aspect-square h-[28px] w-[28px]" />} size="small" color="info" onClick={() => router.push('/decks')}>
+              Exit Study Mode
+            </Button>
+          </Box>
+          <Box className="absolute top-3 right-3">
+            <Box className="flex flex-row">
+              <Timer />
+              <Button startIcon={<LeaderboardIcon className="" />} size="small" color="info">
+                Level: {currentCard.srsLevel}
               </Button>
+
+              {/* <Typography variant="button" color="info">Level: {currentCard.srsLevel}</Typography> */}
             </Box>
           </Box>
           <Typography variant="h1">
@@ -191,7 +201,17 @@ const Study = () => {
 
           {!isProduction ?
             <>
-              <TextField className="w-[50vw] min-w-[300px] max-w-[350px] [&_.MuiInputBase-input]:text-center" variant="outlined" placeholder="Type in English" value={answer} onChange={(e) => setAnswer(e.target.value)} onKeyDown={(e: React.KeyboardEvent) => handleEnterPress(e)} inputRef={textInputRef} />
+              <TextField
+                className={twMerge([
+                  'w-[50vw] min-w-[300px] max-w-[350px] [&_.MuiInputBase-input]:text-center',
+                  isAnswered && (isCorrect ? 'bg-green-500/50' : 'bg-red-500/50')
+                ])} disabled={isAnswered}
+                variant="outlined"
+                placeholder="Type in English"
+                value={answer}
+                onChange={(e) => setAnswer(e.target.value)}
+                onKeyDown={(e: React.KeyboardEvent) => handleEnterPress(e)}
+                inputRef={textInputRef} />
               <Button disabled={answer === ''} variant={isAnswered ? 'outlined' : 'contained'} color={calcSubmitButtonColor()} size="large" onClick={isAnswered ? advanceToNextCard : submitAnswer}>
                 {isAnswered ? 'Next Card' : 'Submit Answer'}
               </Button>

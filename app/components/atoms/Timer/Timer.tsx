@@ -1,8 +1,12 @@
 import { Button } from '@mui/material';
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, SetStateAction, FC, Dispatch } from 'react';
 
-const Timer: React.FC = () => {
-  const [secondsElapsed, setSecondsElapsed] = useState(0);
+interface TimerProps {
+  secondsElapsed: number;
+  setSecondsElapsed: Dispatch<SetStateAction<number>>;
+  isAnswered: boolean;
+}
+const Timer: FC<TimerProps> = ({ secondsElapsed, setSecondsElapsed, isAnswered }) => {
   const intervalRef = useRef<NodeJS.Timeout | null>(null);
   const [isPaused, setIsPaused] = useState<boolean>(false);
 
@@ -13,6 +17,18 @@ const Timer: React.FC = () => {
 
     return () => clearInterval(intervalRef.current);
   }, []);
+
+  useEffect(() => {
+    if (secondsElapsed === 0 && isPaused) {
+      toggleTimer();
+    }
+  }, [secondsElapsed, isPaused]);
+
+  useEffect(() => {
+    if (isAnswered && !isPaused) {
+      toggleTimer();
+    }
+  }, [isAnswered]);
 
   const minutes = Math.floor(secondsElapsed / 60);
   const seconds = secondsElapsed % 60;
@@ -41,12 +57,13 @@ const Timer: React.FC = () => {
 
   return (
     <Button
+      disabled={isAnswered}
       color={generateColor()}
       onClick={toggleTimer}
-      className={isPaused && 'animate-flicker-opacity'}
+    // className={isPaused && !isAnswered && 'animate-flicker-opacity'}
     >
       {String(minutes).padStart(2, '0')}:{String(seconds).padStart(2, '0')}
-    </Button>
+    </Button >
   );
 };
 

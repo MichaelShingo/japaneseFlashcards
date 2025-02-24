@@ -95,7 +95,6 @@ const CardUpsertModal: FC<CardUpsertModalProps> = ({ open, onClose, card, isEdit
 
 
   const onSubmit: SubmitHandler<CardUpsertFormData> = (data) => {
-    console.log("🚀 ~ data:", data);
     isEdit ? patchMutate(data) : postMutate(data);
   };
 
@@ -104,6 +103,8 @@ const CardUpsertModal: FC<CardUpsertModalProps> = ({ open, onClose, card, isEdit
       open={open}
       maxWidth='xs'
       fullWidth
+      onClose={onClose}
+      disableRestoreFocus
     >
       <DialogTitle>{isEdit ? 'Edit Card' : 'Add Card'}</DialogTitle>
       <form onSubmit={handleSubmit(onSubmit)}>
@@ -116,6 +117,7 @@ const CardUpsertModal: FC<CardUpsertModalProps> = ({ open, onClose, card, isEdit
               render={({ field }) => (
                 <TextField
                   {...field}
+                  autoFocus
                   label="Japanese*"
                   variant="outlined"
                   error={!!errors.japanese}

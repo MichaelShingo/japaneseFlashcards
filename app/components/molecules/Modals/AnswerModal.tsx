@@ -42,6 +42,7 @@ const AnswerModal: FC<AnswerModalProps> = ({ open, onClose, card, }) => {
       open={open}
       maxWidth='xs'
       fullWidth
+      onClose={onClose}
     >
       <DialogContent>
         <Box className="flex flex-col gp-7 mt-2">

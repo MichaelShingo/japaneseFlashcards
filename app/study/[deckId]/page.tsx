@@ -26,6 +26,7 @@ const Study = () => {
   const [currentCardIndex, setCurrentCardIndex] = useState<number>(0);
   const [answer, setAnswer] = useState<string>('');
   const [isAnswered, setIsAnswered] = useState<boolean>(false);
+  const [secondsElapsed, setSecondsElapsed] = useState(0);
 
 
   const [isCorrect, setIsCorrect] = useState<boolean | null>(null);
@@ -34,8 +35,7 @@ const Study = () => {
   const textInputRef = useRef<HTMLInputElement | null>(null);
 
 
-
-  const calcSubmitButtonColor = (): string => {
+  const calcSubmitButtonColor = (): 'success' | 'error' | 'primary' => {
     if (isAnswered && isCorrect) {
       return 'success';
     } else if (isAnswered && !isCorrect) {
@@ -60,7 +60,6 @@ const Study = () => {
     },
   });
 
-
   useEffect(() => {
     if (cardIsPending) return;
 
@@ -72,6 +71,9 @@ const Study = () => {
       setCardOrder(currentOrder);
     }
   }, [cardData, cardIsPending, cardOrder]);
+
+  // for the study sequence, order ONLY the cardIds and whether or not it is japanese or English 
+  // when cards are edited and refetched, order of cardData doesn't matter, because you can just look up the 's data based on the ID
 
   const orderedCardData = !cardIsPending && cardOrder && cardData.toSorted((a, b) => cardOrder[a.id] - cardOrder[b.id]);
 
@@ -98,12 +100,27 @@ const Study = () => {
     },
   });
 
+  const checkAnswer = (): boolean => {
+    if (answer.toLowerCase() === currentCard.english.toLowerCase()) {
+      return true;
+    }
+
+    for (let synonym of currentCard.englishSynonyms) {
+      if (synonym.toLowerCase() === answer) {
+        return true;
+      }
+    }
+
+    return false;
+  };
+
   const submitAnswer = () => {
     if (answer === '') {
       return;
     }
     setIsAnswered(true);
-    if (answer.toLowerCase() === currentCard.english.toLowerCase()) {
+
+    if (checkAnswer()) {
       setIsCorrect(true);
 
       // update card SRS
@@ -129,6 +146,7 @@ const Study = () => {
     setIsCorrect(null);
     setAnswer('');
     setIsAnswered(false);
+    setSecondsElapsed(0);
   };
 
   const handleKeyPress = (e: KeyboardEvent) => {
@@ -140,15 +158,22 @@ const Study = () => {
       case 'm':
         break;
       case 'a':
+        setIsAnswerModalOpen(true);
         break;
       case 'e':
+        setIsUpsertModalOpen(true);
+        break;
+      case 'Enter':
+        isAnswered && advanceToNextCard();
         break;
       case 'Esc':
+        setIsAnswerModalOpen(false);
+        setIsUpsertModalOpen(false);
         break;
     }
   };
 
-  const handleEnterPress = (e: KeyboardEvent) => {
+  const handleEnterPress = (e: React.KeyboardEvent) => {
     if (e.key === 'Enter') {
       isAnswered ? advanceToNextCard() : submitAnswer();
       return;
@@ -162,12 +187,6 @@ const Study = () => {
     };
   }, [isAnswered, isCorrect, answer]);
 
-  useEffect(() => {
-    if (textInputRef.current && !cardIsPending) {
-      textInputRef.current.focus();
-    }
-  }, [textInputRef.current, cardIsPending, cardData]);
-
   const isProduction = !deckIsPending && deckData.studyMode.type === studyModeTypeMap.production;
 
   return (
@@ -178,7 +197,7 @@ const Study = () => {
         <>
           {/* <ResultPopover isCorrect={isCorrect} visible={isPopoverVisible} setVisible={setIsPopoverVisible} /> */}
           <Box className="left-0 top-0 h-2 absolute bg-ui-02 w-[100vw]" >
-            <Box className="bg-accent h-full transition-all duration-500" sx={{ width: `${correctCount / cardData.length * 100}%` }} />
+            <Box className="bg-accent h-full transition-all duration-500" sx={{ width: `${correctCount / cardData?.length * 100}%` }} />
           </Box>
           <Box className="absolute top-3 left-2">
             <Button startIcon={<CloseIcon className="aspect-square h-[28px] w-[28px]" />} size="small" color="info" onClick={() => router.push('/decks')}>
@@ -187,12 +206,11 @@ const Study = () => {
           </Box>
           <Box className="absolute top-3 right-3">
             <Box className="flex flex-row">
-              <Timer />
+              <Button disabled>Progress: {`${correctCount}/${cardData.length}`} ({Math.round(correctCount / cardData?.length * 100)}%)</Button>
+              <Timer secondsElapsed={secondsElapsed} setSecondsElapsed={setSecondsElapsed} isAnswered={isAnswered} />
               <Button startIcon={<LeaderboardIcon className="" />} size="small" color="info">
                 Level: {currentCard.srsLevel}
               </Button>
-
-              {/* <Typography variant="button" color="info">Level: {currentCard.srsLevel}</Typography> */}
             </Box>
           </Box>
           <Typography variant="h1">
@@ -207,11 +225,13 @@ const Study = () => {
                   isAnswered && (isCorrect ? 'bg-green-500/50' : 'bg-red-500/50')
                 ])} disabled={isAnswered}
                 variant="outlined"
+                autoFocus
+                focused
                 placeholder="Type in English"
                 value={answer}
                 onChange={(e) => setAnswer(e.target.value)}
                 onKeyDown={(e: React.KeyboardEvent) => handleEnterPress(e)}
-                inputRef={textInputRef} />
+                inputRef={input => input && input.focus()} />
               <Button disabled={answer === ''} variant={isAnswered ? 'outlined' : 'contained'} color={calcSubmitButtonColor()} size="large" onClick={isAnswered ? advanceToNextCard : submitAnswer}>
                 {isAnswered ? 'Next Card' : 'Submit Answer'}
               </Button>

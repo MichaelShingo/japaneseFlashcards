@@ -4,6 +4,8 @@ npx prisma db seed
 npx prisma studio
 npx prisma migrate reset
 
+
+
 TODO
 - navbar
 - footer
@@ -12,22 +14,32 @@ Decks page
 - reset srs 
 - sort by progress
 - public decks
+- create a deck of cards based on a certain topic, asking AI to generate flashcard data. 
+
 Study page
-- show hint
-- show/hide definition
-- furigana w/ wanikani API
-- does user need to input reading? 
-- should be able to add synonyms for english
-- example sentences? and other notes 
+1.
 - system to check for almost correct entries
-- arrange data based on study mode
+- have it block submission if something is clearly wrong, like japanese in English input, etc. 
+
+2. 
+- make recognition study mode functions
+- - show hint
+
+3. 
+- you have to handle the case when you select multiple decks...what is the study mode then?
 - create SRS level tracking in two parts (translating from japanese, and 
-translating from english) 
-- progress bar, percentage
+- should there be an entry for the reading of the vocab? 
+- maybe give extra "points" 
+
+4.
+- furigana w/ wanikani API
+- example sentences? and other notes  
 - current percent correct 
 - keyboard shortcut for mark answer correct or not, and show answer
-- show current SRS level
-- end study session
+- animated "correct"//"incorrect"//"close enough" on submit
+- make "checkins" like duolingo, like you got 5 in a row! track streak 
+- get "awards" at the end of the lesson, like "speedy mcspeedington" you answered 10 cards within 5 seconds 
+
 Card page
 - UI - easily add, edit, delete cards without modals 
 

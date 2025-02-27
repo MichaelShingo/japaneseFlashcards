@@ -35,11 +35,6 @@ export const containsEnglishChar = (answer: string): boolean => {
 	return allEnglishChars.test(answer);
 };
 
-export const stripNonAlphaNumeric = (answer: string): string => {
-	const pattern = /[^a-zA-Z\u3040-\u30FF\u4E00-\u9FFF\uFF66-\uFF9F]/g;
-	return answer.replace(pattern, '');
-};
-
 export const containsSymbols = (answer: string): boolean => {
 	const pattern = /[!@#$%^&*()_+\=\[\]{};':"\\|,.<>\/?`~]/;
 	return pattern.test(answer);

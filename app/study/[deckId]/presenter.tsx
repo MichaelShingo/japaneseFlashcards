@@ -1,5 +1,6 @@
 'use client';
 import { studyModeTypeMap } from '@/prisma/seedData/studyModes';
+import { toKana } from 'wanakana';
 import {
 	Box,
 	Button,
@@ -24,12 +25,12 @@ import Timer from '@/app/components/atoms/Timer/Timer';
 import { ExtendedDeck, StudyUnit } from './page';
 import KeyboardDoubleArrowUpIcon from '@mui/icons-material/KeyboardDoubleArrowUp';
 import KeyboardDoubleArrowDownIcon from '@mui/icons-material/KeyboardDoubleArrowDown';
+import ErrorIcon from '@mui/icons-material/Error';
 import {
 	containsEnglishChar,
 	containsJapaneseChar,
 	containsSymbols,
 	isCloseEnough,
-	stripNonAlphaNumeric,
 } from '@/app/utils/checkAnswer';
 import { Controller, useForm } from 'react-hook-form';
 
@@ -49,6 +50,19 @@ type StudyFormData = {
 	answer: string;
 };
 
+type Evaluation = 'correct' | 'incorrect' | 'close' | null;
+
+const evaluationMessages: Record<Evaluation, string> = {
+	correct: 'Correct!',
+	close: 'Very close!',
+	incorrect: 'Incorrect',
+};
+const evaluationColors: Record<Evaluation, 'success' | 'warning' | 'error'> = {
+	correct: 'success',
+	close: 'warning',
+	incorrect: 'error',
+};
+
 const StudyPresenter: FC<StudyPresenterProps> = ({
 	studyOrder,
 	setStudyOrder,
@@ -65,9 +79,7 @@ const StudyPresenter: FC<StudyPresenterProps> = ({
 	const [isAnswerModalOpen, setIsAnswerModalOpen] = useState<boolean>(false);
 	const [isAnswered, setIsAnswered] = useState<boolean>(false);
 	const [secondsElapsed, setSecondsElapsed] = useState(0);
-	const [isCorrect, setIsCorrect] = useState<'correct' | 'incorrect' | 'close' | null>(
-		null
-	);
+	const [isCorrect, setIsCorrect] = useState<Evaluation>(null);
 	const [answerError, setAnswerError] = useState<string | null>(null);
 	const [correctCount, setCorrectCount] = useState<number>(0);
 
@@ -78,6 +90,7 @@ const StudyPresenter: FC<StudyPresenterProps> = ({
 		handleSubmit,
 		formState: { errors },
 		reset,
+		setError,
 	} = useForm<StudyFormData>({
 		defaultValues: {
 			answer: '',
@@ -86,16 +99,6 @@ const StudyPresenter: FC<StudyPresenterProps> = ({
 	});
 
 	const answer = watch('answer');
-
-	const calcSubmitButtonColor = (): 'success' | 'error' | 'primary' => {
-		if (isAnswered && isCorrect) {
-			return 'success';
-		} else if (isAnswered && !isCorrect) {
-			return 'error';
-		} else {
-			return 'primary';
-		}
-	};
 
 	const advanceToNextCard = () => {
 		if (isCorrect) {
@@ -157,14 +160,21 @@ const StudyPresenter: FC<StudyPresenterProps> = ({
 
 	const isProduction =
 		!deckIsPending && deckData.studyMode.type === studyModeTypeMap.production;
+
 	const displayJapanese = studyOrder[currentCardIndex].studyType === 'displayJapanese';
 
-	const submitAnswer = () => {
+	const submitAnswer = (): void => {
+		if (answer === '') {
+			setError('answer', { message: 'Please enter an answer.' });
+			return;
+		}
+		if (!displayJapanese && containsEnglishChar(watch('answer'))) {
+			setError('answer', { message: 'Answer using only Japanese characters.' });
+			return;
+		}
 		setAnswerError(null);
 		setIsAnswered(true);
-		const formattedAnswer = stripNonAlphaNumeric(answer).toLowerCase();
-
-		// setValue('answer', formattedAnswer);
+		const formattedAnswer = answer.toLowerCase().trim();
 
 		if (displayJapanese) {
 			const lowerCaseEnglish = currentCard.english.toLowerCase();
@@ -174,17 +184,18 @@ const StudyPresenter: FC<StudyPresenterProps> = ({
 				return;
 			}
 
-			if (isCloseEnough(formattedAnswer, lowerCaseEnglish, 4)) {
-				setIsCorrect('close');
-				return;
-			}
-
 			for (let synonym of currentCard.englishSynonyms) {
 				if (synonym.toLowerCase() === answer) {
 					setIsCorrect('correct');
 					return;
 				}
 			}
+
+			if (isCloseEnough(formattedAnswer, lowerCaseEnglish, 4)) {
+				setIsCorrect('close');
+				return;
+			}
+
 			for (let synonym of currentCard.englishSynonyms) {
 				if (isCloseEnough(synonym.toLowerCase(), answer, 4)) {
 					setIsCorrect('close');
@@ -192,18 +203,19 @@ const StudyPresenter: FC<StudyPresenterProps> = ({
 				}
 			}
 		} else {
-			if (answer === currentCard.japanese) {
+			if (answer === currentCard.japanese || answer === currentCard.hiragana) {
 				setIsCorrect('correct');
-				return true;
+				return;
 			}
 			for (let synonym of currentCard.japaneseSynonyms) {
 				if (synonym === answer) {
 					setIsCorrect('correct');
-					return true;
+					return;
 				}
 			}
 		}
-		return false;
+		setIsCorrect('incorrect');
+		return;
 	};
 
 	return (
@@ -241,7 +253,7 @@ const StudyPresenter: FC<StudyPresenterProps> = ({
 								isAnswered={isAnswered}
 							/>
 							<Button
-								color={isAnswered ? (isCorrect ? 'success' : 'error') : 'info'}
+								color={isAnswered ? evaluationColors[isCorrect] : 'info'}
 								startIcon={
 									isAnswered ? (
 										isCorrect ? (
@@ -259,6 +271,14 @@ const StudyPresenter: FC<StudyPresenterProps> = ({
 							</Button>
 						</Box>
 					</Box>
+
+					<Typography
+						className="min-h-[75px] uppercase"
+						variant="h2"
+						color={evaluationColors[isCorrect]}
+					>
+						{evaluationMessages[isCorrect]}
+					</Typography>
 					<Typography variant="h1">
 						{displayJapanese ? currentCard.japanese : currentCard.english}
 					</Typography>
@@ -277,8 +297,6 @@ const StudyPresenter: FC<StudyPresenterProps> = ({
 												return 'Please enter an answer.';
 											} else if (displayJapanese && containsJapaneseChar(value)) {
 												return 'Answer using only English characters.';
-											} else if (!displayJapanese && containsEnglishChar(value)) {
-												return 'Answer using only Japanese characters.';
 											}
 										},
 									},
@@ -288,7 +306,6 @@ const StudyPresenter: FC<StudyPresenterProps> = ({
 										{...field}
 										className={twMerge([
 											'w-[50vw] min-w-[300px] max-w-[350px] [&_.MuiInputBase-input]:text-center',
-											isAnswered && (isCorrect ? 'bg-green-500/50' : 'bg-red-500/50'),
 										])}
 										disabled={isAnswered}
 										variant="outlined"
@@ -297,6 +314,15 @@ const StudyPresenter: FC<StudyPresenterProps> = ({
 										placeholder={
 											displayJapanese ? 'Type in English' : '日本語を入力してください'
 										}
+										onChange={(e) =>
+											field.onChange(
+												displayJapanese
+													? e.target.value
+													: toKana(e.target.value, {
+															customKanaMapping: { nn: 'ん', n: 'n' },
+														})
+											)
+										}
 										onKeyDown={(e: React.KeyboardEvent) => handleEnterPress(e)}
 										inputRef={(input) => input && input.focus()}
 									/>
@@ -304,18 +330,25 @@ const StudyPresenter: FC<StudyPresenterProps> = ({
 							/>
 							<Button
 								type="submit"
-								disabled={Object.keys(errors).length > 0}
+								disabled={watch('answer') === ''}
 								variant={isAnswered ? 'outlined' : 'contained'}
-								color={calcSubmitButtonColor()}
+								color={evaluationColors[isCorrect]}
 								size="large"
 								onClick={isAnswered ? advanceToNextCard : submitAnswer}
 							>
 								{isAnswered ? 'Next Card' : 'Submit Answer'}
 							</Button>
 							<Box className="min-h-[25px]">
-								<Typography color="error" variant="body1">
-									{errors?.answer?.message}
-								</Typography>
+								{errors?.answer?.message && (
+									<Typography
+										className="flex flex-row items-center gap-2"
+										color="error"
+										variant="body1"
+									>
+										<ErrorIcon />
+										{errors?.answer?.message}
+									</Typography>
+								)}
 							</Box>
 						</>
 					) : (

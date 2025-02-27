@@ -100,6 +100,7 @@ model Deck {
 model Card {
   id               Int       @id @default(autoincrement())
   japanese         String
+  hiragana         String?
   japaneseSynonyms String[]
   english          String
   englishSynonyms  String[]

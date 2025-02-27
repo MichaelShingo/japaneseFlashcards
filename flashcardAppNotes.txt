@@ -4,8 +4,6 @@ npx prisma db seed
 npx prisma studio
 npx prisma migrate reset
 
-
-
 TODO
 - navbar
 - footer
@@ -27,7 +25,7 @@ Study page
 
 3. 
 - you have to handle the case when you select multiple decks...what is the study mode then?
-- create SRS level tracking in two parts (translating from japanese, and 
+- SRS level tracking happens in 1 field, however, you can have "partial" levels, like 5.5. Say if you get the english correct, but not the japanese, you get 0.5 level up (add 0.5, subtract 0.5)....
 - should there be an entry for the reading of the vocab? 
 - maybe give extra "points" 
 

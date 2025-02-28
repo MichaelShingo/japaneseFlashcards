@@ -17,11 +17,10 @@ import EditIcon from '@mui/icons-material/Edit';
 import VisibilityIcon from '@mui/icons-material/Visibility';
 import QuestionMarkIcon from '@mui/icons-material/QuestionMark';
 import CheckIcon from '@mui/icons-material/Check';
-import CardUpsertModal from '@/app/components/molecules/Modals/CardUpsertModal';
-import AnswerModal from '@/app/components/molecules/Modals/AnswerModal';
+import CardUpsertModal from '@/app/components/Modals/CardUpsertModal';
 import { twMerge } from 'tailwind-merge';
 import LeaderboardIcon from '@mui/icons-material/Leaderboard';
-import Timer from '@/app/components/atoms/Timer/Timer';
+import Timer from '@/features/study/components/Timer';
 import { ExtendedDeck, StudyUnit } from './page';
 import KeyboardDoubleArrowUpIcon from '@mui/icons-material/KeyboardDoubleArrowUp';
 import KeyboardDoubleArrowDownIcon from '@mui/icons-material/KeyboardDoubleArrowDown';
@@ -33,6 +32,7 @@ import {
 	isCloseEnough,
 } from '@/app/utils/checkAnswer';
 import { Controller, useForm } from 'react-hook-form';
+import AnswerModal from '@/features/study/components/AnswerModal';
 
 interface StudyPresenterProps {
 	studyOrder: StudyUnit[];

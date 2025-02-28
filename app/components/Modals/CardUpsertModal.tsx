@@ -12,7 +12,7 @@ import { Card } from '@prisma/client';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { FC, useEffect } from 'react';
 import { Controller, SubmitHandler, useForm } from 'react-hook-form';
-import ArrayInput from '../../atoms/ArrayInput/ArrayInput';
+import ArrayInput from '../ArrayInput';
 
 export type CardUpsertFormData = {
 	japanese: string;

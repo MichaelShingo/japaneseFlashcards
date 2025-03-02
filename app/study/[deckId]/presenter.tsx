@@ -11,7 +11,6 @@ import TopBar from '@/features/study/components/TopBar';
 import CardContent from '@/features/study/components/CardContent';
 import BottomMenu from '@/features/study/components/BottomMenu';
 import { Evaluation, StudyFormData } from '@/features/study/constants/types';
-import { EvaluationColors } from '@/features/study/constants/maps';
 
 interface StudyPresenterProps {
 	studyOrder: StudyUnit[];
@@ -171,7 +170,6 @@ const StudyPresenter: FC<StudyPresenterProps> = ({
 						secondsElapsed={secondsElapsed}
 						setSecondsElapsed={setSecondsElapsed}
 						isAnswered={isAnswered}
-						evaluationColors={EvaluationColors}
 						isCorrect={isCorrect}
 						currentCard={currentCard}
 					/>

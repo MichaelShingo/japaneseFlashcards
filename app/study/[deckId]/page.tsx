@@ -6,6 +6,7 @@ import { useParams } from 'next/navigation';
 import queryString from 'query-string';
 import { useEffect, useState } from 'react';
 import StudyPresenter from './presenter';
+import { shuffleArray } from '@/features/study/utils/shuffle';
 
 export type StudyUnit = {
 	cardId: number;
@@ -91,7 +92,7 @@ const Study = () => {
 			}
 		}
 
-		setStudyOrder(order);
+		setStudyOrder(shuffleArray(order));
 		setIsFirstLoad(false);
 	}, [cardData, deckData, isFirstLoad]);
 

@@ -15,9 +15,11 @@ Decks page
 - create a deck of cards based on a certain topic, asking AI to generate flashcard data. 
 
 Study page
-1.
-- system to check for almost correct entries
-- have it block submission if something is clearly wrong, like japanese in English input, etc. 
+- random initial ordering 
+- dark mode
+- smaller text for answer modal so no horizontal overflow
+- api stuff goes in api folder as hooks?
+
 
 2. 
 - make recognition study mode functions

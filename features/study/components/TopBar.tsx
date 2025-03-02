@@ -9,7 +9,8 @@ import Timer from '@/features/study/components/Timer';
 import KeyboardDoubleArrowUpIcon from '@mui/icons-material/KeyboardDoubleArrowUp';
 import KeyboardDoubleArrowDownIcon from '@mui/icons-material/KeyboardDoubleArrowDown';
 import { StudyUnit } from '@/app/study/[deckId]/page';
-import { Evaluation, MUIColors } from '../constants/types';
+import { Evaluation } from '../constants/types';
+import { EvaluationColors } from '../constants/maps';
 
 interface TopBarProps {
 	correctCount: number;
@@ -18,7 +19,6 @@ interface TopBarProps {
 	secondsElapsed: number;
 	setSecondsElapsed: Dispatch<SetStateAction<number>>;
 	isAnswered: boolean;
-	evaluationColors: Record<Evaluation, MUIColors>;
 	isCorrect: Evaluation;
 	currentCard: Card;
 }
@@ -30,7 +30,6 @@ const TopBar: FC<TopBarProps> = ({
 	secondsElapsed,
 	setSecondsElapsed,
 	isAnswered,
-	evaluationColors,
 	isCorrect,
 	currentCard,
 }) => {
@@ -65,7 +64,7 @@ const TopBar: FC<TopBarProps> = ({
 						isAnswered={isAnswered}
 					/>
 					<Button
-						color={isAnswered ? evaluationColors[isCorrect] : 'info'}
+						color={isAnswered ? EvaluationColors[isCorrect] : 'info'}
 						startIcon={
 							isAnswered ? (
 								isCorrect ? (

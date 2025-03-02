@@ -10,11 +10,8 @@ import { useForm } from 'react-hook-form';
 import TopBar from '@/features/study/components/TopBar';
 import CardContent from '@/features/study/components/CardContent';
 import BottomMenu from '@/features/study/components/BottomMenu';
-import {
-	Evaluation,
-	EvaluationColors,
-	StudyFormData,
-} from '@/features/study/constants/types';
+import { Evaluation, StudyFormData } from '@/features/study/constants/types';
+import { EvaluationColors } from '@/features/study/constants/maps';
 
 interface StudyPresenterProps {
 	studyOrder: StudyUnit[];

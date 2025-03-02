@@ -2,7 +2,7 @@
 const theme = require('./app/utils/tailwindTheme');
 
 module.exports = {
-	content: ['./app/**/*.{js,jsx,ts,tsx}'],
+	content: ['./app/**/*.{js,jsx,ts,tsx}', './features/**/*.{js,jsx,ts,tsx}'],
 	plugins: [require('@xpd/tailwind-3dtransforms')],
 	darkMode: 'selector',
 	theme: {

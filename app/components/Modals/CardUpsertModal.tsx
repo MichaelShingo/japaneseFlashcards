@@ -1,4 +1,3 @@
-import useToast from '@/app/customHooks/useToast';
 import {
 	Box,
 	Button,
@@ -9,10 +8,10 @@ import {
 	TextField,
 } from '@mui/material';
 import { Card } from '@prisma/client';
-import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { FC, useEffect } from 'react';
 import { Controller, SubmitHandler, useForm } from 'react-hook-form';
 import ArrayInput from '../ArrayInput';
+import useQueryFunctions from '@/app/queries/useCardQueries';
 
 export type CardUpsertFormData = {
 	japanese: string;
@@ -30,8 +29,8 @@ interface CardUpsertModalProps {
 }
 
 const CardUpsertModal: FC<CardUpsertModalProps> = ({ open, onClose, card, isEdit }) => {
-	const toast = useToast();
-	const queryClient = useQueryClient();
+	const { mutatePatch, isPendingPatch, mutatePost, isPendingPost } =
+		useQueryFunctions(onClose);
 
 	const {
 		control,
@@ -60,54 +59,8 @@ const CardUpsertModal: FC<CardUpsertModalProps> = ({ open, onClose, card, isEdit
 		}
 	}, [isEdit, card, reset]);
 
-	const { mutate: postMutate, isPending: postIsPending } = useMutation({
-		mutationFn: async (newCard: CardUpsertFormData) => {
-			const response = await fetch('api/cards/', {
-				method: 'POST',
-				headers: {
-					'Content-Type': 'application/json',
-				},
-				body: JSON.stringify(newCard),
-			});
-			return response.json();
-		},
-		onSuccess: () => {
-			toast('Successfully added a card.');
-			queryClient.invalidateQueries();
-			onClose();
-		},
-		onError: (error: Error) => {
-			toast(error.message);
-		},
-	});
-
-	const { mutate: patchMutate, isPending: patchIsPending } = useMutation({
-		mutationFn: async (updatedCard: CardUpsertFormData) => {
-			const response = await fetch(`/api/cards/${card!.id}`, {
-				method: 'PATCH',
-				headers: {
-					'Content-Type': 'application/json',
-				},
-				body: JSON.stringify(updatedCard),
-			});
-			if (!response.ok) {
-				const error = await response.json();
-				throw new Error(error.message);
-			}
-			return await response.json();
-		},
-		onSuccess: () => {
-			toast('Successfully edited card.');
-			queryClient.invalidateQueries();
-			onClose();
-		},
-		onError: (error: Error) => {
-			toast(error.message);
-		},
-	});
-
 	const onSubmit: SubmitHandler<CardUpsertFormData> = (data) => {
-		isEdit ? patchMutate(data) : postMutate(data);
+		isEdit ? mutatePatch({ ...card, ...data }) : mutatePost({ ...card, ...data });
 	};
 
 	return (
@@ -187,7 +140,7 @@ const CardUpsertModal: FC<CardUpsertModalProps> = ({ open, onClose, card, isEdit
 				</DialogContent>
 				<DialogActions>
 					<Button onClick={onClose}>Cancel</Button>
-					<Button loading={isEdit ? patchIsPending : postIsPending} type="submit">
+					<Button loading={isEdit ? isPendingPatch : isPendingPost} type="submit">
 						Save
 					</Button>
 				</DialogActions>

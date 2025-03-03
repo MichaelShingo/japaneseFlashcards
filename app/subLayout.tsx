@@ -24,7 +24,6 @@ const SubLayout: FC<SubLayoutProps> = ({ children }) => {
 	);
 	const dispatch = useDispatch();
 	const colorMode = useAppSelector((state) => state.globalReducer.value.colorMode);
-	console.log('🚀 ~ colorMode:', colorMode);
 
 	// const theme = createTheme({
 	// 	palette: {

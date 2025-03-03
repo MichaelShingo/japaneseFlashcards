@@ -38,7 +38,6 @@ const TopBar: FC<TopBarProps> = ({
 	isCorrect,
 	currentCard,
 }) => {
-	console.log('🚀 ~ correctCount:', `${(correctCount / studyOrder?.length) * 100}%`);
 	const router = useRouter();
 	const colorMode = useAppSelector((state) => state.globalReducer.value.colorMode);
 	const dispatch = useDispatch();

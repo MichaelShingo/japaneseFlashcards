@@ -61,17 +61,18 @@ const CardContent: FC<CardContentProps> = ({
 
 	return (
 		<>
-			<Typography
-				className="min-h-[75px] uppercase"
-				variant="h2"
-				color={EvaluationColors[isCorrect]}
-			>
-				{EvaluationMessages[isCorrect]}
-			</Typography>
+			{isProduction && (
+				<Typography
+					className="min-h-[75px] uppercase"
+					variant="h2"
+					color={EvaluationColors[isCorrect]}
+				>
+					{EvaluationMessages[isCorrect]}
+				</Typography>
+			)}
 			<Typography variant="h1">
 				{displayJapanese ? currentCard.japanese : currentCard.english}
 			</Typography>
-
 			{isProduction ? (
 				<>
 					<Controller

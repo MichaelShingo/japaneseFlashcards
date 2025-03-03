@@ -1,6 +1,3 @@
-import { ConfirmModalProps } from '@/app/components/Modals/ConfirmModal';
-import { DeckUpsertModalProps } from '@/features/decks/components/DeckUpsertModal';
-import { ModalKeys, ModalPropsAll } from '@/app/components/molecules/Modals/ModalHandler';
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 
 type InitialState = {
@@ -12,20 +9,16 @@ export type SnackbarData = {
 	message: string;
 };
 
-export type ModalData = {
-	modalType: ModalKeys;
-	props: ModalPropsAll;
-};
-
+export type ColorMode = 'light' | 'dark';
 type GlobalState = {
 	snackBarData: SnackbarData;
-	modalData: ModalData | null;
+	colorMode: ColorMode;
 };
 
 const initialState = {
 	value: {
 		snackBarData: { isOpen: false, message: '' },
-		modalData: null,
+		colorMode: 'dark',
 	} as GlobalState,
 } as InitialState;
 
@@ -36,11 +29,11 @@ export const global = createSlice({
 		setSnackBarData: (state, action: PayloadAction<SnackbarData>) => {
 			state.value.snackBarData = action.payload;
 		},
-		setModalData: (state, action: PayloadAction<ModalData>) => {
-			state.value.modalData = action.payload;
+		setColorMode: (state, action: PayloadAction<ColorMode>) => {
+			state.value.colorMode = action.payload;
 		},
 	},
 });
 
-export const { setSnackBarData, setModalData } = global.actions;
+export const { setSnackBarData, setColorMode } = global.actions;
 export default global.reducer;

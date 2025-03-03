@@ -1,9 +1,18 @@
 'use client';
-import { setSnackBarData, SnackbarData } from '@/redux/features/globalSlice';
+import {
+	setColorMode,
+	setSnackBarData,
+	SnackbarData,
+} from '@/redux/features/globalSlice';
 import { useAppSelector } from '@/redux/store';
-import { Snackbar, SnackbarCloseReason } from '@mui/material';
+import { ThemeProvider } from '@emotion/react';
+import { createTheme, CssBaseline, Snackbar, SnackbarCloseReason } from '@mui/material';
 import { FC, ReactNode } from 'react';
 import { useDispatch } from 'react-redux';
+import darkTheme from '@/darkTheme';
+import { useThemeContext } from './theme/ThemeContextProvider';
+import { twMerge } from 'tailwind-merge';
+import { getDesignTokens } from './theme/theme';
 
 interface SubLayoutProps {
 	children: ReactNode;
@@ -14,6 +23,14 @@ const SubLayout: FC<SubLayoutProps> = ({ children }) => {
 		(state) => state.globalReducer.value.snackBarData
 	);
 	const dispatch = useDispatch();
+	const colorMode = useAppSelector((state) => state.globalReducer.value.colorMode);
+	console.log('🚀 ~ colorMode:', colorMode);
+
+	// const theme = createTheme({
+	// 	palette: {
+	// 		mode: colorMode,
+	// 	},
+	// });
 
 	const handleClose = (
 		event: React.SyntheticEvent | Event,
@@ -26,15 +43,20 @@ const SubLayout: FC<SubLayoutProps> = ({ children }) => {
 	};
 
 	return (
-		<>
-			{children}
-			<Snackbar
-				open={snackbarData.isOpen}
-				autoHideDuration={2500}
-				message={snackbarData.message}
-				onClose={handleClose}
-			/>
-		</>
+		<ThemeProvider theme={createTheme(getDesignTokens(colorMode))}>
+			<CssBaseline />
+			<div
+				className={twMerge([colorMode, 'bg-ui-01 dark:bg-ui-01-dark h-screen w-screen'])}
+			>
+				{children}
+				<Snackbar
+					open={snackbarData.isOpen}
+					autoHideDuration={2500}
+					message={snackbarData.message}
+					onClose={handleClose}
+				/>
+			</div>
+		</ThemeProvider>
 	);
 };
 

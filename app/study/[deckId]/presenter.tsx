@@ -21,7 +21,7 @@ interface StudyPresenterProps {
 	deckIsPending: boolean;
 	deckData: ExtendedDeck;
 	cardIsPending: boolean;
-	submitSelfRating: (rating: number) => void;
+	// submitSelfRating: (rating: number) => void;
 }
 
 const StudyPresenter: FC<StudyPresenterProps> = ({
@@ -33,7 +33,7 @@ const StudyPresenter: FC<StudyPresenterProps> = ({
 	deckIsPending,
 	deckData,
 	cardIsPending,
-	submitSelfRating,
+	// submitSelfRating,
 }) => {
 	const router = useRouter();
 
@@ -41,6 +41,10 @@ const StudyPresenter: FC<StudyPresenterProps> = ({
 	const [secondsElapsed, setSecondsElapsed] = useState(0);
 	const [isCorrect, setIsCorrect] = useState<Evaluation>(null);
 	const [correctCount, setCorrectCount] = useState<number>(0);
+
+	const isProduction =
+		!deckIsPending && deckData.studyMode.type === studyModeTypeMap.production;
+	const displayJapanese = studyOrder[currentCardIndex].studyType === 'displayJapanese';
 
 	const form = useForm<StudyFormData>({
 		defaultValues: {
@@ -52,20 +56,24 @@ const StudyPresenter: FC<StudyPresenterProps> = ({
 	const { watch, reset, setError } = form;
 	const answer = watch('answer');
 
-	const advanceToNextCard = () => {
-		if (isCorrect) {
+	const advanceToNextCard = (selfRating?: number) => {
+		if (isCorrect || selfRating === 1) {
 			setCorrectCount((value) => value + 1);
 		} else {
 			setStudyOrder([...studyOrder, studyOrder[currentCardIndex]]);
 		}
+
 		if (currentCardIndex >= studyOrder.length - 1) {
 			router.push('/decks');
 			return;
 		}
+
+		if (isProduction) {
+			setIsCorrect(null);
+			reset();
+			setIsAnswered(false);
+		}
 		setCurrentCardIndex((value) => value + 1);
-		setIsCorrect(null);
-		reset();
-		setIsAnswered(false);
 		setSecondsElapsed(0);
 	};
 
@@ -97,11 +105,6 @@ const StudyPresenter: FC<StudyPresenterProps> = ({
 			window.removeEventListener('keydown', handleKeyPress);
 		};
 	}, [isAnswered, isCorrect, answer]);
-
-	const isProduction =
-		!deckIsPending && deckData.studyMode.type === studyModeTypeMap.production;
-
-	const displayJapanese = studyOrder[currentCardIndex].studyType === 'displayJapanese';
 
 	const submitAnswer = (): void => {
 		if (answer === '') {
@@ -157,6 +160,10 @@ const StudyPresenter: FC<StudyPresenterProps> = ({
 		return;
 	};
 
+	const submitSelfRating = (rating: number) => {
+		advanceToNextCard(rating);
+	};
+
 	return (
 		<Box className="flex items-center flex-col gap-6 justify-center w-full h-[95vh] overflow-hidden">
 			{!currentCard || cardIsPending || deckIsPending ? (
@@ -192,6 +199,7 @@ const StudyPresenter: FC<StudyPresenterProps> = ({
 						answer={answer}
 						advanceToNextCard={advanceToNextCard}
 						displayJapanese={displayJapanese}
+						isProduction={isProduction}
 					/>
 				</>
 			)}

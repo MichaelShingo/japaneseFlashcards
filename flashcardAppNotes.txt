@@ -4,6 +4,9 @@ npx prisma db seed
 npx prisma studio
 npx prisma migrate reset
 
+
+
+
 TODO
 - navbar
 - footer

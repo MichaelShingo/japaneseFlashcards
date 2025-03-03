@@ -1,5 +1,5 @@
 /** @type {import('tailwindcss').Config} */
-const theme = require('./app/utils/tailwindTheme');
+import { tailwindTheme } from './app/utils/tailwindTheme';
 
 module.exports = {
 	content: ['./app/**/*.{js,jsx,ts,tsx}', './features/**/*.{js,jsx,ts,tsx}'],
@@ -14,16 +14,23 @@ module.exports = {
 				'paragraph-jp': ['var(--font-noto)'],
 			},
 			colors: {
-				'ui-01': theme.ui01,
-				'ui-02': theme.ui02,
-				primary: theme.primary,
-				accent: theme.accent,
-				secondary: theme.secondary,
-				success: theme.success,
-				warning: theme.warning,
-				error: theme.error,
+				'ui-01': {
+					DEFAULT: tailwindTheme.ui01,
+					light: tailwindTheme.ui01,
+					dark: tailwindTheme.ui01dark,
+				},
+				'ui-02': {
+					DEFAULT: tailwindTheme.ui02,
+					light: tailwindTheme.ui02,
+					dark: tailwindTheme.ui02dark,
+				},
+				primary: tailwindTheme.primary,
+				accent: tailwindTheme.accent,
+				secondary: tailwindTheme.secondary,
+				success: tailwindTheme.success,
+				warning: tailwindTheme.warning,
+				error: tailwindTheme.error,
 			},
-
 			keyframes: {
 				'flicker-opacity': {
 					'0%': { opacity: '70%' },

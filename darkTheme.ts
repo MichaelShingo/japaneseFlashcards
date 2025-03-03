@@ -2,10 +2,12 @@
 import { createTheme } from '@mui/material/styles';
 const tailwindTheme = require('./app/utils/tailwindTheme');
 
-const theme = createTheme({
+const darkTheme = createTheme({
+	colorSchemes: {
+		dark: true,
+	},
 	palette: {
 		mode: 'dark',
-
 		primary: {
 			main: tailwindTheme.accent,
 			// dark: tailwindTheme.accentDark,
@@ -68,4 +70,4 @@ const theme = createTheme({
 	cssVariables: true,
 });
 
-export default theme;
+export default darkTheme;

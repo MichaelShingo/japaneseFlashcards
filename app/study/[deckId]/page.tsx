@@ -101,7 +101,7 @@ const Study = () => {
 		!cardIsPending &&
 		cardData?.find((card) => card.id === studyOrder[currentCardIndex].cardId);
 
-	const submitSelfRating = (rating: number) => {
+	const submitSelfRating = (rating: boolean) => {
 		console.log(rating);
 	};
 

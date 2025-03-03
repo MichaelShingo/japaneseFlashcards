@@ -1,5 +1,5 @@
 'use client';
-import { Box, Button } from '@mui/material';
+import { Box, Button, IconButton, useColorScheme, useTheme } from '@mui/material';
 import { useRouter } from 'next/navigation';
 import { Card } from '@prisma/client';
 import { Dispatch, FC, SetStateAction } from 'react';
@@ -11,6 +11,11 @@ import KeyboardDoubleArrowDownIcon from '@mui/icons-material/KeyboardDoubleArrow
 import { StudyUnit } from '@/app/study/[deckId]/page';
 import { Evaluation } from '../constants/types';
 import { EvaluationColors } from '../constants/maps';
+import DarkModeIcon from '@mui/icons-material/DarkMode';
+import LightModeIcon from '@mui/icons-material/LightMode';
+import { useDispatch } from 'react-redux';
+import { useAppSelector } from '@/redux/store';
+import { setColorMode } from '@/redux/features/globalSlice';
 
 interface TopBarProps {
 	correctCount: number;
@@ -33,13 +38,20 @@ const TopBar: FC<TopBarProps> = ({
 	isCorrect,
 	currentCard,
 }) => {
+	console.log('🚀 ~ correctCount:', `${(correctCount / studyOrder?.length) * 100}%`);
 	const router = useRouter();
+	const colorMode = useAppSelector((state) => state.globalReducer.value.colorMode);
+	const dispatch = useDispatch();
+
 	return (
 		<>
-			<Box className="left-0 top-0 h-2 absolute bg-ui-02 w-[100vw]">
+			<Box className="left-0 top-0 h-2 absolute w-[100vw]">
 				<Box
 					className="bg-accent h-full transition-all duration-500"
-					sx={{ width: `${(correctCount / studyOrder?.length) * 100}%` }}
+					sx={{
+						width: `${(correctCount / studyOrder?.length) * 100}%`,
+						backgroundColor: 'primary',
+					}}
 				/>
 			</Box>
 			<Box className="absolute top-3 left-2">
@@ -54,6 +66,17 @@ const TopBar: FC<TopBarProps> = ({
 			</Box>
 			<Box className="absolute top-3 right-3">
 				<Box className="flex flex-row">
+					<IconButton
+						onClick={() =>
+							dispatch(
+								setColorMode(
+									colorMode === 'light' || colorMode === undefined ? 'dark' : 'light'
+								)
+							)
+						}
+					>
+						<DarkModeIcon />
+					</IconButton>
 					<Button disabled>
 						Progress: {`${currentCardIndex}/${studyOrder.length}`} (
 						{Math.round((correctCount / studyOrder?.length) * 100)}%)

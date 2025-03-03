@@ -1,6 +1,8 @@
-const tailwindTheme = {
-	ui01: '#191919',
-	ui02: '#303030',
+export const tailwindTheme: Record<string, string> = {
+	ui01: '#ffffff',
+	ui01dark: '#191919',
+	ui02: '##e0e0e0',
+	ui02dark: '#303030',
 	white: '#FFF5F0',
 	primary: '#A56DA6',
 	accent: '#F5A9A9',
@@ -14,5 +16,3 @@ const tailwindTheme = {
 	warning: '#fe9a00',
 	error: '#fb2c36',
 };
-
-module.exports = tailwindTheme;

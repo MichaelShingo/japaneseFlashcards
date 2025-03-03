@@ -8,6 +8,7 @@ import QuestionMarkIcon from '@mui/icons-material/QuestionMark';
 import CardUpsertModal from '@/app/components/Modals/CardUpsertModal';
 import AnswerModal from '@/features/study/components/AnswerModal';
 import { Evaluation } from '../constants/types';
+import { ExtendedDeck } from '@/app/api/decks/route';
 
 interface BottomMenuProps {
 	currentCard: Card;
@@ -16,6 +17,7 @@ interface BottomMenuProps {
 	answer: string;
 	advanceToNextCard: () => void;
 	displayJapanese: boolean;
+	isProduction: boolean;
 }
 
 const BottomMenu: FC<BottomMenuProps> = ({
@@ -24,6 +26,7 @@ const BottomMenu: FC<BottomMenuProps> = ({
 	isCorrect,
 	answer,
 	displayJapanese,
+	isProduction,
 }) => {
 	const [isUpsertModalOpen, setIsUpsertModalOpen] = useState<boolean>(false);
 	const [isAnswerModalOpen, setIsAnswerModalOpen] = useState<boolean>(false);
@@ -70,7 +73,7 @@ const BottomMenu: FC<BottomMenuProps> = ({
 				<Button
 					onClick={() => setIsAnswerModalOpen(true)}
 					variant="outlined"
-					disabled={!isAnswered}
+					disabled={!isAnswered && isProduction}
 					startIcon={<VisibilityIcon />}
 				>
 					Show Answer

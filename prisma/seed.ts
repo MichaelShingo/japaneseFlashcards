@@ -3,6 +3,7 @@ import { studyModeIdentifiers, studyModes } from './seedData/studyModes';
 import { decks } from './seedData/decks';
 import { cards } from './seedData/cards';
 import { prisma } from './prisma';
+import { Card } from '@prisma/client';
 
 async function main() {
 	for (const language of languages) {
@@ -44,7 +45,12 @@ async function main() {
 			studyModeId: japaneseRecognition.id,
 		};
 		await prisma.deck.upsert({
-			where: { id: deck.id },
+			where: {
+				title_userId: {
+					title: deckCreateUpdate.title,
+					userId: deckCreateUpdate.userId,
+				},
+			},
 			update: deckCreateUpdate,
 			create: deckCreateUpdate,
 		});
@@ -54,7 +60,7 @@ async function main() {
 	const musicDeck = newDecks.find((deck) => deck.title === 'Music');
 
 	for (const card of cards) {
-		const cardCreateUpdate = {
+		const cardCreateUpdate: Omit<Card, 'createdAt' | 'updatedAt' | 'id'> = {
 			japanese: card.japanese,
 			hiragana: card.hiragana,
 			japaneseSynonyms: [],
@@ -63,8 +69,10 @@ async function main() {
 			hint: card.hint,
 			userId: card.userId,
 			deckId: musicDeck.id,
-			srsLevel: card.srsLevel,
-			nextStudy: card.nextStudy,
+			displayJapaneseSrsLevel: card.displayJapaneseSrsLevel,
+			displayEnglishSrsLevel: card.displayEnglishSrsLevel,
+			displayJapaneseNextStudy: card.displayJapaneseNextStudy,
+			displayEnglishNextStudy: card.displayEnglishNextStudy,
 		};
 		await prisma.card.upsert({
 			where: {

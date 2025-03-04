@@ -36,9 +36,18 @@ export const PATCH = auth(async function PATCH(
 			return responses.notAuthenticated();
 		}
 
-		console.log('path card id');
 		const body = await request.json();
-		const { japanese, japaneseSynonyms, english, englishSynonyms, hint, srsLevel } = body;
+		const {
+			japanese,
+			japaneseSynonyms,
+			english,
+			englishSynonyms,
+			hint,
+			displayJapaneseSrsLevel,
+			displayEnglishSrsLevel,
+			displayJapaneseNextStudy,
+			displayEnglishNextStudy,
+		} = body;
 		const { cardId } = params;
 
 		const card: Card = await prisma.card.update({
@@ -51,7 +60,10 @@ export const PATCH = auth(async function PATCH(
 				english,
 				englishSynonyms,
 				hint,
-				srsLevel,
+				displayEnglishSrsLevel,
+				displayJapaneseSrsLevel,
+				displayJapaneseNextStudy,
+				displayEnglishNextStudy,
 			},
 		});
 

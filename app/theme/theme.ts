@@ -1,5 +1,5 @@
 import { PaletteMode } from '@mui/material';
-import { amber, deepOrange, grey } from '@mui/material/colors';
+import { amber, grey } from '@mui/material/colors';
 import { tailwindTheme } from '../utils/tailwindTheme';
 
 const theme = {
@@ -20,7 +20,6 @@ export const getDesignTokens = (mode: PaletteMode) => ({
 					info: {
 						main: tailwindTheme.info,
 					},
-					divider: amber[200],
 					text: {
 						primary: grey[900],
 						secondary: grey[800],
@@ -37,10 +36,8 @@ export const getDesignTokens = (mode: PaletteMode) => ({
 					info: {
 						main: tailwindTheme.info,
 					},
-					divider: deepOrange[700],
 					background: {
 						default: tailwindTheme.ui01dark,
-						paper: deepOrange[900],
 					},
 					text: {
 						primary: '#fff',

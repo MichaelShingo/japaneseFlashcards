@@ -4,29 +4,73 @@ import { auth } from '@/auth';
 import { Card, Deck } from '@prisma/client';
 import { NextAuthRequest } from '@/app/utils/common';
 import { responses } from '../constants';
-
+import {
+	isDeckBothJapaneseAndEnglish,
+	isDeckDisplayEnglish,
+	isDeckDisplayJapanese,
+} from '@/app/utils/studyModeFunctions';
 
 export const GET = auth(async function GET(request: NextAuthRequest) {
-  try {
-    if (!request.auth) {
-      return responses.notAuthenticated();
-    }
+	try {
+		if (!request.auth) {
+			return responses.notAuthenticated();
+		}
 
-    const { searchParams } = new URL(request.url);
-    const dueForStudy = Boolean(searchParams.get('dueForStudy'));
-    const deckId = Number(searchParams.get('deckId'));
+		const { searchParams } = new URL(request.url);
+		const dueForStudy = Boolean(searchParams.get('dueForStudy'));
+		const deckId = Number(searchParams.get('deckId'));
 
-    const cards: Card[] = await prisma.card.findMany({
-      where: {
-        deckId: deckId ? deckId : undefined,
-        nextStudy: {
-          lt: dueForStudy ? new Date() : undefined
-        }
-      },
-    });
+		const deck = await prisma.deck.findUnique({
+			where: {
+				id: deckId,
+			},
+			include: {
+				studyMode: {},
+			},
+		});
 
-    return NextResponse.json(cards);
-  } catch (error) {
-    return responses.badRequest('Failed to create deck.');
-  }
+		let cards: Card[];
+
+		if (isDeckBothJapaneseAndEnglish(deck.studyMode.identifier)) {
+			cards = await prisma.card.findMany({
+				where: {
+					deckId: deckId ? deckId : undefined,
+					OR: [
+						{
+							displayJapaneseNextStudy: {
+								lt: dueForStudy ? new Date() : undefined,
+							},
+						},
+						{
+							displayEnglishNextStudy: {
+								lt: dueForStudy ? new Date() : undefined,
+							},
+						},
+					],
+				},
+			});
+		} else if (isDeckDisplayJapanese(deck.studyMode.identifier)) {
+			cards = await prisma.card.findMany({
+				where: {
+					deckId: deckId ? deckId : undefined,
+					displayJapaneseNextStudy: {
+						lt: dueForStudy ? new Date() : undefined,
+					},
+				},
+			});
+		} else if (isDeckDisplayEnglish(deck.studyMode.identifier)) {
+			cards = await prisma.card.findMany({
+				where: {
+					deckId: deckId ? deckId : undefined,
+					displayEnglishNextStudy: {
+						lt: dueForStudy ? new Date() : undefined,
+					},
+				},
+			});
+		}
+
+		return NextResponse.json(cards);
+	} catch (error) {
+		return responses.badRequest('Failed to create deck.');
+	}
 });

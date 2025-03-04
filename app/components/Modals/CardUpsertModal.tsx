@@ -11,7 +11,7 @@ import { Card } from '@prisma/client';
 import { FC, useEffect } from 'react';
 import { Controller, SubmitHandler, useForm } from 'react-hook-form';
 import ArrayInput from '../ArrayInput';
-import useQueryFunctions from '@/app/queries/useCardQueries';
+import useCardQueries from '@/app/queries/useCardQueries';
 
 export type CardUpsertFormData = {
 	japanese: string;
@@ -30,7 +30,7 @@ interface CardUpsertModalProps {
 
 const CardUpsertModal: FC<CardUpsertModalProps> = ({ open, onClose, card, isEdit }) => {
 	const { mutatePatch, isPendingPatch, mutatePost, isPendingPost } =
-		useQueryFunctions(onClose);
+		useCardQueries(onClose);
 
 	const {
 		control,

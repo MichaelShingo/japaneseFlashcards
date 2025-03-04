@@ -3,7 +3,7 @@ import { Card } from '@prisma/client';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import queryString from 'query-string';
 
-const useCardQueries = (onSuccess?: () => void, deckId?: string | string[]) => {
+const useCardQueries = (onSuccess: () => void = () => {}, deckId?: string | string[]) => {
 	const toast = useToast();
 	const queryClient = useQueryClient();
 
@@ -34,7 +34,7 @@ const useCardQueries = (onSuccess?: () => void, deckId?: string | string[]) => {
 		onSuccess: () => {
 			toast('Successfully added a card.');
 			queryClient.invalidateQueries();
-			onSuccess();
+			onSuccess && onSuccess();
 		},
 		onError: (error: Error) => {
 			toast(error.message);
@@ -59,7 +59,7 @@ const useCardQueries = (onSuccess?: () => void, deckId?: string | string[]) => {
 		onSuccess: () => {
 			toast('Successfully edited card.');
 			queryClient.invalidateQueries();
-			onSuccess();
+			onSuccess && onSuccess();
 		},
 		onError: (error: Error) => {
 			toast(error.message);
@@ -83,7 +83,7 @@ const useCardQueries = (onSuccess?: () => void, deckId?: string | string[]) => {
 		onSuccess: () => {
 			toast('Successfully deleted card.');
 			queryClient.invalidateQueries();
-			onSuccess();
+			onSuccess && onSuccess();
 		},
 		onError: (error: Error) => {
 			toast(error.message);

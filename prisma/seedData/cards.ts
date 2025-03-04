@@ -2,7 +2,12 @@ import { Card } from '@prisma/client';
 import { deckSeedIds } from './decks';
 import { userIds } from './users';
 
-const defaultValues = { srsLevel: 0, nextStudy: new Date() };
+const defaultValues = {
+	displayJapaneseSrsLevel: 0,
+	displayEnglishSrsLevel: 0,
+	displayJapaneseNextStudy: new Date(),
+	displayEnglishNextStudy: new Date(),
+};
 
 export const cards: Omit<Card, 'createdAt' | 'updatedAt'>[] = [
 	{

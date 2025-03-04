@@ -16,7 +16,7 @@ interface BottomMenuProps {
 	isCorrect: Evaluation;
 	answer: string;
 	advanceToNextCard: () => void;
-	displayJapanese: boolean;
+	isDisplayJapanese: boolean;
 	isProduction: boolean;
 }
 
@@ -25,7 +25,7 @@ const BottomMenu: FC<BottomMenuProps> = ({
 	isAnswered,
 	isCorrect,
 	answer,
-	displayJapanese,
+	isDisplayJapanese,
 	isProduction,
 }) => {
 	const [isUpsertModalOpen, setIsUpsertModalOpen] = useState<boolean>(false);
@@ -91,7 +91,7 @@ const BottomMenu: FC<BottomMenuProps> = ({
 				open={isAnswerModalOpen}
 				onClose={() => setIsAnswerModalOpen(false)}
 				card={currentCard}
-				displayJapanese={displayJapanese}
+				isDisplayJapanese={isDisplayJapanese}
 			/>
 			<CardUpsertModal
 				open={isUpsertModalOpen}

@@ -95,24 +95,28 @@ model Deck {
   cards       Card[]
   studyModeId Int       @default(0)
   studyMode   StudyMode @relation(fields: [studyModeId], references: [id])
+
+  @@unique([title, userId])
 }
 
 model Card {
-  id               Int       @id @default(autoincrement())
-  japanese         String
-  hiragana         String?
-  japaneseSynonyms String[]
-  english          String
-  englishSynonyms  String[]
-  hint             String?
-  srsLevel         Int?      @default(0)
-  nextStudy        DateTime? @default(now())
-  createdAt        DateTime  @default(now())
-  updatedAt        DateTime  @updatedAt
-  userId           String
-  user             User      @relation(fields: [userId], references: [id])
-  deckId           Int
-  deck             Deck      @relation(fields: [deckId], references: [id])
+  id                       Int       @id @default(autoincrement())
+  japanese                 String
+  hiragana                 String?
+  japaneseSynonyms         String[]
+  english                  String
+  englishSynonyms          String[]
+  hint                     String?
+  displayJapaneseSrsLevel  Int?      @default(0)
+  displayEnglishSrsLevel   Int?      @default(0)
+  displayJapaneseNextStudy DateTime? @default(now())
+  displayEnglishNextStudy  DateTime? @default(now())
+  createdAt                DateTime  @default(now())
+  updatedAt                DateTime  @updatedAt
+  userId                   String
+  user                     User      @relation(fields: [userId], references: [id])
+  deckId                   Int
+  deck                     Deck      @relation(fields: [deckId], references: [id])
 
   @@unique([japanese, deckId])
 }

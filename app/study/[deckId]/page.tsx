@@ -1,13 +1,16 @@
 'use client';
-import { studyModeIdentifiers } from '@/prisma/seedData/studyModes';
 import { Deck, StudyMode } from '@prisma/client';
-import { useQuery } from '@tanstack/react-query';
 import { useParams } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import StudyPresenter from './presenter';
 import { shuffleArray } from '@/features/study/utils/shuffle';
 import useCardQueries from '@/app/queries/useCardQueries';
 import useDeckQueries from '@/app/queries/useDeckQueries';
+import { calcNextStudyDate } from '@/features/study/utils/srsCalculations';
+import {
+	isDeckDisplayEnglish,
+	isDeckDisplayJapanese,
+} from '@/app/utils/studyModeFunctions';
 
 export type StudyUnit = {
 	cardId: number;
@@ -22,7 +25,11 @@ export interface ExtendedDeck extends Deck {
 const Study = () => {
 	const params = useParams();
 	const { deckId } = params;
-	const { data: dataCard, isPending: isPendingCard } = useCardQueries(null, deckId);
+	const {
+		data: dataCard,
+		isPending: isPendingCard,
+		mutatePatch: mutatePatchCard,
+	} = useCardQueries(null, deckId);
 	const { data: dataDeck, isPending: isPendingDeck } = useDeckQueries(null, deckId);
 
 	const [studyOrder, setStudyOrder] = useState<StudyUnit[]>([
@@ -36,31 +43,17 @@ const Study = () => {
 			return;
 		}
 
-		const displayJapanese = [
-			studyModeIdentifiers.japaneseRecognition,
-			studyModeIdentifiers.produceEnglish,
-			studyModeIdentifiers.produceJapaneseAndEnglish,
-			studyModeIdentifiers.japaneseAndEnglishRecognition,
-		].includes(dataDeck.studyMode.identifier);
-
-		const displayEnglish = [
-			studyModeIdentifiers.englishRecognition,
-			studyModeIdentifiers.produceJapanese,
-			studyModeIdentifiers.produceJapaneseAndEnglish,
-			studyModeIdentifiers.japaneseAndEnglishRecognition,
-		].includes(dataDeck.studyMode.identifier);
-
 		const order: StudyUnit[] = [];
 
 		for (let card of dataCard) {
-			if (displayJapanese) {
+			if (isDeckDisplayJapanese(dataDeck.studyMode.identifier)) {
 				order.push({
 					cardId: card.id,
 					studyType: 'displayJapanese',
 					reviewIncorrect: false,
 				});
 			}
-			if (displayEnglish) {
+			if (isDeckDisplayEnglish(dataDeck.studyMode.identifier)) {
 				order.push({
 					cardId: card.id,
 					studyType: 'displayEnglish',
@@ -78,8 +71,38 @@ const Study = () => {
 		!isPendingCard &&
 		dataCard?.find((card) => card.id === studyOrder[currentCardIndex].cardId);
 
+	console.log('🚀 ~ Study ~ currentCard:', currentCard);
+	const isDisplayJapanese = studyOrder[currentCardIndex].studyType === 'displayJapanese';
+	console.log('🚀 ~ Study ~ dataCard:', dataCard);
+
+	const updateSrsLevel = (difference: number): void => {
+		console.log('🚀 ~ updateSrsLevel ~ difference:', difference);
+		const isReviewIncorrect = studyOrder[currentCardIndex].reviewIncorrect;
+
+		if (!isReviewIncorrect) {
+			if (isDisplayJapanese) {
+				mutatePatchCard({
+					...currentCard,
+					displayJapaneseSrsLevel: currentCard.displayJapaneseSrsLevel + difference,
+					displayJapaneseNextStudy: calcNextStudyDate(
+						currentCard.displayJapaneseSrsLevel
+					),
+				});
+			} else {
+				mutatePatchCard({
+					...currentCard,
+					displayEnglishSrsLevel: currentCard.displayEnglishSrsLevel + difference,
+					displayEnglishNextStudy: calcNextStudyDate(currentCard.displayEnglishSrsLevel),
+				});
+			}
+		}
+	};
+	console.log('🚀 ~ Study ~ isPendingCard:', isPendingCard);
+	console.log('🚀 ~ Study ~ isPendingDeck:', isPendingDeck);
+
 	return (
 		<StudyPresenter
+			updateSrsLevel={updateSrsLevel}
 			studyOrder={studyOrder}
 			setStudyOrder={setStudyOrder}
 			currentCardIndex={currentCardIndex}
@@ -88,6 +111,7 @@ const Study = () => {
 			deckIsPending={isPendingDeck}
 			deckData={dataDeck}
 			cardIsPending={isPendingCard}
+			isDisplayJapanese={isDisplayJapanese}
 			// submitSelfRating={submitSelfRating}
 		/>
 	);

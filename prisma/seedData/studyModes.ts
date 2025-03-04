@@ -1,7 +1,9 @@
 import { reverseObject } from '@/utils/data';
 import { StudyMode } from '@prisma/client';
 
-export type StudyModeType = 'production' | 'recognition';
+export type StudyModeCategory = 'production' | 'recognition';
+export type StudyModeIdentifier = keyof typeof studyModeIdentifiers;
+
 export const studyModeTypeMap = {
 	production: 'production',
 	recognition: 'recognition',

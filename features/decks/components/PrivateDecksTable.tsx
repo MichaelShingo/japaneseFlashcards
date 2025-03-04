@@ -65,7 +65,7 @@ const PrivateDecksTable: FC<PrivateDecksTableProps> = ({
 	const [orderBy, setOrderBy] = useState<keyof ExtendedDeck>();
 	const [page, setPage] = useState(0);
 	const [dense, setDense] = useState(false);
-	const [rowsPerPage, setRowsPerPage] = useState(5);
+	const [rowsPerPage, setRowsPerPage] = useState(20);
 	const [currentDeck, setCurrentDeck] = useState<ExtendedDeck | null>(null);
 	const [isOpenEditModal, setIsOpenEditModal] = useState(false);
 	const [isOpenDeleteModal, setIsOpenDeleteModal] = useState(false);
@@ -314,7 +314,7 @@ const PrivateDecksTable: FC<PrivateDecksTableProps> = ({
 					data={data}
 				/>
 				<TablePagination
-					rowsPerPageOptions={[5, 10, 25]}
+					rowsPerPageOptions={[20, 50, 100]}
 					component="div"
 					count={data.length}
 					rowsPerPage={rowsPerPage}

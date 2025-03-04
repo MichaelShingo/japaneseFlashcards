@@ -27,7 +27,7 @@ import HiraganaPath from './HiraganaPath';
 import KatakanaPath from './KatakanaPath';
 
 interface CardContentProps {
-	displayJapanese: boolean;
+	isDisplayJapanese: boolean;
 	currentCard: Card;
 	isProduction: boolean;
 	form: UseFormReturn<StudyFormData, any, undefined>;
@@ -40,7 +40,7 @@ interface CardContentProps {
 }
 
 const CardContent: FC<CardContentProps> = ({
-	displayJapanese,
+	isDisplayJapanese,
 	currentCard,
 	isProduction,
 	form,
@@ -71,7 +71,7 @@ const CardContent: FC<CardContentProps> = ({
 				</Typography>
 			)}
 			<Typography variant="h1">
-				{displayJapanese ? currentCard.japanese : currentCard.english}
+				{isDisplayJapanese ? currentCard.japanese : currentCard.english}
 			</Typography>
 			{isProduction ? (
 				<>
@@ -85,7 +85,7 @@ const CardContent: FC<CardContentProps> = ({
 										return 'Invalid characters found.';
 									} else if (value === '') {
 										return 'Please enter an answer.';
-									} else if (displayJapanese && containsJapaneseChar(value)) {
+									} else if (isDisplayJapanese && containsJapaneseChar(value)) {
 										return 'Answer using only English characters.';
 									}
 								},
@@ -102,11 +102,11 @@ const CardContent: FC<CardContentProps> = ({
 								autoFocus
 								focused
 								placeholder={
-									displayJapanese ? 'Type in English' : '日本語を入力してください'
+									isDisplayJapanese ? 'Type in English' : '日本語を入力してください'
 								}
 								onChange={(e) =>
 									field.onChange(
-										displayJapanese
+										isDisplayJapanese
 											? e.target.value
 											: customToKana(e.target.value, katakanaInput)
 									)
@@ -118,14 +118,14 @@ const CardContent: FC<CardContentProps> = ({
 										endAdornment: (
 											<InputAdornment
 												className={twMerge([
-													displayJapanese ? 'hidden' : 'visible',
+													isDisplayJapanese ? 'hidden' : 'visible',
 													'absolute right-4',
 												])}
 												position="end"
 											>
 												<IconButton
 													onClick={() => setKatakataInput((val) => !val)}
-													disabled={displayJapanese}
+													disabled={isDisplayJapanese}
 													edge="end"
 												>
 													<SvgIcon className="text-lg" viewBox="0 0 300 300" color="info">

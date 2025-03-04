@@ -11,6 +11,7 @@ import TopBar from '@/features/study/components/TopBar';
 import CardContent from '@/features/study/components/CardContent';
 import BottomMenu from '@/features/study/components/BottomMenu';
 import { Evaluation, StudyFormData } from '@/features/study/constants/types';
+import { calcTimerBonus } from '@/features/study/utils/srsCalculations';
 
 interface StudyPresenterProps {
 	studyOrder: StudyUnit[];
@@ -21,6 +22,8 @@ interface StudyPresenterProps {
 	deckIsPending: boolean;
 	deckData: ExtendedDeck;
 	cardIsPending: boolean;
+	updateSrsLevel: (difference: number) => void;
+	isDisplayJapanese: boolean;
 	// submitSelfRating: (rating: number) => void;
 }
 
@@ -33,6 +36,9 @@ const StudyPresenter: FC<StudyPresenterProps> = ({
 	deckIsPending,
 	deckData,
 	cardIsPending,
+	updateSrsLevel,
+	isDisplayJapanese,
+
 	// submitSelfRating,
 }) => {
 	const router = useRouter();
@@ -44,7 +50,6 @@ const StudyPresenter: FC<StudyPresenterProps> = ({
 
 	const isProduction =
 		!deckIsPending && deckData.studyMode.type === studyModeTypeMap.production;
-	const displayJapanese = studyOrder[currentCardIndex].studyType === 'displayJapanese';
 
 	const form = useForm<StudyFormData>({
 		defaultValues: {
@@ -110,7 +115,7 @@ const StudyPresenter: FC<StudyPresenterProps> = ({
 		if (answer === '') {
 			setError('answer', { message: 'Please enter an answer.' });
 			return;
-		} else if (!displayJapanese && containsEnglishChar(watch('answer'))) {
+		} else if (!isDisplayJapanese && containsEnglishChar(watch('answer'))) {
 			setError('answer', { message: 'Answer using only Japanese characters.' });
 			return;
 		}
@@ -118,45 +123,56 @@ const StudyPresenter: FC<StudyPresenterProps> = ({
 		setIsAnswered(true);
 		const formattedAnswer = answer.toLowerCase().trim();
 
-		if (displayJapanese) {
+		if (isDisplayJapanese) {
 			const lowerCaseEnglish = currentCard.english.toLowerCase();
 
 			if (formattedAnswer === lowerCaseEnglish) {
 				setIsCorrect('correct');
+				updateSrsLevel(1 + calcTimerBonus(secondsElapsed));
 				return;
 			}
 
 			for (let synonym of currentCard.englishSynonyms) {
 				if (synonym.toLowerCase() === answer) {
 					setIsCorrect('correct');
+					updateSrsLevel(1 + calcTimerBonus(secondsElapsed));
 					return;
 				}
 			}
 
 			if (isCloseEnough(formattedAnswer, lowerCaseEnglish, 4)) {
 				setIsCorrect('close');
+				updateSrsLevel(1 + calcTimerBonus(secondsElapsed));
 				return;
 			}
 
 			for (let synonym of currentCard.englishSynonyms) {
 				if (isCloseEnough(synonym.toLowerCase(), answer, 4)) {
 					setIsCorrect('close');
+					updateSrsLevel(1 + calcTimerBonus(secondsElapsed));
+
 					return;
 				}
 			}
 		} else {
 			if (answer === currentCard.japanese || answer === currentCard.hiragana) {
 				setIsCorrect('correct');
+				updateSrsLevel(1 + calcTimerBonus(secondsElapsed));
+
 				return;
 			}
 			for (let synonym of currentCard.japaneseSynonyms) {
 				if (synonym === answer) {
 					setIsCorrect('correct');
+					updateSrsLevel(1 + calcTimerBonus(secondsElapsed));
+
 					return;
 				}
 			}
 		}
 		setIsCorrect('incorrect');
+		updateSrsLevel(-1);
+
 		return;
 	};
 
@@ -179,9 +195,10 @@ const StudyPresenter: FC<StudyPresenterProps> = ({
 						isAnswered={isAnswered}
 						isCorrect={isCorrect}
 						currentCard={currentCard}
+						isDisplayJapanese={isDisplayJapanese}
 					/>
 					<CardContent
-						displayJapanese={displayJapanese}
+						isDisplayJapanese={isDisplayJapanese}
 						currentCard={currentCard}
 						isProduction={isProduction}
 						form={form}
@@ -198,7 +215,7 @@ const StudyPresenter: FC<StudyPresenterProps> = ({
 						isCorrect={isCorrect}
 						answer={answer}
 						advanceToNextCard={advanceToNextCard}
-						displayJapanese={displayJapanese}
+						isDisplayJapanese={isDisplayJapanese}
 						isProduction={isProduction}
 					/>
 				</>

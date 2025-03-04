@@ -1,16 +1,10 @@
 'use client';
-import {
-	setColorMode,
-	setSnackBarData,
-	SnackbarData,
-} from '@/redux/features/globalSlice';
+import { setSnackBarData, SnackbarData } from '@/redux/features/globalSlice';
 import { useAppSelector } from '@/redux/store';
 import { ThemeProvider } from '@emotion/react';
 import { createTheme, CssBaseline, Snackbar, SnackbarCloseReason } from '@mui/material';
 import { FC, ReactNode } from 'react';
 import { useDispatch } from 'react-redux';
-import darkTheme from '@/darkTheme';
-import { useThemeContext } from './theme/ThemeContextProvider';
 import { twMerge } from 'tailwind-merge';
 import { getDesignTokens } from './theme/theme';
 

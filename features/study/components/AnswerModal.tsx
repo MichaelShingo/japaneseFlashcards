@@ -44,11 +44,11 @@ const AnswerModal: FC<AnswerModalProps> = ({ open, onClose, card, displayJapanes
 		},
 		{
 			title: 'Study Level',
-			info: card.srsLevel,
+			info: card.displayJapaneseSrsLevel,
 		},
 		{
 			title: 'Due for Study',
-			info: monthDayYearTime12(card.nextStudy),
+			info: monthDayYearTime12(card.displayJapaneseNextStudy),
 		},
 		{
 			title: 'Created At',

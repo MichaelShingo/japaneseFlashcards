@@ -26,6 +26,7 @@ interface TopBarProps {
 	isAnswered: boolean;
 	isCorrect: Evaluation;
 	currentCard: Card;
+	isDisplayJapanese: boolean;
 }
 
 const TopBar: FC<TopBarProps> = ({
@@ -37,6 +38,7 @@ const TopBar: FC<TopBarProps> = ({
 	isAnswered,
 	isCorrect,
 	currentCard,
+	isDisplayJapanese,
 }) => {
 	const router = useRouter();
 	const colorMode = useAppSelector((state) => state.globalReducer.value.colorMode);
@@ -100,7 +102,10 @@ const TopBar: FC<TopBarProps> = ({
 						}
 						size="small"
 					>
-						Level: {currentCard.srsLevel}
+						{'Level: '}
+						{isDisplayJapanese
+							? currentCard.displayJapaneseSrsLevel
+							: currentCard.displayEnglishSrsLevel}
 					</Button>
 				</Box>
 			</Box>

@@ -34,9 +34,10 @@ import EnhancedTableToolbar from '../../../app/components/Table/EnhancedTableToo
 import ConfirmModal from '../../../app/components/Modals/ConfirmModal';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { useDispatch } from 'react-redux';
-import { setSnackBarData } from '@/redux/features/globalSlice';
+import { setCurrentStudyCards, setSnackBarData } from '@/redux/features/globalSlice';
 import { Deck } from '@prisma/client';
 import DeckUpsertModal from './DeckUpsertModal';
+import queryString from 'query-string';
 
 export interface HeadCell {
 	disablePadding: boolean;
@@ -70,6 +71,7 @@ const PrivateDecksTable: FC<PrivateDecksTableProps> = ({
 	const [isOpenEditModal, setIsOpenEditModal] = useState(false);
 	const [isOpenDeleteModal, setIsOpenDeleteModal] = useState(false);
 	const [isOpenResetSRSModal, setIsOpenResetSRSModal] = useState(false);
+
 	const dispatch = useDispatch();
 	const queryClient = useQueryClient();
 
@@ -277,7 +279,12 @@ const PrivateDecksTable: FC<PrivateDecksTableProps> = ({
 													color="primary"
 													onClick={(e: MouseEvent) => {
 														e.stopPropagation();
+														const queryParams = queryString.stringify({
+															cardIds: row.cardIds.join(','),
+														});
 														router.push(`${urls.study}/${row.id}?`);
+
+														dispatch(setCurrentStudyCards(row.cardIds));
 													}}
 												>
 													Study ({row.learnCount + row.reviewCount})

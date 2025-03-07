@@ -80,6 +80,12 @@ const StudyPresenter: FC<StudyPresenterProps> = ({
 		}
 		setCurrentCardIndex((value) => value + 1);
 		setSecondsElapsed(0);
+
+		if (isCorrect || selfRating === 1) {
+			updateSrsLevel(1 + calcTimerBonus(secondsElapsed));
+		} else {
+			updateSrsLevel(-1);
+		}
 	};
 
 	const handleKeyPress = (e: KeyboardEvent) => {
@@ -128,28 +134,28 @@ const StudyPresenter: FC<StudyPresenterProps> = ({
 
 			if (formattedAnswer === lowerCaseEnglish) {
 				setIsCorrect('correct');
-				updateSrsLevel(1 + calcTimerBonus(secondsElapsed));
+				// updateSrsLevel(1 + calcTimerBonus(secondsElapsed));
 				return;
 			}
 
 			for (let synonym of currentCard.englishSynonyms) {
 				if (synonym.toLowerCase() === answer) {
 					setIsCorrect('correct');
-					updateSrsLevel(1 + calcTimerBonus(secondsElapsed));
+					// updateSrsLevel(1 + calcTimerBonus(secondsElapsed));
 					return;
 				}
 			}
 
 			if (isCloseEnough(formattedAnswer, lowerCaseEnglish, 4)) {
 				setIsCorrect('close');
-				updateSrsLevel(1 + calcTimerBonus(secondsElapsed));
+				// updateSrsLevel(1 + calcTimerBonus(secondsElapsed));
 				return;
 			}
 
 			for (let synonym of currentCard.englishSynonyms) {
 				if (isCloseEnough(synonym.toLowerCase(), answer, 4)) {
 					setIsCorrect('close');
-					updateSrsLevel(1 + calcTimerBonus(secondsElapsed));
+					// updateSrsLevel(1 + calcTimerBonus(secondsElapsed));
 
 					return;
 				}
@@ -157,21 +163,21 @@ const StudyPresenter: FC<StudyPresenterProps> = ({
 		} else {
 			if (answer === currentCard.japanese || answer === currentCard.hiragana) {
 				setIsCorrect('correct');
-				updateSrsLevel(1 + calcTimerBonus(secondsElapsed));
+				// updateSrsLevel(1 + calcTimerBonus(secondsElapsed));
 
 				return;
 			}
 			for (let synonym of currentCard.japaneseSynonyms) {
 				if (synonym === answer) {
 					setIsCorrect('correct');
-					updateSrsLevel(1 + calcTimerBonus(secondsElapsed));
+					// updateSrsLevel(1 + calcTimerBonus(secondsElapsed));
 
 					return;
 				}
 			}
 		}
 		setIsCorrect('incorrect');
-		updateSrsLevel(-1);
+		// updateSrsLevel(-1);
 
 		return;
 	};

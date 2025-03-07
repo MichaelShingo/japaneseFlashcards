@@ -4,12 +4,18 @@ import { auth } from '@/auth';
 import { Card, Deck } from '@prisma/client';
 import { responses } from '../constants';
 import { NextAuthRequest } from '@/app/utils/common';
+import {
+	isDeckBothJapaneseAndEnglish,
+	isDeckDisplayEnglish,
+	isDeckDisplayJapanese,
+} from '@/app/utils/studyModeFunctions';
 
 export interface ExtendedDeck extends Deck {
 	totalCards: number;
 	learnCount: number;
 	reviewCount: number;
 	studiedCount: number;
+	cardIds: number[];
 }
 
 export const GET = auth(async function GET(request: NextAuthRequest) {
@@ -41,17 +47,38 @@ export const GET = auth(async function GET(request: NextAuthRequest) {
 			},
 			include: {
 				cards: true,
+				studyMode: true,
 			},
 		});
 
 		const result: ExtendedDeck[] = [];
 		const now = new Date();
 
+		const cardIds: number[] = [];
+
 		for (const deck of decks) {
 			const totalCards = deck.cards.length;
-			const dueCards = deck.cards.filter(
-				(card: Card) => card.displayJapaneseNextStudy < now
-			);
+			let dueCards: Card[] = [];
+
+			if (isDeckBothJapaneseAndEnglish(deck.studyMode.identifier)) {
+				dueCards.push(
+					...deck.cards.filter(
+						(card: Card) =>
+							card.displayEnglishNextStudy < now || card.displayJapaneseNextStudy < now
+					)
+				);
+			} else if (isDeckDisplayEnglish(deck.studyMode.identifier)) {
+				dueCards.push(
+					...deck.cards.filter((card: Card) => card.displayEnglishNextStudy < now)
+				);
+			} else if (isDeckDisplayJapanese(deck.studyMode.identifier)) {
+				dueCards.push(
+					...deck.cards.filter((card: Card) => card.displayJapaneseNextStudy < now)
+				);
+			}
+
+			cardIds.push(...dueCards.map((card) => card.id));
+
 			const learnCount = dueCards.filter(
 				(card: Card) => card.displayJapaneseSrsLevel === 0
 			).length;
@@ -65,6 +92,7 @@ export const GET = auth(async function GET(request: NextAuthRequest) {
 				learnCount,
 				reviewCount,
 				studiedCount,
+				cardIds,
 			});
 		}
 
@@ -84,6 +112,7 @@ export const GET = auth(async function GET(request: NextAuthRequest) {
 
 		return NextResponse.json(filteredResult);
 	} catch (error) {
+		console.log('🚀 ~ GET ~ error:', error);
 		return responses.badRequest(error.message);
 	}
 });

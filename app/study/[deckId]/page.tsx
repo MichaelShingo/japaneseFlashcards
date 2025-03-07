@@ -25,12 +25,18 @@ export interface ExtendedDeck extends Deck {
 const Study = () => {
 	const params = useParams();
 	const { deckId } = params;
+	const currentStudyCardIds = localStorage
+		.getItem('currentStudyCardIds')
+		.split(',')
+		.map((id) => Number(id));
+
 	const {
 		data: dataCard,
 		isPending: isPendingCard,
 		mutatePatch: mutatePatchCard,
-	} = useCardQueries(null, deckId);
-	const { data: dataDeck, isPending: isPendingDeck } = useDeckQueries(null, deckId);
+	} = useCardQueries(() => {}, deckId);
+
+	const { data: dataDeck, isPending: isPendingDeck } = useDeckQueries(() => {}, deckId);
 
 	const [studyOrder, setStudyOrder] = useState<StudyUnit[]>([
 		{ cardId: -1, studyType: 'displayEnglish', reviewIncorrect: false },
@@ -71,12 +77,9 @@ const Study = () => {
 		!isPendingCard &&
 		dataCard?.find((card) => card.id === studyOrder[currentCardIndex].cardId);
 
-	console.log('🚀 ~ Study ~ currentCard:', currentCard);
 	const isDisplayJapanese = studyOrder[currentCardIndex].studyType === 'displayJapanese';
-	console.log('🚀 ~ Study ~ dataCard:', dataCard);
 
 	const updateSrsLevel = (difference: number): void => {
-		console.log('🚀 ~ updateSrsLevel ~ difference:', difference);
 		const isReviewIncorrect = studyOrder[currentCardIndex].reviewIncorrect;
 
 		if (!isReviewIncorrect) {
@@ -97,8 +100,6 @@ const Study = () => {
 			}
 		}
 	};
-	console.log('🚀 ~ Study ~ isPendingCard:', isPendingCard);
-	console.log('🚀 ~ Study ~ isPendingDeck:', isPendingDeck);
 
 	return (
 		<StudyPresenter

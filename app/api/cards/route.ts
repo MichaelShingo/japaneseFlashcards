@@ -19,6 +19,16 @@ export const GET = auth(async function GET(request: NextAuthRequest) {
 		const { searchParams } = new URL(request.url);
 		const dueForStudy = Boolean(searchParams.get('dueForStudy'));
 		const deckId = Number(searchParams.get('deckId'));
+		const cardIdsParam: string = searchParams.get('cardIds');
+		console.log('🚀 ~ GET ~ cardIdsParam:', cardIdsParam);
+
+		const cardIds: number[] = [];
+
+		if (cardIdsParam) {
+			cardIds.push(...cardIdsParam.split(',').map((cardId: string) => Number(cardId)));
+		}
+
+		console.log('🚀 ~ GET ~ cardIds:', cardIds);
 
 		const deck = await prisma.deck.findUnique({
 			where: {
@@ -71,6 +81,7 @@ export const GET = auth(async function GET(request: NextAuthRequest) {
 
 		return NextResponse.json(cards);
 	} catch (error) {
+		console.log('🚀 ~ GET ~ error:', error);
 		return responses.badRequest('Failed to create deck.');
 	}
 });

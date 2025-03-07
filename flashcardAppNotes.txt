@@ -6,7 +6,6 @@ npx prisma migrate reset
 
 
 
-
 TODO
 - navbar
 - footer
@@ -20,18 +19,24 @@ Decks page
 
 Study page
 - SRS level tracking happens in 1 field, however, you can have "partial" levels, like 5.5.
-- setup api for updating SRS level
 - setup endpoint for reset SRS 
 - add more data to seeding, including other user 
-
-- if you keep missing 1 side of the card, then the app should show you that side of the card again, not the other side, and SRS should be set appropriately so that side of the card gets reviewed more often 
-	- track separately japanese side SRS and english side SRS
-	- the current timer value factors in, you get a bonus if it's under 5 seconds, no addition or detraction if itg's between 5-15, penalty if above 15 seconds 
 	- what about when the card comes back after you got it wrong once? it shouldn't update SRS at all. 
 - only keep track of japaneseSRS, englishSRS, only update the one that corresponds to the current study mode.
 - must also set nextStudyDate separately
 
-2. SEND A LIST OF CARD IDS THAT ARE DUE FOR STUDY AND FETCH BASED ON THIS 
+2. Make another endpoint with POST that is ONLY for fetching currentStudyCards
+- 
+YOU COULD ALSO MAYBE PASS AN ADDITION QUERY (THE CORRECT CARD ID, INTO THE FETCH SO THAT IT DOENS'T EXCLUDE THE CARDS WHOSE NEXTSTUDYDATE WAS UPDATED) 
+
+
+OR WHAT IF YOU PREPARE THE STUDYORDER ARRAY IN DECKS PAGE AND YOU FETCH ONE BY ONE? - no this has performance issues 
+
+- or when you get to cards page, first you fetch based on deckId and currentStudyDate...get the ids, don't invalidate this query, (maybe use regular fetch), and then useQuery to fetch based on ids. 
+- or for this page, you just update the data on the frontend manually.....
+
+or you only update the date once in a while?? 
+or you do optimistic update for the leveL? and do the actual update after you advance to next card?  
 
 
 
@@ -118,3 +123,66 @@ Navbar
 
 Design
 - somehow japanese color scheme
+
+
+
+
+
+get your enus straight
+- You should have  file that is ideally generated from your database, that reflects values added there, so you'll have:
+export enum CycleWeekThresholds {
+  Friday = 'Friday',
+  Monday = 'Monday',
+  Saturday = 'Saturday',
+  Sunday = 'Sunday',
+  Thursday = 'Thursday',
+  Tuesday = 'Tuesday',
+  Wednesday = 'Wednesday'
+}
+
+Then in src/common/enum/index.ts you'll have maps of the enum  like: 
+export const WeekDayOptions = new EnumMap({
+  [CycleWeekThresholds.Sunday]: {
+    order: 0,
+    value: CycleWeekThresholds.Sunday,
+    labelFunction: () => i18next.t('日曜日'),
+    key: 0,
+  },
+  [CycleWeekThresholds.Monday]: {
+    order: 1,
+    value: CycleWeekThresholds.Monday,
+    labelFunction: () => i18next.t('月曜日'),
+    key: 1,
+  },
+  [CycleWeekThresholds.Tuesday]: {
+    order: 2,
+    value: CycleWeekThresholds.Tuesday,
+    labelFunction: () => i18next.t('火曜日'),
+    key: 2,
+  },
+  [CycleWeekThresholds.Wednesday]: {
+    order: 3,
+    value: CycleWeekThresholds.Wednesday,
+    labelFunction: () => i18next.t('水曜日'),
+    key: 3,
+  },
+  [CycleWeekThresholds.Thursday]: {
+    order: 4,
+    value: CycleWeekThresholds.Thursday,
+    labelFunction: () => i18next.t('木曜日'),
+    key: 4,
+  },
+  [CycleWeekThresholds.Friday]: {
+    order: 5,
+    value: CycleWeekThresholds.Friday,
+    labelFunction: () => i18next.t('金曜日'),
+    key: 5,
+  },
+  [CycleWeekThresholds.Saturday]: {
+    order: 6,
+    value: CycleWeekThresholds.Saturday,
+    labelFunction: () => i18next.t('土曜日'),
+    key: 6,
+  },
+});
+

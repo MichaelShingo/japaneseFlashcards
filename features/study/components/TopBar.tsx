@@ -16,6 +16,7 @@ import LightModeIcon from '@mui/icons-material/LightMode';
 import { useDispatch } from 'react-redux';
 import { useAppSelector } from '@/redux/store';
 import { setColorMode } from '@/redux/features/globalSlice';
+import { calcTimerBonus } from '../utils/srsCalculations';
 
 interface TopBarProps {
 	correctCount: number;
@@ -43,6 +44,24 @@ const TopBar: FC<TopBarProps> = ({
 	const router = useRouter();
 	const colorMode = useAppSelector((state) => state.globalReducer.value.colorMode);
 	const dispatch = useDispatch();
+
+	const calcNewSrsLevel = () => {
+		if (isDisplayJapanese) {
+			if (!isAnswered) return currentCard.displayJapaneseSrsLevel;
+			if (isCorrect === 'incorrect') {
+				return currentCard.displayJapaneseSrsLevel - 1;
+			} else {
+				return currentCard.displayJapaneseSrsLevel + 1 + calcTimerBonus(secondsElapsed);
+			}
+		} else {
+			if (!isAnswered) return currentCard.displayEnglishSrsLevel;
+			if (isCorrect === 'incorrect') {
+				return currentCard.displayEnglishSrsLevel - 1;
+			} else {
+				return currentCard.displayEnglishSrsLevel + 1 + calcTimerBonus(secondsElapsed);
+			}
+		}
+	};
 
 	return (
 		<>
@@ -91,10 +110,10 @@ const TopBar: FC<TopBarProps> = ({
 						color={isAnswered ? EvaluationColors[isCorrect] : 'info'}
 						startIcon={
 							isAnswered ? (
-								isCorrect ? (
-									<KeyboardDoubleArrowUpIcon />
-								) : (
+								isCorrect === 'incorrect' ? (
 									<KeyboardDoubleArrowDownIcon />
+								) : (
+									<KeyboardDoubleArrowUpIcon />
 								)
 							) : (
 								<LeaderboardIcon />
@@ -103,9 +122,7 @@ const TopBar: FC<TopBarProps> = ({
 						size="small"
 					>
 						{'Level: '}
-						{isDisplayJapanese
-							? currentCard.displayJapaneseSrsLevel
-							: currentCard.displayEnglishSrsLevel}
+						{calcNewSrsLevel()}
 					</Button>
 				</Box>
 			</Box>

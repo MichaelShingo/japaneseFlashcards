@@ -20,15 +20,12 @@ export const GET = auth(async function GET(request: NextAuthRequest) {
 		const dueForStudy = Boolean(searchParams.get('dueForStudy'));
 		const deckId = Number(searchParams.get('deckId'));
 		const cardIdsParam: string = searchParams.get('cardIds');
-		console.log('🚀 ~ GET ~ cardIdsParam:', cardIdsParam);
 
 		const cardIds: number[] = [];
 
 		if (cardIdsParam) {
 			cardIds.push(...cardIdsParam.split(',').map((cardId: string) => Number(cardId)));
 		}
-
-		console.log('🚀 ~ GET ~ cardIds:', cardIds);
 
 		const deck = await prisma.deck.findUnique({
 			where: {

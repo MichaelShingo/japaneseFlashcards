@@ -3,6 +3,7 @@ const MaxDate = new Date(2500, 0, 1, 0, 0, 0, 0);
 export const calcNewSrsLevel = (currentLevel: number, difference: number): number => {
 	const roundedCurrentLevel = Math.floor(currentLevel);
 	const newLevel = currentLevel + difference;
+	// console.log('🚀 ~ calcNewSrsLevel ~ newLevel:', newLevel);
 	if (roundedCurrentLevel === 0 && newLevel < 0) {
 		return 0;
 	} else if (roundedCurrentLevel === 1 && newLevel < 1) {

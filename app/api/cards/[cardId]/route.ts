@@ -48,7 +48,7 @@ export const PATCH = auth(async function PATCH(
 			displayJapaneseNextStudy,
 			displayEnglishNextStudy,
 		} = body;
-		const { cardId } = params;
+		const { cardId } = await params;
 
 		const card: Card = await prisma.card.update({
 			where: {
@@ -81,7 +81,7 @@ export const GET = auth(async function GET(
 		if (!request.auth) {
 			return responses.notAuthenticated();
 		}
-		const { cardId } = params;
+		const { cardId } = await params;
 		const { searchParams } = new URL(request.url);
 
 		const card: Card = await prisma.card.findUnique({

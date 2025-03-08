@@ -16,7 +16,7 @@ import LightModeIcon from '@mui/icons-material/LightMode';
 import { useDispatch } from 'react-redux';
 import { useAppSelector } from '@/redux/store';
 import { setColorMode } from '@/redux/features/globalSlice';
-import { calcTimerBonus } from '../utils/srsCalculations';
+import { calcNewSrsLevel, calcTimerBonus } from '../utils/srsCalculations';
 
 interface TopBarProps {
 	correctCount: number;
@@ -45,13 +45,16 @@ const TopBar: FC<TopBarProps> = ({
 	const colorMode = useAppSelector((state) => state.globalReducer.value.colorMode);
 	const dispatch = useDispatch();
 
-	const calcNewSrsLevel = () => {
+	const calcDisplayLevel = () => {
 		if (isDisplayJapanese) {
 			if (!isAnswered) return currentCard.displayJapaneseSrsLevel;
 			if (isCorrect === 'incorrect') {
-				return currentCard.displayJapaneseSrsLevel - 1;
+				return calcNewSrsLevel(currentCard.displayJapaneseSrsLevel, -1);
 			} else {
-				return currentCard.displayJapaneseSrsLevel + 1 + calcTimerBonus(secondsElapsed);
+				return calcNewSrsLevel(
+					currentCard.displayJapaneseSrsLevel,
+					calcTimerBonus(secondsElapsed)
+				);
 			}
 		} else {
 			if (!isAnswered) return currentCard.displayEnglishSrsLevel;
@@ -122,7 +125,9 @@ const TopBar: FC<TopBarProps> = ({
 						size="small"
 					>
 						{'Level: '}
-						{calcNewSrsLevel()}
+						{isDisplayJapanese
+							? currentCard.displayJapaneseSrsLevel
+							: currentCard.displayEnglishSrsLevel}
 					</Button>
 				</Box>
 			</Box>

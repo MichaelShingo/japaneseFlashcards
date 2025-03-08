@@ -50,7 +50,7 @@ const useCardQueries = (
 		},
 		onSuccess: (response) => {
 			toast('Successfully added a card.');
-			queryClient.invalidateQueries();
+			// queryClient.invalidateQueries();
 			return response.json();
 			onSuccess && onSuccess();
 		},
@@ -72,7 +72,7 @@ const useCardQueries = (
 		},
 		onSuccess: () => {
 			toast('Successfully added a card.');
-			queryClient.invalidateQueries();
+			// queryClient.invalidateQueries();
 			onSuccess && onSuccess();
 		},
 		onError: (error: Error) => {
@@ -97,7 +97,7 @@ const useCardQueries = (
 		},
 		onSuccess: () => {
 			toast('Successfully edited card.');
-			queryClient.invalidateQueries();
+			// queryClient.invalidateQueries();
 			onSuccess && onSuccess();
 		},
 		onError: (error: Error) => {
@@ -121,7 +121,7 @@ const useCardQueries = (
 		},
 		onSuccess: () => {
 			toast('Successfully deleted card.');
-			queryClient.invalidateQueries();
+			// queryClient.invalidateQueries();
 			onSuccess && onSuccess();
 		},
 		onError: (error: Error) => {

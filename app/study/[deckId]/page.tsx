@@ -1,16 +1,20 @@
 'use client';
-import { Deck, StudyMode } from '@prisma/client';
+import { Card, Deck, StudyMode } from '@prisma/client';
 import { useParams } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import StudyPresenter from './presenter';
 import { shuffleArray } from '@/features/study/utils/shuffle';
 import useCardQueries from '@/app/queries/useCardQueries';
 import useDeckQueries from '@/app/queries/useDeckQueries';
-import { calcNextStudyDate } from '@/features/study/utils/srsCalculations';
+import {
+	calcNewSrsLevel,
+	calcNextStudyDate,
+} from '@/features/study/utils/srsCalculations';
 import {
 	isDeckDisplayEnglish,
 	isDeckDisplayJapanese,
 } from '@/app/utils/studyModeFunctions';
+import queryString from 'query-string';
 
 export type StudyUnit = {
 	cardId: number;
@@ -25,33 +29,38 @@ export interface ExtendedDeck extends Deck {
 const Study = () => {
 	const params = useParams();
 	const { deckId } = params;
-	const currentStudyCardIds = localStorage
-		.getItem('currentStudyCardIds')
-		.split(',')
-		.map((id) => Number(id));
-
-	const {
-		data: dataCard,
-		isPending: isPendingCard,
-		mutatePatch: mutatePatchCard,
-	} = useCardQueries(() => {}, deckId);
 
 	const { data: dataDeck, isPending: isPendingDeck } = useDeckQueries(() => {}, deckId);
+	const [cardData, setCardData] = useState<Card[]>(null);
+	const [isFirstLoad, setIsFirstLoad] = useState<boolean>(true);
+
+	const { mutatePatch: mutatePatchCard } = useCardQueries(() => {}, deckId);
 
 	const [studyOrder, setStudyOrder] = useState<StudyUnit[]>([
 		{ cardId: -1, studyType: 'displayEnglish', reviewIncorrect: false },
 	]);
-	const [isFirstLoad, setIsFirstLoad] = useState<boolean>(true);
 	const [currentCardIndex, setCurrentCardIndex] = useState<number>(0);
 
-	useEffect(() => {
-		if (!isFirstLoad || !dataCard || !dataDeck) {
-			return;
-		}
+	const fetchCards = async () => {
+		const queryParams = queryString.stringify({
+			dueForStudy: true,
+			deckId: deckId,
+		});
+		const response = await fetch(`/api/cards/?${queryParams}`);
+		const data = await response.json();
+		setCardData(data);
+	};
 
+	useEffect(() => {
+		console.log('FETCHING CARDS');
+		fetchCards();
+	}, []);
+
+	useEffect(() => {
+		if (!dataDeck || !cardData || !isFirstLoad) return;
 		const order: StudyUnit[] = [];
 
-		for (let card of dataCard) {
+		for (let card of cardData) {
 			if (isDeckDisplayJapanese(dataDeck.studyMode.identifier)) {
 				order.push({
 					cardId: card.id,
@@ -68,34 +77,57 @@ const Study = () => {
 			}
 		}
 
-		setStudyOrder(shuffleArray(order));
 		setIsFirstLoad(false);
-	}, [dataCard, dataDeck, isFirstLoad]);
+
+		setStudyOrder(shuffleArray(order));
+	}, [dataDeck, cardData]);
 
 	const currentCard =
-		dataCard &&
-		!isPendingCard &&
-		dataCard?.find((card) => card.id === studyOrder[currentCardIndex].cardId);
-
+		cardData && cardData.find((card) => card.id === studyOrder[currentCardIndex].cardId);
 	const isDisplayJapanese = studyOrder[currentCardIndex].studyType === 'displayJapanese';
 
 	const updateSrsLevel = (difference: number): void => {
 		const isReviewIncorrect = studyOrder[currentCardIndex].reviewIncorrect;
 
 		if (!isReviewIncorrect) {
+			const updatedCard = { ...currentCard }; // Create a copy of the current card
 			if (isDisplayJapanese) {
+				const newSrsLevel = calcNewSrsLevel(
+					updatedCard.displayJapaneseSrsLevel,
+					difference
+				);
+				const nextStudyDate = calcNextStudyDate(updatedCard.displayJapaneseSrsLevel);
+				updatedCard.displayJapaneseSrsLevel = newSrsLevel;
+				updatedCard.displayJapaneseNextStudy = nextStudyDate;
+
+				const updatedCardData = cardData.map((card) =>
+					card.id === updatedCard.id ? updatedCard : card
+				);
+				setCardData(updatedCardData);
+
 				mutatePatchCard({
-					...currentCard,
-					displayJapaneseSrsLevel: currentCard.displayJapaneseSrsLevel + difference,
-					displayJapaneseNextStudy: calcNextStudyDate(
-						currentCard.displayJapaneseSrsLevel
-					),
+					...updatedCard,
+					displayJapaneseSrsLevel: newSrsLevel,
+					displayJapaneseNextStudy: nextStudyDate,
 				});
 			} else {
+				const newSrsLevel = calcNewSrsLevel(
+					updatedCard.displayEnglishSrsLevel,
+					difference
+				);
+				const nextStudyDate = calcNextStudyDate(updatedCard.displayEnglishSrsLevel);
+				updatedCard.displayEnglishSrsLevel = newSrsLevel;
+				updatedCard.displayEnglishNextStudy = nextStudyDate;
+
+				const updatedCardData = cardData.map((card) =>
+					card.id === updatedCard.id ? updatedCard : card
+				);
+				setCardData(updatedCardData);
+
 				mutatePatchCard({
-					...currentCard,
-					displayEnglishSrsLevel: currentCard.displayEnglishSrsLevel + difference,
-					displayEnglishNextStudy: calcNextStudyDate(currentCard.displayEnglishSrsLevel),
+					...updatedCard,
+					displayEnglishSrsLevel: newSrsLevel,
+					displayEnglishNextStudy: nextStudyDate,
 				});
 			}
 		}
@@ -111,7 +143,7 @@ const Study = () => {
 			currentCard={currentCard}
 			deckIsPending={isPendingDeck}
 			deckData={dataDeck}
-			cardIsPending={isPendingCard}
+			cardIsPending={false}
 			isDisplayJapanese={isDisplayJapanese}
 			// submitSelfRating={submitSelfRating}
 		/>

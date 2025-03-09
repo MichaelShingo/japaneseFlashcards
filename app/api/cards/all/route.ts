@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server';
 import { prisma } from '@/prisma/prisma';
 import { auth } from '@/auth';
-import { Card, Deck } from '@prisma/client';
+import { Card } from '@prisma/client';
 import { NextAuthRequest } from '@/app/utils/common';
 import { responses } from '../../constants';
 

@@ -1,5 +1,5 @@
 'use client';
-import { Box, Fab, Typography } from '@mui/material';
+import { Box, Fab, TextField, Typography } from '@mui/material';
 import { FC, SyntheticEvent, useState } from 'react';
 import DefaultTabs, { Tab } from '../components/Tabs';
 import PrivateDecks from '../../features/decks/components/PrivateDecks';
@@ -7,6 +7,7 @@ import PublicDecks from '../../features/decks/components/PublicDecks';
 import AddIcon from '@mui/icons-material/Add';
 import DeckUpsertModal from '../../features/decks/components/DeckUpsertModal';
 import DefaultLayout from '../components/DefaultLayout';
+import useDebounce from '../customHooks/useDebounce';
 
 const tabValues: Record<string, string> = {
 	yourDecks: 'Your Decks',

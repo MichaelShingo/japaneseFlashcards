@@ -24,6 +24,21 @@ const useCardQueries = (onSuccess: () => void = () => {}, deckId?: string | stri
 		},
 	});
 
+	const { data: dataAll, isPending: isPendingAll } = useQuery<Card[]>({
+		queryKey: ['cards'],
+		queryFn: async () => {
+			const queryParams = queryString.stringify({
+				deckId: deckId,
+			});
+			const response = await fetch(`/api/cards/?${queryParams}`);
+			if (!response.ok) {
+				const error = await response.json();
+				throw new Error(error.message);
+			}
+			return await response.json();
+		},
+	});
+
 	const { mutate: mutatePost, isPending: isPendingPost } = useMutation({
 		mutationFn: async (newCard: Card) => {
 			const response = await fetch('api/cards/', {
@@ -97,7 +112,8 @@ const useCardQueries = (onSuccess: () => void = () => {}, deckId?: string | stri
 	return {
 		data,
 		isPending,
-		studyCardFetch,
+		dataAll,
+		isPendingAll,
 		mutatePost,
 		isPendingPost,
 		mutatePatch,

@@ -138,7 +138,7 @@ const PrivateDecksTable: FC<PrivateDecksTableProps> = ({
 
 	const handleRowClick = (event: MouseEvent<unknown>, id: number) => {
 		if (!selectable) {
-			router.push(`/cards/${id}`);
+			router.push(`/decks/${id}`);
 			return;
 		}
 		const selectedIndex = selected.indexOf(id);

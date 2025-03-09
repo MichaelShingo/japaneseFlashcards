@@ -6,6 +6,7 @@ import PrivateDecks from '../../features/decks/components/PrivateDecks';
 import PublicDecks from '../../features/decks/components/PublicDecks';
 import AddIcon from '@mui/icons-material/Add';
 import DeckUpsertModal from '../../features/decks/components/DeckUpsertModal';
+import DefaultLayout from '../components/DefaultLayout';
 
 const tabValues: Record<string, string> = {
 	yourDecks: 'Your Decks',
@@ -26,7 +27,7 @@ const Decks: FC = () => {
 	];
 
 	return (
-		<Box className="max-w-[1000px] w-[80%] h-fit min-h-[100px] mx-auto">
+		<DefaultLayout>
 			<Typography variant="h1" component="h1">
 				Decks
 			</Typography>
@@ -42,7 +43,7 @@ const Decks: FC = () => {
 				<AddIcon />
 			</Fab>
 			<DeckUpsertModal open={isOpen} onClose={() => setIsOpen(false)} />
-		</Box>
+		</DefaultLayout>
 	);
 };
 

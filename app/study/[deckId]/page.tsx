@@ -52,7 +52,6 @@ const Study = () => {
 	};
 
 	useEffect(() => {
-		console.log('FETCHING CARDS');
 		fetchCards();
 	}, []);
 
@@ -90,7 +89,7 @@ const Study = () => {
 		const isReviewIncorrect = studyOrder[currentCardIndex].reviewIncorrect;
 
 		if (!isReviewIncorrect) {
-			const updatedCard = { ...currentCard }; // Create a copy of the current card
+			const updatedCard = { ...currentCard };
 			if (isDisplayJapanese) {
 				const newSrsLevel = calcNewSrsLevel(
 					updatedCard.displayJapaneseSrsLevel,

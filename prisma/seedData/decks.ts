@@ -1,6 +1,5 @@
 import { Deck } from '@prisma/client';
 import { studyModeSeedIds } from './studyModes';
-import { reverseObject } from '@/utils/data';
 import { userIds } from './users';
 
 const defaultRelations = {
@@ -9,45 +8,51 @@ const defaultRelations = {
 	studyModeId: studyModeSeedIds.recognitionFront,
 };
 
-export const deckSeedIds: Record<string, number> = {
-	'Japanese Music Vocabulary': 1,
-	'Japanese Tech Business Vocabulary': 2,
-	'Japanese Cities Vocabulary': 3,
-	'Japanese Harry Potter Vocabulary': 4,
-	'Japanese Politics Vocabulary': 5,
+export const deckNames: Record<string, string> = {
+	music: 'Music',
+	techBusiness: 'Tech Business',
+	cities: 'Cities',
+	harryPotter: 'Harry Potter',
+	politics: 'Politics',
+	travel: 'Travel',
 };
-
-export const reverseDeckSeedIds: Record<number, string> = reverseObject(deckSeedIds);
 
 export const decks: Omit<Deck, 'createdAt' | 'updatedAt' | 'id'>[] = [
 	{
-		title: 'Music',
+		title: deckNames.music,
 		description:
 			'Covers everything you need to know to talk about music in the context of rehearsals, music theory, and more.',
 		...defaultRelations,
 	},
 	{
-		title: 'Tech Business',
+		title: deckNames.techBusiness,
 		description:
 			'An ongoing list of terms commonly used as a software developer in a Japanese tech company.',
 		...defaultRelations,
 		isPublic: false,
 	},
 	{
-		title: 'Cities',
+		title: deckNames.cities,
 		description:
 			'Covers vocabulary relating to cities, infrastructure, and transportation.',
 		...defaultRelations,
 	},
 	{
-		title: 'Harry Potter',
+		title: deckNames.harryPotter,
 		description: 'An ongoing list of terms commonly used in the Harry Potter series.',
 		...defaultRelations,
 	},
 	{
-		title: 'Politics',
+		title: deckNames.politics,
 		description: 'Cover topics such as elections, political parties, and policy.',
 		...defaultRelations,
 		isPublic: false,
+	},
+	{
+		title: deckNames.travel,
+		description: 'Includes terms related to travel.',
+		...defaultRelations,
+		isPublic: true,
+		userId: userIds[1],
 	},
 ];

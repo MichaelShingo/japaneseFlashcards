@@ -1,9 +1,10 @@
 import { languages } from './seedData/languages';
 import { studyModeIdentifiers, studyModes } from './seedData/studyModes';
-import { decks } from './seedData/decks';
-import { cards } from './seedData/cards';
+import { deckNames, decks } from './seedData/decks';
+import { cards } from './seedData/cards/cards';
 import { prisma } from './prisma';
 import { Card } from '@prisma/client';
+import { userIds } from './seedData/users';
 
 async function main() {
 	for (const language of languages) {
@@ -57,7 +58,33 @@ async function main() {
 	}
 
 	const newDecks = await prisma.deck.findMany();
-	const musicDeck = newDecks.find((deck) => deck.title === 'Music');
+	const musicDeck = newDecks.find(
+		(deck) => deck.title === deckNames.music && deck.userId === userIds[0]
+	);
+	const harryPotterDeck = newDecks.find(
+		(deck) => deck.title === deckNames.harryPotter && deck.userId === userIds[0]
+	);
+	const citiesDeck = newDecks.find(
+		(deck) => deck.title === deckNames.cities && deck.userId === userIds[0]
+	);
+	const politicsDeck = newDecks.find(
+		(deck) => deck.title === deckNames.politics && deck.userId === userIds[0]
+	);
+	const techBusinessDeck = newDecks.find(
+		(deck) => deck.title === deckNames.techBusiness && deck.userId === userIds[0]
+	);
+	const travelDeck = newDecks.find(
+		(deck) => deck.title === deckNames.travel && deck.userId === userIds[1]
+	);
+
+	const deckMap = {
+		[deckNames.music]: musicDeck,
+		[deckNames.harryPotter]: harryPotterDeck,
+		[deckNames.cities]: citiesDeck,
+		[deckNames.politics]: politicsDeck,
+		[deckNames.techBusiness]: techBusinessDeck,
+		[deckNames.travel]: travelDeck,
+	};
 
 	for (const card of cards) {
 		const cardCreateUpdate: Omit<Card, 'createdAt' | 'updatedAt' | 'id'> = {
@@ -68,7 +95,7 @@ async function main() {
 			englishSynonyms: [],
 			hint: card.hint,
 			userId: card.userId,
-			deckId: musicDeck.id,
+			deckId: deckMap[card.deckName].id,
 			displayJapaneseSrsLevel: card.displayJapaneseSrsLevel,
 			displayEnglishSrsLevel: card.displayEnglishSrsLevel,
 			displayJapaneseNextStudy: card.displayJapaneseNextStudy,
@@ -78,7 +105,7 @@ async function main() {
 			where: {
 				japanese_deckId: {
 					japanese: card.japanese,
-					deckId: musicDeck.id,
+					deckId: deckMap[card.deckName].id,
 				},
 			},
 			update: cardCreateUpdate,

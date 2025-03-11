@@ -28,6 +28,14 @@ interface CardUpsertModalProps {
 	isEdit?: boolean;
 }
 
+const defaultValues = {
+	japanese: '',
+	japaneseSynonyms: [],
+	english: '',
+	englishSynonyms: [],
+	hint: '',
+};
+
 const CardUpsertModal: FC<CardUpsertModalProps> = ({ open, onClose, card, isEdit }) => {
 	const { mutatePatch, isPendingPatch, mutatePost, isPendingPost } =
 		useCardQueries(onClose);
@@ -38,13 +46,7 @@ const CardUpsertModal: FC<CardUpsertModalProps> = ({ open, onClose, card, isEdit
 		formState: { errors },
 		reset,
 	} = useForm<CardUpsertFormData>({
-		defaultValues: {
-			japanese: '',
-			japaneseSynonyms: [],
-			english: '',
-			englishSynonyms: [],
-			hint: '',
-		},
+		defaultValues,
 	});
 
 	useEffect(() => {
@@ -56,6 +58,8 @@ const CardUpsertModal: FC<CardUpsertModalProps> = ({ open, onClose, card, isEdit
 				englishSynonyms: card.englishSynonyms,
 				hint: card.hint,
 			});
+		} else {
+			reset(defaultValues);
 		}
 	}, [isEdit, card, reset]);
 

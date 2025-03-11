@@ -27,6 +27,8 @@ import CardSortSelect from '@/features/cards/components/CardSortSelect';
 import { CardSortingKeys } from '@/features/cards/types/types';
 import VocabCard from '@/features/cards/components/VocabCard';
 import CardUpsertModal from '@/app/components/Modals/CardUpsertModal';
+import { Card } from '@prisma/client';
+import { current } from '@reduxjs/toolkit';
 
 const DeckDetail = () => {
 	const params = useParams();
@@ -37,10 +39,12 @@ const DeckDetail = () => {
 	const [sortingValue, setSortingValue] = useState<CardSortingKeys>('englishDesc');
 	const [isSelectMode, setIsSelectMode] = useState<boolean>(false);
 	const [selectedCardIds, setSelectedCardIds] = useState<Set<number>>(new Set());
+	const [isCardUpsertModalOpen, setIsCardUpsertModalOpen] = useState<boolean>(false);
+	const [isEdit, setIsEdit] = useState<boolean>(false);
 	const [isCardDetailModalOpen, setIsCardDetailModalOpen] = useState<boolean>(false);
 	const [isConfirmModalOpen, setIsConfirmModalOpen] = useState<boolean>(false);
 	const [isAddModalOpen, setIsAddModalOpen] = useState<boolean>(false);
-
+	const [currentCard, setCurrentCard] = useState<Card | null>(null);
 	const debouncedSearchTerm = useDebounce(searchTerm, 250);
 
 	const { data: deckData, isPending: isPendingDeck } = useDeckQueries(() => {}, deckId);
@@ -48,6 +52,11 @@ const DeckDetail = () => {
 		() => {},
 		deckId
 	);
+
+	const handleEdit = (e: MouseEvent) => {
+		setIsCardUpsertModalOpen(true);
+		setIsEdit(true);
+	};
 
 	const handleCardClick = (cardId: number) => {
 		if (isSelectMode) {
@@ -131,6 +140,9 @@ const DeckDetail = () => {
 									card={card}
 									handleCardClick={handleCardClick}
 									selectedCardIds={selectedCardIds}
+									setIsCardUpsertModalOpen={setIsCardUpsertModalOpen}
+									setIsEdit={setIsEdit}
+									setCurrentCard={setCurrentCard}
 								/>
 							))}
 						</Box>
@@ -142,11 +154,21 @@ const DeckDetail = () => {
 			<Fab
 				className="fixed right-10 bottom-10"
 				color="primary"
-				onClick={() => setIsAddModalOpen(true)}
+				onClick={() => {
+					setCurrentCard(null);
+					setIsCardUpsertModalOpen(true);
+					setIsEdit(false);
+				}}
 				aria-label="add"
 			>
 				<AddIcon />
 			</Fab>
+			<CardUpsertModal
+				card={currentCard}
+				onClose={() => setIsCardUpsertModalOpen(false)}
+				open={isCardUpsertModalOpen}
+				isEdit={isEdit}
+			/>
 		</Box>
 	);
 };

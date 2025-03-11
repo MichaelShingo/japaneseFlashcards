@@ -9,7 +9,7 @@ import {
 	Typography,
 } from '@mui/material';
 import { Card } from '@prisma/client';
-import { FC, MouseEvent, useState } from 'react';
+import { Dispatch, FC, MouseEvent, SetStateAction, useState } from 'react';
 import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/Delete';
 import CardUpsertModal from '@/app/components/Modals/CardUpsertModal';
@@ -19,6 +19,9 @@ interface VocabCardProps {
 	handleCardClick: (cardId: number) => void;
 	selectedCardIds: Set<number>;
 	index: number;
+	setIsCardUpsertModalOpen: Dispatch<SetStateAction<boolean>>;
+	setIsEdit: Dispatch<SetStateAction<boolean>>;
+	setCurrentCard: Dispatch<SetStateAction<Card>>;
 }
 
 const VocabCard: FC<VocabCardProps> = ({
@@ -26,10 +29,10 @@ const VocabCard: FC<VocabCardProps> = ({
 	handleCardClick,
 	selectedCardIds,
 	index,
+	setIsCardUpsertModalOpen,
+	setIsEdit,
+	setCurrentCard,
 }) => {
-	const [isCardUpsertModalOpen, setIsCardUpsertModalOpen] = useState<boolean>(false);
-	const [isEdit, setIsEdit] = useState<boolean>(false);
-
 	const calcTitleDisplaySize = () => {
 		const length = card.japanese.length;
 		if (length < 4) {
@@ -39,11 +42,6 @@ const VocabCard: FC<VocabCardProps> = ({
 		} else {
 			return 'h6';
 		}
-	};
-
-	const handleEdit = (e: MouseEvent) => {
-		setIsCardUpsertModalOpen(true);
-		setIsEdit(true);
 	};
 
 	const handleDelete = (e: MouseEvent) => {
@@ -56,7 +54,11 @@ const VocabCard: FC<VocabCardProps> = ({
 				<IconButton
 					className="group/button"
 					size="small"
-					onClick={(e: MouseEvent) => handleEdit(e)}
+					onClick={() => {
+						setCurrentCard(card);
+						setIsCardUpsertModalOpen(true);
+						setIsEdit(true);
+					}}
 				>
 					<EditIcon color="info" className="group-hover/button:[&_path]:fill-warning" />
 				</IconButton>
@@ -100,12 +102,6 @@ const VocabCard: FC<VocabCardProps> = ({
 					</Typography>
 				</CardContent>
 			</CardActionArea>
-			<CardUpsertModal
-				card={card}
-				onClose={() => setIsCardUpsertModalOpen(false)}
-				open={isCardUpsertModalOpen}
-				isEdit={isEdit}
-			/>
 		</MUICard>
 	);
 };

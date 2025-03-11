@@ -38,9 +38,7 @@ const SubLayout: FC<SubLayoutProps> = ({ children }) => {
 	return (
 		<ThemeProvider theme={createTheme(getDesignTokens(colorMode))}>
 			<CssBaseline />
-			<div
-				className={twMerge([colorMode, 'bg-ui-01 dark:bg-ui-01-dark h-screen w-screen'])}
-			>
+			<div className={twMerge([colorMode, 'bg-ui-01 dark:bg-ui-01-dark'])}>
 				{children}
 				<Snackbar
 					open={snackbarData.isOpen}

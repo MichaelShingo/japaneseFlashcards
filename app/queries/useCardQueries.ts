@@ -7,7 +7,6 @@ import queryString from 'query-string';
 const useCardQueries = (onSuccess: () => void = () => {}, deckId?: string | string[]) => {
 	const toast = useToast();
 	const queryClient = useQueryClient();
-	console.log('🚀 ~ deckId:', deckId);
 
 	const { data, isPending } = useQuery<Card[]>({
 		queryKey: ['cards'],

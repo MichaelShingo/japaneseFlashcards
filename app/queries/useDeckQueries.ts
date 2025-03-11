@@ -9,7 +9,7 @@ const useDeckQueries = (onSuccess?: () => void, deckId?: string | string[]) => {
 	const queryClient = useQueryClient();
 
 	const { data, isPending } = useQuery<ExtendedDeck>({
-		queryKey: ['deck'],
+		queryKey: ['deck', deckId],
 		queryFn: async () => {
 			const response = await fetch(`/api/decks/${deckId}`, {
 				method: 'GET',

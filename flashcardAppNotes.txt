@@ -17,6 +17,23 @@ Decks page
 - public decks
 - create a deck of cards based on a certain topic, asking AI to generate flashcard data. 
 
+
+Card Page
+- have a table view and a card view
+- sort by english by default (asc, desc, japanese asc/desc) 
+- refactor useCardQueries so you pass queryParams directly 
+- Add cards function
+- Edit cards
+- Add cards by AI 
+- Search cards by all fields 
+- see full card details on click
+- cut and paste card to another deck
+- copy and paste card to another deck 
+- use the skeleton loading layout because it's super cool 
+
+
+
+
 Study page
 - SRS level tracking happens in 1 field, however, you can have "partial" levels, like 5.5.
 - setup endpoint for reset SRS 
@@ -75,8 +92,6 @@ Calc new lessons:
 - OUT of the reviews, just count the ones with SRS level 0. that's it 
 
 Features
-- the user has decks and cards that they have authored
-- users can COPY decks/cards made by other users, as long as they are public. The point is to allow users to make their own version of a deck, and then modify it as they see fit.
 - wanikani integration to show furigana or not
 - ability to rate other people's decks, star them
 - kanji composition information from wanikani
@@ -96,9 +111,7 @@ SRS
 User-to-user interactions
 - Duplicate card and assign to current user
 - duplicate deck and assign to current user
-- cut and paste card to another deck
-- copy and paste card to another deck
-- more advanced srs algorithm, like integrating a timer for how long someone took to answer a flashcard 
+
 
 - UI inspiration and disinspiration from Bunpro and Brainscape 
 - want to try to integrate paid membership?  

@@ -7,6 +7,7 @@ import queryString from 'query-string';
 const useCardQueries = (onSuccess: () => void = () => {}, deckId?: string | string[]) => {
 	const toast = useToast();
 	const queryClient = useQueryClient();
+	console.log('🚀 ~ deckId:', deckId);
 
 	const { data, isPending } = useQuery<Card[]>({
 		queryKey: ['cards'],
@@ -24,8 +25,12 @@ const useCardQueries = (onSuccess: () => void = () => {}, deckId?: string | stri
 		},
 	});
 
-	const { data: dataAll, isPending: isPendingAll } = useQuery<Card[]>({
-		queryKey: ['cards'],
+	const {
+		data: dataAll,
+		isPending: isPendingAll,
+		refetch: refetchAll,
+	} = useQuery<Card[]>({
+		queryKey: ['cards', deckId],
 		queryFn: async () => {
 			const queryParams = queryString.stringify({
 				deckId: deckId,
@@ -113,6 +118,7 @@ const useCardQueries = (onSuccess: () => void = () => {}, deckId?: string | stri
 		data,
 		isPending,
 		dataAll,
+		refetchAll,
 		isPendingAll,
 		mutatePost,
 		isPendingPost,

@@ -2,20 +2,16 @@
 import useToast from '@/app/customHooks/useToast';
 import { Card } from '@prisma/client';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import queryString from 'query-string';
+import { CardUpsertFormData } from '../components/Modals/CardUpsertModal';
 
-const useCardQueries = (onSuccess: () => void = () => {}, deckId?: string | string[]) => {
+const useCardGet = (queryParams?: string) => {
 	const toast = useToast();
 	const queryClient = useQueryClient();
 
 	const { data, isPending } = useQuery<Card[]>({
-		queryKey: ['cards'],
+		queryKey: ['cards', queryParams],
 		queryFn: async () => {
-			const queryParams = queryString.stringify({
-				dueForStudy: true,
-				deckId: deckId,
-			});
-			const response = await fetch(`/api/cards/?${queryParams}`);
+			const response = await fetch(`/api/cards/all/?${queryParams}`);
 			if (!response.ok) {
 				const error = await response.json();
 				throw new Error(error.message);
@@ -23,29 +19,24 @@ const useCardQueries = (onSuccess: () => void = () => {}, deckId?: string | stri
 			return await response.json();
 		},
 	});
+
+	return {
+		data,
+		isPending,
+	};
+};
+
+const useCardMutations = () => {
+	const toast = useToast();
+	const queryClient = useQueryClient();
 
 	const {
-		data: dataAll,
-		isPending: isPendingAll,
-		refetch: refetchAll,
-	} = useQuery<Card[]>({
-		queryKey: ['cards', deckId],
-		queryFn: async () => {
-			const queryParams = queryString.stringify({
-				deckId: deckId,
-			});
-			const response = await fetch(`/api/cards/?${queryParams}`);
-			if (!response.ok) {
-				const error = await response.json();
-				throw new Error(error.message);
-			}
-			return await response.json();
-		},
-	});
-
-	const { mutate: mutatePost, isPending: isPendingPost } = useMutation({
-		mutationFn: async (newCard: Card) => {
-			const response = await fetch('api/cards/', {
+		mutate: mutatePost,
+		isPending: isPendingPost,
+		isSuccess: isSuccessPost,
+	} = useMutation({
+		mutationFn: async (newCard: CardUpsertFormData & { deckId: string }) => {
+			const response = await fetch('/api/cards/', {
 				method: 'POST',
 				headers: {
 					'Content-Type': 'application/json',
@@ -56,15 +47,18 @@ const useCardQueries = (onSuccess: () => void = () => {}, deckId?: string | stri
 		},
 		onSuccess: () => {
 			toast('Successfully added a card.');
-			// queryClient.invalidateQueries();
-			onSuccess && onSuccess();
+			queryClient.invalidateQueries();
 		},
 		onError: (error: Error) => {
 			toast(error.message);
 		},
 	});
 
-	const { mutate: mutatePatch, isPending: isPendingPatch } = useMutation({
+	const {
+		mutate: mutatePatch,
+		isPending: isPendingPatch,
+		isSuccess: isSuccessPatch,
+	} = useMutation({
 		mutationFn: async (updatedCard: Card) => {
 			const response = await fetch(`/api/cards/${updatedCard!.id}`, {
 				method: 'PATCH',
@@ -81,8 +75,7 @@ const useCardQueries = (onSuccess: () => void = () => {}, deckId?: string | stri
 		},
 		onSuccess: () => {
 			toast('Successfully edited card.');
-			// queryClient.invalidateQueries();
-			onSuccess && onSuccess();
+			queryClient.invalidateQueries();
 		},
 		onError: (error: Error) => {
 			toast(error.message);
@@ -105,8 +98,7 @@ const useCardQueries = (onSuccess: () => void = () => {}, deckId?: string | stri
 		},
 		onSuccess: () => {
 			toast('Successfully deleted card.');
-			// queryClient.invalidateQueries();
-			onSuccess && onSuccess();
+			queryClient.invalidateQueries();
 		},
 		onError: (error: Error) => {
 			toast(error.message);
@@ -114,18 +106,15 @@ const useCardQueries = (onSuccess: () => void = () => {}, deckId?: string | stri
 	});
 
 	return {
-		data,
-		isPending,
-		dataAll,
-		refetchAll,
-		isPendingAll,
 		mutatePost,
 		isPendingPost,
+		isSuccessPost,
 		mutatePatch,
 		isPendingPatch,
+		isSuccessPatch,
 		mutateDelete,
 		isPendingDelete,
 	};
 };
 
-export default useCardQueries;
+export { useCardGet, useCardMutations };

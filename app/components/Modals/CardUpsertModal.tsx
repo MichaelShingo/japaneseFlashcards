@@ -11,10 +11,11 @@ import { Card } from '@prisma/client';
 import { FC, useEffect } from 'react';
 import { Controller, SubmitHandler, useForm } from 'react-hook-form';
 import ArrayInput from '../ArrayInput';
-import useCardQueries from '@/app/queries/useCardQueries';
+import { useCardMutations } from '@/app/queries/useCardQueries';
 
 export type CardUpsertFormData = {
 	japanese: string;
+	hiragana: string;
 	japaneseSynonyms: string[];
 	english: string;
 	englishSynonyms: string[];
@@ -26,19 +27,33 @@ interface CardUpsertModalProps {
 	onClose: () => void;
 	card: Card;
 	isEdit?: boolean;
+	deckId: string;
 }
 
 const defaultValues = {
 	japanese: '',
+	hiragana: '',
 	japaneseSynonyms: [],
 	english: '',
 	englishSynonyms: [],
 	hint: '',
 };
 
-const CardUpsertModal: FC<CardUpsertModalProps> = ({ open, onClose, card, isEdit }) => {
-	const { mutatePatch, isPendingPatch, mutatePost, isPendingPost } =
-		useCardQueries(onClose);
+const CardUpsertModal: FC<CardUpsertModalProps> = ({
+	open,
+	onClose,
+	card,
+	isEdit,
+	deckId,
+}) => {
+	const {
+		mutatePatch,
+		isPendingPatch,
+		isSuccessPatch,
+		mutatePost,
+		isPendingPost,
+		isSuccessPost,
+	} = useCardMutations();
 
 	const {
 		control,
@@ -53,6 +68,7 @@ const CardUpsertModal: FC<CardUpsertModalProps> = ({ open, onClose, card, isEdit
 		if (isEdit && card) {
 			reset({
 				japanese: card.japanese,
+				hiragana: card.hiragana,
 				japaneseSynonyms: card.japaneseSynonyms,
 				english: card.english,
 				englishSynonyms: card.englishSynonyms,
@@ -64,8 +80,13 @@ const CardUpsertModal: FC<CardUpsertModalProps> = ({ open, onClose, card, isEdit
 	}, [isEdit, card, reset]);
 
 	const onSubmit: SubmitHandler<CardUpsertFormData> = (data) => {
-		isEdit ? mutatePatch({ ...card, ...data }) : mutatePost({ ...card, ...data });
+		isEdit ? mutatePatch({ ...card, ...data }) : mutatePost({ ...data, deckId });
 	};
+
+	useEffect(() => {
+		reset(defaultValues);
+		onClose();
+	}, [isSuccessPatch, isSuccessPost]);
 
 	return (
 		<Dialog open={open} maxWidth="xs" fullWidth onClose={onClose} disableRestoreFocus>
@@ -83,8 +104,22 @@ const CardUpsertModal: FC<CardUpsertModalProps> = ({ open, onClose, card, isEdit
 									autoFocus
 									label="Japanese*"
 									variant="outlined"
+									placeholder="漢字・ひらがな・カタカナ"
 									error={!!errors.japanese}
 									helperText={errors.japanese ? errors.japanese.message : ''}
+									fullWidth
+								/>
+							)}
+						/>
+						<Controller
+							name="hiragana"
+							control={control}
+							render={({ field }) => (
+								<TextField
+									{...field}
+									label="Hiragana"
+									placeholder="ひらがな"
+									variant="outlined"
 									fullWidth
 								/>
 							)}
@@ -96,7 +131,7 @@ const CardUpsertModal: FC<CardUpsertModalProps> = ({ open, onClose, card, isEdit
 								<ArrayInput
 									field={field}
 									label="Japanese Synonyms"
-									placeholder="Add synonyms"
+									placeholder="Type then click +"
 								/>
 							)}
 						/>
@@ -122,7 +157,7 @@ const CardUpsertModal: FC<CardUpsertModalProps> = ({ open, onClose, card, isEdit
 								<ArrayInput
 									field={field}
 									label="English Synonyms"
-									placeholder="Add synonyms"
+									placeholder="Type then click +"
 								/>
 							)}
 						/>
@@ -134,8 +169,7 @@ const CardUpsertModal: FC<CardUpsertModalProps> = ({ open, onClose, card, isEdit
 									{...field}
 									label="Hint"
 									variant="outlined"
-									// error={!!errors.hint}
-									// helperText={errors.japanese ? errors.japanese.message : ''}
+									placeholder="Mneumonic device"
 									fullWidth
 								/>
 							)}

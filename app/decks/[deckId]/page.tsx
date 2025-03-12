@@ -1,6 +1,5 @@
 'use client';
 import useDebounce from '@/app/customHooks/useDebounce';
-import useCardQueries from '@/app/queries/useCardQueries';
 import useDeckQueries from '@/app/queries/useDeckQueries';
 import CardsTable from '@/features/cards/components/CardsTable';
 import GridViewIcon from '@mui/icons-material/GridView';
@@ -29,6 +28,8 @@ import VocabCard from '@/features/cards/components/VocabCard';
 import CardUpsertModal from '@/app/components/Modals/CardUpsertModal';
 import { Card } from '@prisma/client';
 import { current } from '@reduxjs/toolkit';
+import queryString from 'query-string';
+import { useCardGet } from '@/app/queries/useCardQueries';
 
 const DeckDetail = () => {
 	const params = useParams();
@@ -48,15 +49,12 @@ const DeckDetail = () => {
 	const debouncedSearchTerm = useDebounce(searchTerm, 250);
 
 	const { data: deckData, isPending: isPendingDeck } = useDeckQueries(() => {}, deckId);
-	const { dataAll: cardData, isPendingAll: isPendingCard } = useCardQueries(
-		() => {},
-		deckId
-	);
 
-	const handleEdit = (e: MouseEvent) => {
-		setIsCardUpsertModalOpen(true);
-		setIsEdit(true);
-	};
+	const { data: cardData, isPending: isPendingCard } = useCardGet(
+		queryString.stringify({
+			deckId: deckId,
+		})
+	);
 
 	const handleCardClick = (cardId: number) => {
 		if (isSelectMode) {
@@ -67,6 +65,8 @@ const DeckDetail = () => {
 				updatedIds.add(cardId);
 			}
 			setSelectedCardIds(updatedIds);
+		} else {
+			setIsCardDetailModalOpen(true);
 		}
 	};
 
@@ -165,6 +165,7 @@ const DeckDetail = () => {
 			</Fab>
 			<CardUpsertModal
 				card={currentCard}
+				deckId={deckId}
 				onClose={() => setIsCardUpsertModalOpen(false)}
 				open={isCardUpsertModalOpen}
 				isEdit={isEdit}

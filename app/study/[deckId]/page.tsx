@@ -4,7 +4,7 @@ import { useParams } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import StudyPresenter from './presenter';
 import { shuffleArray } from '@/features/study/utils/shuffle';
-import useCardQueries from '@/app/queries/useCardQueries';
+import useStudyCardQueries from '@/app/queries/useCardQueries';
 import useDeckQueries from '@/app/queries/useDeckQueries';
 import {
 	calcNewSrsLevel,
@@ -34,7 +34,7 @@ const Study = () => {
 	const [cardData, setCardData] = useState<Card[]>(null);
 	const [isFirstLoad, setIsFirstLoad] = useState<boolean>(true);
 
-	const { mutatePatch: mutatePatchCard } = useCardQueries(() => {}, deckId);
+	const { mutatePatch: mutatePatchCard } = useStudyCardQueries(() => {}, deckId);
 
 	const [studyOrder, setStudyOrder] = useState<StudyUnit[]>([
 		{ cardId: -1, studyType: 'displayEnglish', reviewIncorrect: false },

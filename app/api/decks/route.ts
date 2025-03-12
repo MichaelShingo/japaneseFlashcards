@@ -24,6 +24,8 @@ export const GET = auth(async function GET(request: NextAuthRequest) {
 			return responses.notAuthenticated();
 		}
 
+		console.log('getting deck');
+
 		const { searchParams } = new URL(request.url);
 		const filterPublic = Boolean(searchParams.get('public'));
 		const filterPrivate = Boolean(searchParams.get('private'));

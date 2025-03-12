@@ -16,6 +16,7 @@ export const GET = auth(async function GET(request: NextAuthRequest) {
 			return responses.notAuthenticated();
 		}
 
+		console.log('main cards route but why');
 		const { searchParams } = new URL(request.url);
 		const dueForStudy = Boolean(searchParams.get('dueForStudy'));
 		const deckId = Number(searchParams.get('deckId'));
@@ -80,5 +81,40 @@ export const GET = auth(async function GET(request: NextAuthRequest) {
 	} catch (error) {
 		console.log('🚀 ~ GET ~ error:', error);
 		return responses.badRequest('Failed to create deck.');
+	}
+});
+
+export const POST = auth(async function POST(request: NextAuthRequest) {
+	try {
+		if (!request.auth) {
+			return responses.notAuthenticated();
+		}
+
+		const body = await request.json();
+		console.log('🚀 ~ POST ~ body:', body);
+		const { japanese, japaneseSynonyms, english, englishSynonyms, hint, deckId } = body;
+
+		const session = request.auth;
+		const { user } = session;
+
+		if (!japanese || !english || !deckId) {
+			throw Error('Japanese required');
+		}
+
+		const card = await prisma.card.create({
+			data: {
+				userId: user.id,
+				japanese,
+				japaneseSynonyms,
+				english,
+				englishSynonyms,
+				hint,
+				deckId: Number(deckId),
+			},
+		});
+
+		return NextResponse.json(card);
+	} catch (error) {
+		return responses.badRequest(error.message);
 	}
 });

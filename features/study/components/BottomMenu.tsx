@@ -6,7 +6,7 @@ import EditIcon from '@mui/icons-material/Edit';
 import VisibilityIcon from '@mui/icons-material/Visibility';
 import QuestionMarkIcon from '@mui/icons-material/QuestionMark';
 import CardUpsertModal from '@/app/components/Modals/CardUpsertModal';
-import AnswerModal from '@/features/study/components/AnswerModal';
+import CardDetailModal from '@/app/components/Modals/CardDetailModal';
 import { Evaluation } from '../constants/types';
 import { ExtendedDeck } from '@/app/api/decks/route';
 
@@ -76,7 +76,7 @@ const BottomMenu: FC<BottomMenuProps> = ({
 					disabled={!isAnswered && isProduction}
 					startIcon={<VisibilityIcon />}
 				>
-					Show Answer
+					d Show Answer
 				</Button>
 				<Button
 					variant="outlined"
@@ -87,11 +87,10 @@ const BottomMenu: FC<BottomMenuProps> = ({
 					Edit Card
 				</Button>
 			</Box>
-			<AnswerModal
+			<CardDetailModal
 				open={isAnswerModalOpen}
 				onClose={() => setIsAnswerModalOpen(false)}
 				card={currentCard}
-				isDisplayJapanese={isDisplayJapanese}
 			/>
 			<CardUpsertModal
 				open={isUpsertModalOpen}

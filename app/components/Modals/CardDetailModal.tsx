@@ -13,30 +13,28 @@ import { Card } from '@prisma/client';
 import { FC } from 'react';
 import { monthDayYearTime12 } from '@/app/utils/formatDate';
 
-interface AnswerModalProps {
+interface CardDetailModalProps {
 	open: boolean;
 	onClose: () => void;
 	card: Card;
-	displayJapanese: boolean;
 }
 
-const AnswerModal: FC<AnswerModalProps> = ({ open, onClose, card, displayJapanese }) => {
-	const generateInfo = (): string => {
-		const noSynonyms = 'No synonyms available.';
-		if (displayJapanese) {
-			return card.englishSynonyms.length > 0
-				? card.englishSynonyms.join(' | ')
-				: noSynonyms;
-		} else {
-			return card.japaneseSynonyms.length > 0
-				? card.japaneseSynonyms.join(' | ')
-				: noSynonyms;
-		}
-	};
+const CardDetailModal: FC<CardDetailModalProps> = ({ open, onClose, card }) => {
+	const noSynonyms = 'No synonyms available.';
+	if (!card) return;
+
 	const content = [
 		{
 			title: 'Other Acceptable Answers',
-			info: generateInfo(),
+			info:
+				card.englishSynonyms?.length > 0 ? card.englishSynonyms.join(' | ') : noSynonyms,
+		},
+		{
+			title: 'English Synonyms',
+			info:
+				card.japaneseSynonyms?.length > 0
+					? card.japaneseSynonyms.join(' | ')
+					: noSynonyms,
 		},
 		{
 			title: 'Mneumonic',
@@ -65,7 +63,7 @@ const AnswerModal: FC<AnswerModalProps> = ({ open, onClose, card, displayJapanes
 			<DialogContent>
 				<Box className="flex flex-col gp-7 mt-2">
 					<Typography textAlign="center" variant="h2">
-						{displayJapanese ? card.english : card.japanese}
+						{card.japanese}
 					</Typography>
 					<List className="items-center flex flex-col justify-center text-center">
 						{content.map((item) => (
@@ -87,4 +85,4 @@ const AnswerModal: FC<AnswerModalProps> = ({ open, onClose, card, displayJapanes
 	);
 };
 
-export default AnswerModal;
+export default CardDetailModal;

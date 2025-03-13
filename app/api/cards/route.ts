@@ -91,7 +91,6 @@ export const POST = auth(async function POST(request: NextAuthRequest) {
 		}
 
 		const body = await request.json();
-		console.log('🚀 ~ POST ~ body:', body);
 		const { japanese, japaneseSynonyms, english, englishSynonyms, hint, deckId } = body;
 
 		const session = request.auth;

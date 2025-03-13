@@ -3,7 +3,6 @@ import {
 	CardActionArea,
 	CardActions,
 	CardContent,
-	Icon,
 	IconButton,
 	Card as MUICard,
 	Typography,
@@ -12,7 +11,6 @@ import { Card } from '@prisma/client';
 import { Dispatch, FC, MouseEvent, SetStateAction, useState } from 'react';
 import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/Delete';
-import CardUpsertModal from '@/app/components/Modals/CardUpsertModal';
 
 interface VocabCardProps {
 	card: Card;
@@ -20,6 +18,7 @@ interface VocabCardProps {
 	selectedCardIds: Set<number>;
 	index: number;
 	setIsCardUpsertModalOpen: Dispatch<SetStateAction<boolean>>;
+	setIsDeleteModalOpen: Dispatch<SetStateAction<boolean>>;
 	setIsEdit: Dispatch<SetStateAction<boolean>>;
 	setCurrentCard: Dispatch<SetStateAction<Card>>;
 }
@@ -30,6 +29,7 @@ const VocabCard: FC<VocabCardProps> = ({
 	selectedCardIds,
 	index,
 	setIsCardUpsertModalOpen,
+	setIsDeleteModalOpen,
 	setIsEdit,
 	setCurrentCard,
 }) => {
@@ -42,10 +42,6 @@ const VocabCard: FC<VocabCardProps> = ({
 		} else {
 			return 'h6';
 		}
-	};
-
-	const handleDelete = (e: MouseEvent) => {
-		e.stopPropagation();
 	};
 
 	return (
@@ -66,7 +62,10 @@ const VocabCard: FC<VocabCardProps> = ({
 					<DeleteIcon
 						className="group-hover/button:[&_path]:fill-error transition-all"
 						color="info"
-						onClick={(e: MouseEvent) => handleDelete(e)}
+						onClick={(e: MouseEvent) => {
+							setIsDeleteModalOpen(true);
+							setCurrentCard(card);
+						}}
 					/>
 				</IconButton>
 			</CardActions>

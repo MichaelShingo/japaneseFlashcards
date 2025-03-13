@@ -4,10 +4,7 @@ import { Card } from '@prisma/client';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { CardUpsertFormData } from '../components/Modals/CardUpsertModal';
 
-const useCardGet = (queryParams?: string) => {
-	const toast = useToast();
-	const queryClient = useQueryClient();
-
+const useCardQuery = (queryParams?: string) => {
 	const { data, isPending } = useQuery<Card[]>({
 		queryKey: ['cards', queryParams],
 		queryFn: async () => {
@@ -117,4 +114,4 @@ const useCardMutations = () => {
 	};
 };
 
-export { useCardGet, useCardMutations };
+export { useCardQuery, useCardMutations };

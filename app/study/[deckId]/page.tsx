@@ -4,7 +4,6 @@ import { useParams } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import StudyPresenter from './presenter';
 import { shuffleArray } from '@/features/study/utils/shuffle';
-import useStudyCardQueries from '@/app/queries/useCardQueries';
 import useDeckQueries from '@/app/queries/useDeckQueries';
 import {
 	calcNewSrsLevel,
@@ -15,6 +14,7 @@ import {
 	isDeckDisplayJapanese,
 } from '@/app/utils/studyModeFunctions';
 import queryString from 'query-string';
+import { useCardMutations } from '@/app/queries/useCardQueries';
 
 export type StudyUnit = {
 	cardId: number;
@@ -29,12 +29,13 @@ export interface ExtendedDeck extends Deck {
 const Study = () => {
 	const params = useParams();
 	const { deckId } = params;
+	const queryParams = queryString.stringify({ deckId: deckId });
 
 	const { data: dataDeck, isPending: isPendingDeck } = useDeckQueries(() => {}, deckId);
 	const [cardData, setCardData] = useState<Card[]>(null);
 	const [isFirstLoad, setIsFirstLoad] = useState<boolean>(true);
 
-	const { mutatePatch: mutatePatchCard } = useStudyCardQueries(() => {}, deckId);
+	const { mutatePatch: mutatePatchCard } = useCardMutations();
 
 	const [studyOrder, setStudyOrder] = useState<StudyUnit[]>([
 		{ cardId: -1, studyType: 'displayEnglish', reviewIncorrect: false },

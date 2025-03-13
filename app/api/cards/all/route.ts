@@ -13,10 +13,32 @@ export const GET = auth(async function GET(request: NextAuthRequest) {
 
 		const { searchParams } = new URL(request.url);
 		const deckId = Number(searchParams.get('deckId'));
+		const searchTerm = searchParams.get('searchTerm');
+		console.log('🚀 ~ GET ~ searchTerm:', searchTerm);
 
 		const cards: Card[] = await prisma.card.findMany({
 			where: {
 				deckId: deckId,
+				OR: [
+					{
+						english: {
+							contains: searchTerm,
+							mode: 'insensitive',
+						},
+					},
+					{
+						japanese: {
+							contains: searchTerm,
+							mode: 'insensitive',
+						},
+					},
+					{
+						hiragana: {
+							contains: searchTerm,
+							mode: 'insensitive',
+						},
+					},
+				],
 			},
 		});
 

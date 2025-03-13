@@ -27,9 +27,9 @@ import { CardSortingKeys } from '@/features/cards/types/types';
 import VocabCard from '@/features/cards/components/VocabCard';
 import CardUpsertModal from '@/app/components/Modals/CardUpsertModal';
 import { Card } from '@prisma/client';
-import { current } from '@reduxjs/toolkit';
 import queryString from 'query-string';
-import { useCardGet } from '@/app/queries/useCardQueries';
+import { useCardMutations, useCardQuery } from '@/app/queries/useCardQueries';
+import ConfirmModal from '@/app/components/Modals/ConfirmModal';
 
 const DeckDetail = () => {
 	const params = useParams();
@@ -43,18 +43,20 @@ const DeckDetail = () => {
 	const [isCardUpsertModalOpen, setIsCardUpsertModalOpen] = useState<boolean>(false);
 	const [isEdit, setIsEdit] = useState<boolean>(false);
 	const [isCardDetailModalOpen, setIsCardDetailModalOpen] = useState<boolean>(false);
-	const [isConfirmModalOpen, setIsConfirmModalOpen] = useState<boolean>(false);
-	const [isAddModalOpen, setIsAddModalOpen] = useState<boolean>(false);
+	const [isDeleteModalOpen, setIsDeleteModalOpen] = useState<boolean>(false);
 	const [currentCard, setCurrentCard] = useState<Card | null>(null);
 	const debouncedSearchTerm = useDebounce(searchTerm, 250);
 
 	const { data: deckData, isPending: isPendingDeck } = useDeckQueries(() => {}, deckId);
 
-	const { data: cardData, isPending: isPendingCard } = useCardGet(
+	const { data: cardData, isPending: isPendingCard } = useCardQuery(
 		queryString.stringify({
 			deckId: deckId,
+			searchTerm: debouncedSearchTerm,
 		})
 	);
+
+	const { mutateDelete, isPendingDelete } = useCardMutations();
 
 	const handleCardClick = (cardId: number) => {
 		if (isSelectMode) {
@@ -141,6 +143,7 @@ const DeckDetail = () => {
 									handleCardClick={handleCardClick}
 									selectedCardIds={selectedCardIds}
 									setIsCardUpsertModalOpen={setIsCardUpsertModalOpen}
+									setIsDeleteModalOpen={setIsDeleteModalOpen}
 									setIsEdit={setIsEdit}
 									setCurrentCard={setCurrentCard}
 								/>
@@ -165,11 +168,26 @@ const DeckDetail = () => {
 			</Fab>
 			<CardUpsertModal
 				card={currentCard}
-				deckId={deckId}
+				deckId={deckId as string}
 				onClose={() => setIsCardUpsertModalOpen(false)}
 				open={isCardUpsertModalOpen}
 				isEdit={isEdit}
 			/>
+			<ConfirmModal
+				title="Confirm Card Deletion"
+				open={isDeleteModalOpen}
+				onClose={() => setIsDeleteModalOpen(false)}
+				confirmAction={() => mutateDelete(currentCard.id)}
+				isLoading={isPendingDelete}
+			>
+				<Typography variant="body1">
+					Are you sure you want to delete this card? This action is permanent and cannot
+					be undone. Your study progress on this card will be deleted as well.
+				</Typography>
+				<Typography variant="subtitle1" className="mt-5 mb-2 text-accent">
+					Card to be Deleted: {currentCard?.japanese}
+				</Typography>
+			</ConfirmModal>
 		</Box>
 	);
 };

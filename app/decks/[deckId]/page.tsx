@@ -1,14 +1,13 @@
 'use client';
-import useDebounce from '@/app/customHooks/useDebounce';
 import useDeckQueries from '@/app/queries/useDeckQueries';
 import { Box } from '@mui/material';
 import { useParams } from 'next/navigation';
 import { useState } from 'react';
 import { CardSortingKeys } from '@/features/cards/types/types';
-import queryString from 'query-string';
-import { useCardQuery } from '@/app/queries/useCardQueries';
+
 import CardsHeader from '@/features/cards/components/CardsHeader';
 import CardDisplay from '@/features/cards/components/CardDisplay';
+import useDebounce from '@/app/customHooks/useDebounce';
 
 const DeckDetail = () => {
 	const params = useParams();
@@ -21,13 +20,6 @@ const DeckDetail = () => {
 	const debouncedSearchTerm = useDebounce(searchTerm, 250);
 
 	const { data: deckData, isPending: isPendingDeck } = useDeckQueries(() => {}, deckId);
-
-	const { data: cardData, isPending: isPendingCard } = useCardQuery(
-		queryString.stringify({
-			deckId: deckId,
-			searchTerm: debouncedSearchTerm,
-		})
-	);
 
 	return (
 		<Box className="px-6">
@@ -45,9 +37,8 @@ const DeckDetail = () => {
 			/>
 			<CardDisplay
 				isGridView={isGridView}
-				cardData={cardData}
-				isPendingCard={isPendingCard}
 				isSelectMode={isSelectMode}
+				debouncedSearchTerm={debouncedSearchTerm}
 			/>
 		</Box>
 	);

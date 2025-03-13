@@ -1,6 +1,7 @@
-import { FC, useState } from 'react';
+import { FC, memo, useState } from 'react';
 import { Card } from '@prisma/client';
 import CardsTable from '@/features/cards/components/CardsTable';
+import useDebounce from '@/app/customHooks/useDebounce';
 import AddIcon from '@mui/icons-material/Add';
 import { Box, Fab, Typography } from '@mui/material';
 import VocabCard from '@/features/cards/components/VocabCard';
@@ -9,19 +10,19 @@ import ConfirmModal from '@/app/components/Modals/ConfirmModal';
 import { useParams } from 'next/navigation';
 import { useCardMutations } from '@/app/queries/useCardQueries';
 import CardDetailModal from '@/app/components/Modals/CardDetailModal';
-
+import queryString from 'query-string';
+import { useCardQuery } from '@/app/queries/useCardQueries';
+import { useQuery } from '@tanstack/react-query';
 interface CardDisplayProps {
 	isGridView: boolean;
-	cardData: Card[];
-	isPendingCard: boolean;
 	isSelectMode: boolean;
+	debouncedSearchTerm: string;
 }
 
 const CardDisplay: FC<CardDisplayProps> = ({
 	isGridView,
-	cardData,
-	isPendingCard,
 	isSelectMode,
+	debouncedSearchTerm,
 }) => {
 	const params = useParams();
 	const { deckId } = params;
@@ -32,6 +33,23 @@ const CardDisplay: FC<CardDisplayProps> = ({
 	const [isCardUpsertModalOpen, setIsCardUpsertModalOpen] = useState<boolean>(false);
 	const [isEdit, setIsEdit] = useState<boolean>(false);
 	const [selectedCardIds, setSelectedCardIds] = useState<Set<number>>(new Set());
+
+	const queryParams = queryString.stringify({
+		deckId: deckId,
+		searchTerm: 'a',
+	});
+
+	const { data: cardData, isPending: isPendingCard } = useQuery<Card[]>({
+		queryKey: ['cards', queryParams],
+		queryFn: async () => {
+			const response = await fetch(`/api/cards/all/?${queryParams}`);
+			if (!response.ok) {
+				const error = await response.json();
+				throw new Error(error.message);
+			}
+			return await response.json();
+		},
+	});
 
 	const { mutateDelete, isPendingDelete } = useCardMutations();
 
@@ -117,4 +135,4 @@ const CardDisplay: FC<CardDisplayProps> = ({
 	);
 };
 
-export default CardDisplay;
+export default memo(CardDisplay);
